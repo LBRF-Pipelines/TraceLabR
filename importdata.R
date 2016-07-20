@@ -1,7 +1,6 @@
 rm(list=ls())
 
 library(Morpho)
-library(vegan)
 
 # **** LOOP IT ****
 
@@ -57,8 +56,27 @@ rotation <- acos(trans$gamm[1,1])
 # -asin(trans$gamm[1,2])
 # acos(trans$gamm[2,2])
 
-#procrustes analysis using package 'vegan'
+#get translation
+translation <- 
 
-procrustes(stim, resp, scale=TRUE, symmetric=FALSE, )
+#get scale factor
+        
+scale <- 
 
-#blah fucking blah
+#get shape error (i.e. Procrustes SS)
+
+ProcSS <- sum(((trans$Y-trans$X)-mean((trans$Y-trans$X)))^2)
+ProcVar <- ProcSS/(length(stim[,1])-1)
+ProcSD <- sqrt(ProcVar)
+
+stimaray <- data.matrix(stim)
+resparay <- data.matrix(resp)
+
+RawSS <- sum(((stimaray-resparay)-mean((stimaray-resparay)))^2)
+RawVar <- RawSS/(length(stim[,1])-1)
+RawSD <- sqrt(RawVar)
+
+#plot shapes post transforms
+
+#plot(trans$X, xlim=c(-1000,1000), ylim=c(-1000,1000))
+#points(trans$Y, col="red")
