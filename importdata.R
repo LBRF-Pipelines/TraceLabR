@@ -2,7 +2,7 @@ rm(list=ls())
 
 library(Morpho)
 
-# **** LOOP IT **** YOLO
+# **** LOOP IT ****
 
 #read in data 
 tlf <- read.table(unz("~/TraceLab/ExpAssets/Data/p1_2016-07-18 14:26:08/testing/session_1/p1_s1_b1_t1_2016-07-18.zip", "p1_s1_b1_t1_2016-07-18.tlf"), stringsAsFactors=FALSE, sep=",")
