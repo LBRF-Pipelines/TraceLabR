@@ -62,14 +62,3 @@ resp <- data_resp_rem_sub[,1:2]
 procrustes(stim, resp, scale=TRUE, symmetric=FALSE, )
 
 
-
-
-
-
-
-
-
-<<<<<<< HEAD
-=======
-#test jack has de biggest balls and is using them to test branching in great depth
->>>>>>> c376cfddf54d21a754baed4ec31360f0ef97eb15
