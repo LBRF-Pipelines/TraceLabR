@@ -62,4 +62,4 @@ rotation <- acos(trans$gamm[1,1])
 # balls. 
 
 
-#test jack has de biggest balls and is using them to test branching
+#test jack has de biggest balls and is using them to test branching in great depth
