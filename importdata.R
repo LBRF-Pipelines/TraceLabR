@@ -21,23 +21,6 @@ data_resp_rem$trialnum <- seq(from=1,to=length(data_resp_rem$X1),by=1)
 rem_seq <- round(seq(from=1, to=225, by=ifelse(length(data_resp_rem$X1)>length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1))/ifelse(length(data_resp_rem$X1)<length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1))),digits=0)
 data_resp_rem_sub <- data_resp_rem[c(rem_seq),]
 
-##### PLOTS #####
-
-#adding colour to points
-rbPalstim <- colorRampPalette(c("grey","black"))
-data_stim$Col <- rbPalstim(120)[as.numeric(cut(data_stim$X3,breaks=120))]
-rbPalresp <- colorRampPalette(c("cyan","blue"))
-data_resp_rem$Col <- rbPalresp(225)[as.numeric(cut(data_resp_rem$X3,breaks=225))]
-rbPalrespsub <- colorRampPalette(c("yellow","green"))
-data_resp_rem_sub$Col <- rbPalrespsub(120)[as.numeric(cut(data_resp_rem_sub$X3,breaks=120))]
-
-# direction of movement: lighter to darker
-# stim = grey to black, resp = cyan to blue, resp_sub = yellow to green
-
-#plot points 
-plot(data_stim$X1,data_stim$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20, col=data_stim$Col)
-points(data_resp_rem$X1,data_resp_rem$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20 ,col=data_resp_rem$Col)
-points(data_resp_rem_sub$X1,data_resp_rem_sub$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20 ,col=data_resp_rem_sub$Col)
 
 
 ##### PROCRUSTES ANALYSIS #####
@@ -49,19 +32,19 @@ resp <- data_resp_rem_sub[,1:2]
 #procrustes transformation
 trans <- rotonto(stim, resp, scale = TRUE, signref = FALSE, reflection = FALSE, weights = NULL, centerweight = FALSE)
 
-#get angle from rotation matrix ***in radians***
-#should be same number for each... so just pick one:
+#get translation
+translation <- trans$transy - trans$trans
+
+#get scale factor
+scale <- trans$bet
+
+#get rotation angle *radians*
+#from rotation matrix — don't know what I mean? wiki: rotation matrix
+#should be same number for each case below... so just pick one:
 rotation <- acos(trans$gamm[1,1])
 # asin(trans$gamm[2,1]) 
 # -asin(trans$gamm[1,2])
 # acos(trans$gamm[2,2])
-
-#get translation
-translation <- 
-
-#get scale factor
-        
-scale <- 
 
 #get shape error (i.e. Procrustes SS)
 
@@ -69,14 +52,49 @@ ProcSS <- sum(((trans$Y-trans$X)-mean((trans$Y-trans$X)))^2)
 ProcVar <- ProcSS/(length(stim[,1])-1)
 ProcSD <- sqrt(ProcVar)
 
+#get raw error
+
 stimaray <- data.matrix(stim)
 resparay <- data.matrix(resp)
-
 RawSS <- sum(((stimaray-resparay)-mean((stimaray-resparay)))^2)
 RawVar <- RawSS/(length(stim[,1])-1)
 RawSD <- sqrt(RawVar)
 
-#plot shapes post transforms
+
+##### get other data from db #####
+
+
+
+##### speed accuracy functions #####
+
+
+
+##### PLOTS #####
+
+#plot shapes pre transforms:
+
+#adding colour to points
+#direction of movement: lighter to darker
+#stim = grey to black, resp = cyan to blue, resp_sub = yellow to green
+rbPalstim <- colorRampPalette(c("grey","black"))
+data_stim$Col <- rbPalstim(120)[as.numeric(cut(data_stim$X3,breaks=120))]
+rbPalresp <- colorRampPalette(c("cyan","blue"))
+data_resp_rem$Col <- rbPalresp(225)[as.numeric(cut(data_resp_rem$X3,breaks=225))]
+rbPalrespsub <- colorRampPalette(c("yellow","green"))
+data_resp_rem_sub$Col <- rbPalrespsub(120)[as.numeric(cut(data_resp_rem_sub$X3,breaks=120))]
+
+#plot points 
+plot(data_stim$X1,data_stim$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20, col=data_stim$Col)
+points(data_resp_rem$X1,data_resp_rem$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20 ,col=data_resp_rem$Col)
+points(data_resp_rem_sub$X1,data_resp_rem_sub$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20 ,col=data_resp_rem_sub$Col)
+
+#plot centroids
+points(trans$trans[1],trans$trans[2],pch=8,col="black")
+points(trans$transy[1],trans$transy[2],pch=8,col="green")
+
+#plot shapes post transforms:
 
 #plot(trans$X, xlim=c(-1000,1000), ylim=c(-1000,1000))
 #points(trans$Y, col="red")
+
+
