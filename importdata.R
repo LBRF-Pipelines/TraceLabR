@@ -59,7 +59,7 @@ rotation <- acos(trans$gamm[1,1])
 # we're not gonna screw up that bad.. yet... 
 
 
-# balls. 
+# balls. are big
 
 
 #test jack
