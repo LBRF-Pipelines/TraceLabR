@@ -56,7 +56,9 @@ rotation <- acos(trans$gamm[1,1])
 # -asin(trans$gamm[1,2])
 # acos(trans$gamm[2,2])
 
-#test for github
+#test for github 
+
+# HERE IS A BUNCH OF NEW PROCRUSTES STUFF! blah blah balls change 
 
 
 
