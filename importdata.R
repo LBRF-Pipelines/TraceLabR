@@ -1,6 +1,7 @@
 rm(list=ls())
 
 library(Morpho)
+library(vegan)
 
 # **** LOOP IT ****
 
@@ -47,19 +48,24 @@ stim <- data_stim[,1:2]
 resp <- data_resp_rem_sub[,1:2]
 
 #procrustes transformation
-trans <- rotonto(stim, resp, scale = TRUE, signref = FALSE, reflection = FALSE, weights = NULL, centerweight = FALSE)
+#trans <- rotonto(stim, resp, scale = TRUE, signref = FALSE, reflection = FALSE, weights = NULL, centerweight = FALSE)
 
 #get angle from rotation matrix ***in radians***
 #should be same number for each... so just pick one:
-rotation <- acos(trans$gamm[1,1])
+#rotation <- acos(trans$gamm[1,1])
 # asin(trans$gamm[2,1]) 
 # -asin(trans$gamm[1,2])
 # acos(trans$gamm[2,2])
 
-# we're not gonna screw up that bad.. yet... 
+#procrustes analysis using package 'vegan'
+
+procrustes(stim, resp, scale=TRUE, symmetric=FALSE, )
 
 
-# balls. 
 
 
-#test jack has bigger balls
+
+
+
+
+
