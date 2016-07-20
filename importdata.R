@@ -64,7 +64,10 @@ RawVar <- RawSS/(length(stim[,1])-1)
 RawSD <- sqrt(RawVar)
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2e2c493bb0c5cba4b20e1b5d75e222de99de1fe6
 ##### get other data from db #####
 
 
