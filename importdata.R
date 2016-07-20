@@ -61,3 +61,4 @@ resp <- data_resp_rem_sub[,1:2]
 
 procrustes(stim, resp, scale=TRUE, symmetric=FALSE, )
 
+#GIT IS DUMB
