@@ -93,9 +93,9 @@ plot(data_stim$X1,data_stim$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20, col=data_
 points(data_resp_rem$X1,data_resp_rem$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20 ,col=data_resp_rem$Col)
 points(data_sub$X1,data_sub$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20 ,col=data_sub$Col)
 
-#plot centroids
+#plot centroids (note that one of these is down sampled data)
 points(trans$trans[1],trans$trans[2],pch=8,col="black")
-points(trans$transy[1],trans$transy[2],pch=8,col="green")
+points(trans$transy[1],trans$transy[2],pch=8,col="blue")
 
 #plot shapes post transforms: ******set limits to max/min+50******
 
