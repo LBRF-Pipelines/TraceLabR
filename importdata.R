@@ -64,15 +64,13 @@ RawSS <- sum(((stimaray-resparay)-mean((stimaray-resparay)))^2)
 RawVar <- RawSS/(length(stim[,1])-1)
 RawSD <- sqrt(RawVar)
 
+##### save variables to a row #####
 
+datarow <- c(RawSS,RawSD,translation$X1,translation$X2,scale,rotation,ProcSS,ProcSD)
 
-##### get other data from db #####
+##### SAVE DATA #####
 
-
-
-##### speed accuracy functions #####
-
-
+write.table(participantdata,"somewhere_over_the_rainbow", sep="\t")
 
 ##### PLOTS #####
 
@@ -101,5 +99,7 @@ points(trans$transy[1],trans$transy[2],pch=8,col="blue")
 
 plot(trans$X, xlim=c(-1000,1000), ylim=c(-1000,1000))
 points(trans$Y, col="red")
+
+##### speed accuracy functions #####
 
 
