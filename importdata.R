@@ -23,7 +23,7 @@ data_resp_rem <- data_resp_rem[!(data_resp_rem$X1=="119"&data_resp_rem$X2=="1079
 data_resp_rem$trialnum <- seq(from=1,to=length(data_resp_rem$X1),by=1)
 data_stim$trialnum <- seq(from=1,to=length(data_stim$X1),by=1)
 rem_seq <- round(seq(from=1, to=ifelse(length(data_resp_rem$X1)>length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1)), by=ifelse(length(data_resp_rem$X1)>length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1))/ifelse(length(data_resp_rem$X1)<length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1))),digits=0)
-data_sub <- if(length(data_resp_rem$X1)==length(rem_seq)) {data_stim[c(rem_seq),]} else {data_resp_rem[c(rem_seq),1:2]}
+data_sub <- if(length(data_resp_rem$X1)==length(rem_seq)) {data_stim[c(rem_seq),]} else {data_resp_rem[c(rem_seq),]}
 
 
 ##### PROCRUSTES ANALYSIS #####
@@ -90,8 +90,8 @@ data_sub$Col <- rbPalsub(length(data_sub$X3))[as.numeric(cut(data_sub$X3,breaks=
 
 #plot points 
 plot(data_stim$X1,data_stim$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20, col=data_stim$Col)
-points(data_resp_rem$X1,data_resp_rem$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20 ,col=data_resp_rem$Col)
-#points(data_resp_rem_sub$X1,data_resp_rem_sub$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20 ,col=data_resp_rem_sub$Col)
+#points(data_resp_rem$X1,data_resp_rem$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20 ,col=data_resp_rem$Col)
+points(data_sub$X1,data_sub$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20 ,col=data_sub$Col)
 
 #plot centroids
 points(trans$trans[1],trans$trans[2],pch=8,col="black")
