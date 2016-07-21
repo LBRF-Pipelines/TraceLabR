@@ -21,16 +21,17 @@ data_resp_rem <- data_resp_rem[!(data_resp_rem$X1=="119"&data_resp_rem$X2=="1079
 
 #normalize to shortest segement *****FIX FOR OPPOSITE CASE*****
 data_resp_rem$trialnum <- seq(from=1,to=length(data_resp_rem$X1),by=1)
-rem_seq <- round(seq(from=1, to=225, by=ifelse(length(data_resp_rem$X1)>length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1))/ifelse(length(data_resp_rem$X1)<length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1))),digits=0)
-data_resp_rem_sub <- data_resp_rem[c(rem_seq),]
-
+data_stim$trialnum <- seq(from=1,to=length(data_stim$X1),by=1)
+rem_seq <- round(seq(from=1, to=ifelse(length(data_resp_rem$X1)>length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1)), by=ifelse(length(data_resp_rem$X1)>length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1))/ifelse(length(data_resp_rem$X1)<length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1))),digits=0)
+data_sub <- if(length(data_resp_rem$X1)==length(rem_seq)) {data_stim[c(rem_seq),]} else {data_resp_rem[c(rem_seq),1:2]}
 
 
 ##### PROCRUSTES ANALYSIS #####
 
 #take (x,y) coordinates only
-stim <- data_stim[,1:2]
-resp <- data_resp_rem_sub[,1:2]
+stim <- if(length(data_stim$X1)==length(data_sub$X1)) {data_stim[,c(1,2)]} else {data_sub[,c(1,2)]}
+resp <- if(length(data_resp_rem$X1)==length(data_sub$X1)) {data_resp_rem[,c(1,2)]} else {data_sub[,c(1,2)]}
+
 
 #procrustes transformation
 trans <- rotonto(stim, resp, scale = TRUE, signref = FALSE, reflection = FALSE, weights = NULL, centerweight = FALSE)
@@ -81,24 +82,24 @@ RawSD <- sqrt(RawVar)
 #direction of movement: lighter to darker
 #stim = grey to black, resp = cyan to blue, resp_sub = yellow to green
 rbPalstim <- colorRampPalette(c("grey","black"))
-data_stim$Col <- rbPalstim(120)[as.numeric(cut(data_stim$X3,breaks=120))]
+data_stim$Col <- rbPalstim(length(data_stim$X3))[as.numeric(cut(data_stim$X3,breaks=length(data_stim$X3)))]
 rbPalresp <- colorRampPalette(c("cyan","blue"))
-data_resp_rem$Col <- rbPalresp(225)[as.numeric(cut(data_resp_rem$X3,breaks=225))]
-rbPalrespsub <- colorRampPalette(c("yellow","green"))
-data_resp_rem_sub$Col <- rbPalrespsub(120)[as.numeric(cut(data_resp_rem_sub$X3,breaks=120))]
+data_resp_rem$Col <- rbPalresp(length(data_resp_rem$X3))[as.numeric(cut(data_resp_rem$X3,breaks=length(data_resp_rem$X3)))]
+rbPalsub <- colorRampPalette(c("yellow","green"))
+data_sub$Col <- rbPalsub(length(data_sub$X3))[as.numeric(cut(data_sub$X3,breaks=length(data_sub$X3)))]
 
 #plot points 
 plot(data_stim$X1,data_stim$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20, col=data_stim$Col)
 points(data_resp_rem$X1,data_resp_rem$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20 ,col=data_resp_rem$Col)
-points(data_resp_rem_sub$X1,data_resp_rem_sub$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20 ,col=data_resp_rem_sub$Col)
+#points(data_resp_rem_sub$X1,data_resp_rem_sub$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20 ,col=data_resp_rem_sub$Col)
 
 #plot centroids
 points(trans$trans[1],trans$trans[2],pch=8,col="black")
 points(trans$transy[1],trans$transy[2],pch=8,col="green")
 
-#plot shapes post transforms:
+#plot shapes post transforms: ******set limits to max/min+50******
 
-#plot(trans$X, xlim=c(-1000,1000), ylim=c(-1000,1000))
-#points(trans$Y, col="red")
+plot(trans$X, xlim=c(-1000,1000), ylim=c(-1000,1000))
+points(trans$Y, col="red")
 
 
