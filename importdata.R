@@ -7,8 +7,8 @@ rm(list = ls())
 library(Morpho)
 
 #read in .db information
-participants <- read.csv("~/RStudio/TraceLabDB/participants.csv")
-trials <- read.csv("~/RStudio/TraceLabDB/trials.csv")
+participants <- read.csv("~/Desktop/Data/participants.csv")
+trials <- read.csv("~/Desktop/Data/trials.csv")
 
 # Find all .zip files
 path <- "~/Desktop/Data"
@@ -129,9 +129,15 @@ for(i in 1:length(file.names)){
         out.file <- rbind(out.file, datarow)
 }
 
+#change output to df
 df.out.file <- data.frame(out.file[-1,])
-colnames(df.out.file) <- c("name.tlt","PLstim","PLresp","RawSS","RawSD","translation","scale","rotation","ProcSS","ProcSD")
+colnames(df.out.file) <- c("trace_file","PLstim","PLresp","RawSS","RawSD","translation","scale","rotation","ProcSS","ProcSD")
 
-write.table(df.out.file,"~/Desktop/participant_proc_data.txt", sep="\t")
+#combine proc_df with db
+all_data <- merge(trials,df.out.file,by="trace_file")
+colnames(participants)[1] <- paste("participant_id")
+all_data <- merge(participants[,c(1,4:6)],all_data,by="participant_id")
+all_data <-all_data[c("id","participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","trace_file","rt","seg_count","seg_estimate","mt","PLresp","RawSS","RawSD","translation","scale","rotation","ProcSS","ProcSD")]
+write.table(all_data,"~/Desktop/participant_proc_data.txt", sep="\t")
 ##### speed accuracy functions ##### 
 # probably a different file... 
