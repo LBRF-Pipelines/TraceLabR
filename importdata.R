@@ -70,11 +70,26 @@ RawSS <- sum(((stimaray-resparay)-mean((stimaray-resparay)))^2)
 RawVar <- RawSS/(length(stim[,1])-1)
 RawSD <- sqrt(RawVar)
 
-#get pathlength of participant trace
+##### path length #####
 
+#get pathlength of participant response 
 
+segs <- matrix()
+for (i in 1:NROW(resp)) {
+        seg_leg <- sqrt((resp[i+1,1]-resp[i,1])^2 + (resp[i+1,2]-resp[i,2])^2)
+        segs <- rbind(segs, seg_leg)
+}
+PLresp <- sum(segs, na.rm = TRUE)
 
+#confirm stimulus pathlength
+#perhaps write code to compare?
 
+segs <- matrix()
+for (i in 1:NROW(stim)) {
+        seg_leg <- sqrt((stim[i+1,1]-stim[i,1])^2 + (stim[i+1,2]-stim[i,2])^2)
+        segs <- rbind(segs, seg_leg)
+}
+PLstim <- sum(segs, na.rm = TRUE)
 
 
 ##### save variables to a row #####
