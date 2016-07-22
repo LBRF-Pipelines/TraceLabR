@@ -3,3 +3,5 @@
 .RData
 .Ruserdata
 .DS_Store
+participants.csv
+trials.csv
