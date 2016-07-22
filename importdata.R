@@ -1,17 +1,16 @@
 ##### TRACELAB ANALYSIS #####
 ##### AUTHORED BY JACK SOLOMON AND TONY INGRAM #####
 
-
 rm(list = ls())
 
 library(Morpho)
 
 #read in .db information
-participants <- read.csv("~/Desktop/Data/participants.csv")
-trials <- read.csv("~/Desktop/Data/trials.csv")
+participants <- read.csv("~/RStudio/TraceLabDB/participants.csv")
+trials <- read.csv("~/RStudio/TraceLabDB/trials.csv")
 
 # Find all .zip files
-path <- "~/Desktop/Data"
+path <- "~/TraceLab/ExpAssets/Data"
 file.names <- dir(path, recursive = TRUE, full.names = TRUE,pattern="\\.zip$")
 
 out.file <- ""
