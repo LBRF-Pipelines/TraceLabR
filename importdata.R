@@ -124,13 +124,13 @@ for(i in 1:length(file.names)){
         
         ##### save variables to a row & subsequently a file #####
         
-        datarow <- c(name.tlf,PLstim,PLresp,RawSS,RawSD,translation,scale,rotation,ProcSS,ProcSD)
+        datarow <- c(name.tlt,PLstim,PLresp,RawSS,RawSD,translation,scale,rotation,ProcSS,ProcSD)
         
         out.file <- rbind(out.file, datarow)
 }
 
 df.out.file <- data.frame(out.file[-1,])
-colnames(df.out.file) <- c("name.tlf","PLstim","PLresp","RawSS","RawSD","translation","scale","rotation","ProcSS","ProcSD")
+colnames(df.out.file) <- c("name.tlt","PLstim","PLresp","RawSS","RawSD","translation","scale","rotation","ProcSS","ProcSD")
 
 write.table(df.out.file,"~/Desktop/participant_proc_data.txt", sep="\t")
 ##### speed accuracy functions ##### 
