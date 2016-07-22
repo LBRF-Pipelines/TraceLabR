@@ -137,6 +137,9 @@ all_data <- merge(trials,df.out.file,by="trace_file")
 colnames(participants)[1] <- paste("participant_id")
 all_data <- merge(participants[,c(1,4:6)],all_data,by="participant_id")
 all_data <-all_data[c("id","participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","trace_file","rt","seg_count","seg_estimate","mt","PLresp","RawSS","RawSD","translation","scale","rotation","ProcSS","ProcSD")]
-write.table(all_data,"~/Desktop/participant_proc_data.txt", sep="\t")
+
+#save .txt file with all_data
+write.table(all_data,"~/RStudio/TraceLabDB/all_data.txt", sep="\t")
+
 ##### speed accuracy functions ##### 
 # probably a different file... 
