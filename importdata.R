@@ -64,6 +64,12 @@ RawSS <- sum(((stimaray-resparay)-mean((stimaray-resparay)))^2)
 RawVar <- RawSS/(length(stim[,1])-1)
 RawSD <- sqrt(RawVar)
 
+##### speed accuracy functions ##### 
+#Jack, stop moving this down to the bottom, it's not just a plot — the SAF needs to be an object of some form that we actually do stats on later.
+
+
+
+
 ##### save variables to a row #####
 
 datarow <- c(RawSS,RawSD,translation$X1,translation$X2,scale,rotation,ProcSS,ProcSD)
@@ -99,7 +105,4 @@ points(trans$transy[1],trans$transy[2],pch=8,col="blue")
 
 plot(trans$X, xlim=c(-1000,1000), ylim=c(-1000,1000))
 points(trans$Y, col="red")
-
-##### speed accuracy functions #####
-
 
