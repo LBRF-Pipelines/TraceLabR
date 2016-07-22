@@ -37,13 +37,11 @@ for(i in 1:length(file.names)){
         rem_seq <- round(seq(from=1, to=ifelse(length(data_resp_rem$X1)>length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1)), by=ifelse(length(data_resp_rem$X1)>length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1))/ifelse(length(data_resp_rem$X1)<length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1))),digits=0)
         data_sub <- if(length(data_resp_rem$X1)==length(rem_seq)) {data_stim[c(rem_seq),]} else {data_resp_rem[c(rem_seq),]}
         
-        
         ##### PROCRUSTES ANALYSIS #####
         
         #take (x,y) coordinates only
         stim <- if(length(data_stim$X1)==length(data_sub$X1)) {data_stim[,c(1,2)]} else {data_sub[,c(1,2)]}
         resp <- if(length(data_resp_rem$X1)==length(data_sub$X1)) {data_resp_rem[,c(1,2)]} else {data_sub[,c(1,2)]}
-        
         
         #procrustes transformation
         trans <- rotonto(stim, resp, scale = TRUE, signref = FALSE, reflection = FALSE, weights = NULL, centerweight = FALSE)
@@ -87,7 +85,7 @@ for(i in 1:length(file.names)){
         }
         PLresp <- sum(segs, na.rm = TRUE)
         
-        #confirm stimulus pathlength
+        #stimulus pathlength
         
         segs <- matrix()
         for (i in 1:NROW(stim)) {
@@ -130,6 +128,7 @@ for(i in 1:length(file.names)){
         
         out.file <- rbind(out.file, datarow)
 }
+
 df.out.file <- data.frame(out.file[-1,])
 colnames(df.out.file) <- c("name.tlf","PLstim","PLresp","RawSS","RawSD","translation","scale","rotation","ProcSS","ProcSD")
 
