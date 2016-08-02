@@ -25,7 +25,7 @@ for(i in 1:length(file.names)) {
         else{
                 #create data frames
                 data_stim <- data.frame(matrix(as.numeric(gsub("\\[|\\]|\\(|\\)", "", as.character(tlf))),ncol=3,nrow=length(tlf)/3, byrow=TRUE))
-                data_resp <- data.frame(matrix(as.numeric(gsub("\\[|\\]|\\(|\\)", "", as.character(tlt))),ncol=4,nrow=length(tlt)/4, byrow=TRUE))
+                data_resp <- data.frame(matrix(as.numeric(gsub("\\[|\\]|\\(|\\)", "", as.character(tlt))),ncol=3,nrow=length(tlt)/3, byrow=TRUE))
                 
                 #remove artifacts 
                 data_resp_rem <- data_resp[!(data_resp$X1=="1919"&data_resp$X2=="1079"),]
@@ -119,7 +119,7 @@ for(i in 1:length(file.names)) {
                 
                 #plot shapes post transforms: ******set limits to max/min+50******
                 
-                plot(trans$X, xlim=c(-1000,1000), ylim=c(-1000,1000))
+                plot(trans$X, xlim=c(-960,960), ylim=c(540,-540))
                 points(trans$Y, col="red")
                 
                 ##### save variables to a row & subsequently a file #####
