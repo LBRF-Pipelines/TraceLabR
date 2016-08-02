@@ -21,7 +21,7 @@ for(i in 1:length(file.names)) {
         #read in data 
         tlf <- read.table(unz(file.names[i], name.tlf),stringsAsFactors=FALSE, sep=",")
         tlt <- read.table(unz(file.names[i], name.tlt),stringsAsFactors=FALSE, sep=",")
-        if (length(tlt)==1){datarow =c(name.tlt,rep(NA,times=9))}
+        if (length(tlt)==1){datarow =c(name.tlf,rep(NA,times=9))}
         else{
                 #create data frames
                 data_stim <- data.frame(matrix(as.numeric(gsub("\\[|\\]|\\(|\\)", "", as.character(tlf))),ncol=3,nrow=length(tlf)/3, byrow=TRUE))
@@ -124,17 +124,17 @@ for(i in 1:length(file.names)) {
                 
                 ##### save variables to a row & subsequently a file #####
                 
-                datarow <- c(name.tlt,PLstim,PLresp,RawSS,RawSD,translation,scale,rotation,ProcSS,ProcSD)
+                datarow <- c(name.tlf,PLstim,PLresp,RawSS,RawSD,translation,scale,rotation,ProcSS,ProcSD)
         }
         out.file <- rbind(out.file, datarow)
 }
 
 #change output to df
 df.out.file <- data.frame(out.file[-1,])
-colnames(df.out.file) <- c("trace_file","PLstim","PLresp","RawSS","RawSD","translation","scale","rotation","ProcSS","ProcSD")
+colnames(df.out.file) <- c("figure_file","PLstim","PLresp","RawSS","RawSD","translation","scale","rotation","ProcSS","ProcSD")
 
 #combine proc_df with db
-all_data <- merge(trials,df.out.file,by="trace_file")
+all_data <- merge(trials,df.out.file,by="figure_file")
 colnames(participants)[1] <- paste("participant_id")
 all_data <- merge(participants[,c(1,4:6)],all_data,by="participant_id")
 all_data <-all_data[c("id","participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","trace_file","rt","seg_count","seg_estimate","mt","PLresp","RawSS","RawSD","translation","scale","rotation","ProcSS","ProcSD")]
