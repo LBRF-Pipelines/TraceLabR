@@ -6,12 +6,12 @@ rm(list = ls())
 library(Morpho)
 library(plyr)
 
-#read in .db information
-participants <- read.csv("~/Desktop/Data_09-08-16/participants.csv")
-trials <- read.csv("~/Desktop/Data_09-08-16/trials.csv")
+# Read in .db information
+participants <- read.csv("~/RStudio/TraceLabDB/participants.csv")
+trials <- read.csv("~/RStudio/TraceLabDB/trials.csv")
 
 # Find all .zip files
-path <- "~/Desktop/Data_09-08-16/Data"
+path <- "~/TraceLab/ExpAssets/Data"
 file.names <- dir(path, recursive = TRUE, full.names = TRUE,pattern="\\.zip$")
 
 out.file <- ""
@@ -202,7 +202,7 @@ all_data <- merge(participants[,c(1,4:6)],all_data,by="participant_id")
 all_data <-all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","trace_file","rt","mt","PLresp","RawSS","RawSD","translation","scale","rotation","ProcSS","ProcSD","control_question","control_response","correct_response")]
 
 #save .txt file with all_data
-write.table(all_data,"~/Desktop/all_data.txt", sep="\t")
+write.table(all_data,"~/RStudio/TraceLabDB/all_data.txt", sep="\t")
 
 ##### speed accuracy functions ##### 
 # probably a different file... 
