@@ -22,17 +22,23 @@ for(i in 1:length(file.names)) {
         #read in data 
         tlf <- read.table(unz(file.names[i], name.tlf),stringsAsFactors=FALSE, sep="[")
         tlt <- read.table(unz(file.names[i], name.tlt),stringsAsFactors=FALSE, sep=",")
+        #separates PP groups from MI and CC groups
         if (length(tlt)==1){
+                #separates MI group from CC group
                 if(trials[trials$figure_file==name.tlf,5]=='MI-00-5'){datarow=c(name.tlf,rep(NA,times=10))}
+                #if in CC group, runs control task
                 else{
+                        #loads stimulus data
                         data_stim <- as.numeric(unlist(strsplit(gsub("\\]|\\(|\\)", "", as.character(tlf$V2)), ", ")))
                         data_stim <- data.frame(matrix(data_stim,ncol=3,nrow=length(data_stim)/3, byrow=TRUE))
                         
+                        #extracts corrdinates for shape vertices (corners)
                         points <- as.numeric(unlist(strsplit(gsub("\\]|\\(|\\)", "", as.character(tlf$V3)), ", ")))
                         points <- data.frame(matrix(points,ncol=2,nrow=length(points)/2, byrow=TRUE))
                         
+                        #index closest sample in stimulus data to vertices
                         index_vec <- ""
-                        for(i in 1:5){
+                        for(t in 1:5){
                                 x_index <- abs(data_stim[,1]-points[i,1])
                                 y_index <- abs(data_stim[,2]-points[i,2])
                                 index <- which.min(x_index+y_index)
@@ -41,6 +47,7 @@ for(i in 1:length(file.names)) {
                         index_vec <- index_vec[-1,]
                         index_vec <- as.numeric(index_vec)
                         
+                        #determines the direction of the begging of each line segment
                         direction_mat <- ""
                         for(n in 1:5){
                                 direction <- round(colMeans(data_stim[index_vec[n]+2:7,1:2]))-(data_stim[index_vec[n]+1,1:2])
@@ -50,9 +57,10 @@ for(i in 1:length(file.names)) {
                         direction_mat <- matrix(as.numeric(unlist(direction_mat)),ncol=2,dimnames = list(c("Corner1","Corner2","Corner3","Corner4","Corner5"),c("X","Y")))
                         dir_sign <- sign(direction_mat)
                         
+                        #loads question of control task (ex.How many segments went "LEFT"?)
                         direction <- trials[trials$figure_file==name.tlf,14]
                         
-                        
+                        #counts number of times segments went in the direction specified
                         if (direction=='LEFT'){
                                 out <- count(dir_sign[,1])
                                 corr.resp <- as.numeric(out[out$x==-1,2])
@@ -85,7 +93,7 @@ for(i in 1:length(file.names)) {
                 data_resp_rem <- data_resp[!(data_resp$X1=="1919"&data_resp$X2=="1079"),]
                 data_resp_rem <- data_resp_rem[!(data_resp_rem$X1=="119"&data_resp_rem$X2=="1079"),]
                 
-                #normalize to shortest segement *****FIX FOR OPPOSITE CASE*****
+                #normalize to shortest segement
                 data_resp_rem$trialnum <- seq(from=1,to=length(data_resp_rem$X1),by=1)
                 data_stim$trialnum <- seq(from=1,to=length(data_stim$X1),by=1)
                 rem_seq <- round(seq(from=1, to=ifelse(length(data_resp_rem$X1)>length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1)), by=ifelse(length(data_resp_rem$X1)>length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1))/ifelse(length(data_resp_rem$X1)<length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1))),digits=0)
@@ -133,7 +141,7 @@ for(i in 1:length(file.names)) {
                 #get pathlength of participant response 
                 
                 segs <- matrix()
-                for (i in 1:NROW(resp)) {
+                for (y in 1:NROW(resp)) {
                         seg_leg <- sqrt((resp[i+1,1]-resp[i,1])^2 + (resp[i+1,2]-resp[i,2])^2)
                         segs <- rbind(segs, seg_leg)
                 }
@@ -142,7 +150,7 @@ for(i in 1:length(file.names)) {
                 #stimulus pathlength
                 
                 segs <- matrix()
-                for (i in 1:NROW(stim)) {
+                for (u in 1:NROW(stim)) {
                         seg_leg <- sqrt((stim[i+1,1]-stim[i,1])^2 + (stim[i+1,2]-stim[i,2])^2)
                         segs <- rbind(segs, seg_leg)
                 }
@@ -171,7 +179,7 @@ for(i in 1:length(file.names)) {
                 points(trans$trans[1],trans$trans[2],pch=8,col="black")
                 points(trans$transy[1],trans$transy[2],pch=8,col="blue")
                 
-                #plot shapes post transforms: ******set limits to max/min+50******
+                #plot shapes post transforms:
                 
                 plot(trans$X, xlim=c(-960,960), ylim=c(540,-540))
                 points(trans$Y, col="red")
