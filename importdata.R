@@ -4,13 +4,14 @@
 rm(list = ls())
 
 library(Morpho)
+library(plyr)
 
 #read in .db information
-participants <- read.csv("~/RStudio/TraceLabDB/participants.csv")
-trials <- read.csv("~/RStudio/TraceLabDB/trials.csv")
+participants <- read.csv("~/Desktop/Data_09-08-16/participants.csv")
+trials <- read.csv("~/Desktop/Data_09-08-16/trials.csv")
 
 # Find all .zip files
-path <- "~/TraceLab/ExpAssets/Data"
+path <- "~/Desktop/Data_09-08-16/Data"
 file.names <- dir(path, recursive = TRUE, full.names = TRUE,pattern="\\.zip$")
 
 out.file <- ""
@@ -19,12 +20,65 @@ for(i in 1:length(file.names)) {
         name.tlf <- gsub(".zip",".tlf",basename(file.names[i]))
         name.tlt <- gsub(".zip",".tlt",basename(file.names[i]))
         #read in data 
-        tlf <- read.table(unz(file.names[i], name.tlf),stringsAsFactors=FALSE, sep=",")
+        tlf <- read.table(unz(file.names[i], name.tlf),stringsAsFactors=FALSE, sep="[")
         tlt <- read.table(unz(file.names[i], name.tlt),stringsAsFactors=FALSE, sep=",")
-        if (length(tlt)==1){datarow =c(name.tlf,rep(NA,times=9))}
+        if (length(tlt)==1){
+                if(trials[trials$figure_file==name.tlf,5]=='MI-00-5'){datarow=c(name.tlf,rep(NA,times=10))}
+                else{
+                        data_stim <- as.numeric(unlist(strsplit(gsub("\\]|\\(|\\)", "", as.character(tlf$V2)), ", ")))
+                        data_stim <- data.frame(matrix(data_stim,ncol=3,nrow=length(data_stim)/3, byrow=TRUE))
+                        
+                        points <- as.numeric(unlist(strsplit(gsub("\\]|\\(|\\)", "", as.character(tlf$V3)), ", ")))
+                        points <- data.frame(matrix(points,ncol=2,nrow=length(points)/2, byrow=TRUE))
+                        
+                        index_vec <- ""
+                        for(i in 1:5){
+                                x_index <- abs(data_stim[,1]-points[i,1])
+                                y_index <- abs(data_stim[,2]-points[i,2])
+                                index <- which.min(x_index+y_index)
+                                index_vec <- rbind(index_vec,index)
+                        }
+                        index_vec <- index_vec[-1,]
+                        index_vec <- as.numeric(index_vec)
+                        
+                        direction_mat <- ""
+                        for(n in 1:5){
+                                direction <- round(colMeans(data_stim[index_vec[n]+2:7,1:2]))-(data_stim[index_vec[n]+1,1:2])
+                                direction_mat <- rbind(direction_mat,direction)
+                        }
+                        direction_mat <- direction_mat[-1,]
+                        direction_mat <- matrix(as.numeric(unlist(direction_mat)),ncol=2,dimnames = list(c("Corner1","Corner2","Corner3","Corner4","Corner5"),c("X","Y")))
+                        dir_sign <- sign(direction_mat)
+                        
+                        direction <- trials[trials$figure_file==name.tlf,14]
+                        
+                        
+                        if (direction=='LEFT'){
+                                out <- count(dir_sign[,1])
+                                corr.resp <- as.numeric(out[out$x==-1,2])
+                        }
+                        
+                        if (direction=="RIGHT"){
+                                out <- count(dir_sign[,1])
+                                corr.resp <- as.numeric(out[out$x==1,2])
+                        }
+                        
+                        if (direction=="DOWN"){
+                                out <- count(dir_sign[,2])
+                                corr.resp <- as.numeric(out[out$x==1,2])
+                        }
+                        
+                        if (direction=="UP"){
+                                out <- count(dir_sign[,2])
+                                corr.resp <- as.numeric(out[out$x==-1,2])
+                        }
+                        datarow =c(name.tlf,rep(NA,times=9),corr.resp)
+                }
+        }
         else{
                 #create data frames
-                data_stim <- data.frame(matrix(as.numeric(gsub("\\[|\\]|\\(|\\)", "", as.character(tlf))),ncol=3,nrow=length(tlf)/3, byrow=TRUE))
+                data_stim <- as.numeric(unlist(strsplit(gsub("\\]|\\(|\\)", "", as.character(tlf$V2)), ", ")))
+                data_stim <- data.frame(matrix(data_stim,ncol=3,nrow=length(data_stim)/3, byrow=TRUE))
                 data_resp <- data.frame(matrix(as.numeric(gsub("\\[|\\]|\\(|\\)", "", as.character(tlt))),ncol=3,nrow=length(tlt)/3, byrow=TRUE))
                 
                 #remove artifacts 
@@ -124,23 +178,23 @@ for(i in 1:length(file.names)) {
                 
                 ##### save variables to a row & subsequently a file #####
                 
-                datarow <- c(name.tlf,PLstim,PLresp,RawSS,RawSD,translation,scale,rotation,ProcSS,ProcSD)
+                datarow <- c(name.tlf,PLstim,PLresp,RawSS,RawSD,translation,scale,rotation,ProcSS,ProcSD,rep(NA,times=1))
         }
         out.file <- rbind(out.file, datarow)
 }
 
 #change output to df
 df.out.file <- data.frame(out.file[-1,])
-colnames(df.out.file) <- c("figure_file","PLstim","PLresp","RawSS","RawSD","translation","scale","rotation","ProcSS","ProcSD")
+colnames(df.out.file) <- c("figure_file","PLstim","PLresp","RawSS","RawSD","translation","scale","rotation","ProcSS","ProcSD","correct_response")
 
 #combine proc_df with db
 all_data <- merge(trials,df.out.file,by="figure_file")
 colnames(participants)[1] <- paste("participant_id")
 all_data <- merge(participants[,c(1,4:6)],all_data,by="participant_id")
-all_data <-all_data[c("id","participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","trace_file","rt","seg_count","seg_estimate","mt","PLresp","RawSS","RawSD","translation","scale","rotation","ProcSS","ProcSD")]
+all_data <-all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","trace_file","rt","mt","PLresp","RawSS","RawSD","translation","scale","rotation","ProcSS","ProcSD","control_question","control_response","correct_response")]
 
 #save .txt file with all_data
-write.table(all_data,"~/RStudio/TraceLabDB/all_data.txt", sep="\t")
+write.table(all_data,"~/Desktop/all_data.txt", sep="\t")
 
 ##### speed accuracy functions ##### 
 # probably a different file... 
