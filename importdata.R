@@ -8,7 +8,7 @@ library(plyr)
 
 # Read in .db information
 participants <- read.csv("~/RStudio/TraceLabDB/participants.csv")
-trials <- read.csv("~/RStudio/TraceLabDB/trials.csv")
+trials <- read.csv("~/RStudio/TraceLabDB/trials.csv", stringsAsFactors = FALSE)
 
 # Find all .zip files
 path <- "~/TraceLab/ExpAssets/Data"
@@ -192,14 +192,27 @@ for(i in 1:length(file.names)) {
 }
 
 #change output to df
-df.out.file <- data.frame(out.file[-1,])
+df.out.file <- data.frame(out.file[-1,],stringsAsFactors = FALSE)
 colnames(df.out.file) <- c("figure_file","PLstim","PLresp","RawSS","RawSD","translation","scale","rotation","ProcSS","ProcSD","correct_response")
 
 #combine proc_df with db
 all_data <- merge(trials,df.out.file,by="figure_file")
 colnames(participants)[1] <- paste("participant_id")
 all_data <- merge(participants[,c(1,4:6)],all_data,by="participant_id")
-all_data <-all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","trace_file","rt","mt","PLresp","RawSS","RawSD","translation","scale","rotation","ProcSS","ProcSD","control_question","control_response","correct_response")]
+all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","trace_file","rt","mt","PLresp","RawSS","RawSD","translation","scale","rotation","ProcSS","ProcSD","control_question","control_response","correct_response")]
+
+#change data to numeric where appropriate
+all_data$condition <- as.factor(all_data$condition)
+all_data$PLstim <- as.numeric(all_data$PLstim)
+all_data$PLresp <- as.numeric(all_data$PLresp)
+all_data$RawSS <- as.numeric(all_data$RawSS)
+all_data$RawSD <- as.numeric(all_data$RawSD)
+all_data$translation <- as.numeric(all_data$translation)
+all_data$scale <- as.numeric(all_data$scale)
+all_data$rotation <- as.numeric(all_data$rotation)
+all_data$ProcSS <- as.numeric(all_data$ProcSS)
+all_data$ProcSD <- as.numeric(all_data$ProcSD)
+all_data$correct_response <- as.integer(all_data$correct_response)
 
 #save .txt file with all_data
 write.table(all_data,"~/RStudio/TraceLabDB/all_data.txt", sep="\t")
