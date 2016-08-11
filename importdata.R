@@ -217,5 +217,4 @@ all_data$correct_response <- as.integer(all_data$correct_response)
 #save .txt file with all_data
 write.table(all_data,"~/RStudio/TraceLabDB/all_data.txt", sep="\t")
 
-##### speed accuracy functions ##### 
-# probably a different file... 
+##### FIN #####
