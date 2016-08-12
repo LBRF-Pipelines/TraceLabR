@@ -19,9 +19,11 @@ out.file <- ""
 for(i in 1:length(file.names)) {
         name.tlf <- gsub(".zip",".tlf",basename(file.names[i]))
         name.tlt <- gsub(".zip",".tlt",basename(file.names[i]))
+        name.pts <- gsub(".zip","_points.txt",basename(file.names[i]))
         #read in data 
-        tlf <- read.table(unz(file.names[i], name.tlf),stringsAsFactors=FALSE, sep="[")
+        tlf <- read.table(unz(file.names[i], name.tlf),stringsAsFactors=FALSE, sep=",")
         tlt <- read.table(unz(file.names[i], name.tlt),stringsAsFactors=FALSE, sep=",")
+        pts <- read.table(unz(file.names[i], name.pts),stringsAsFactors=FALSE, sep=",")
         #separates PP groups from MI and CC groups
         if (length(tlt)==1){
                 #separates MI group from CC group
@@ -29,18 +31,16 @@ for(i in 1:length(file.names)) {
                 #if in CC group, runs control task
                 else{
                         #loads stimulus data
-                        data_stim <- as.numeric(unlist(strsplit(gsub("\\]|\\(|\\)", "", as.character(tlf$V2)), ", ")))
-                        data_stim <- data.frame(matrix(data_stim,ncol=3,nrow=length(data_stim)/3, byrow=TRUE))
+                        data_stim <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlf)), ", "))),ncol=3,nrow=length(tlf)/3, byrow=TRUE))
                         
                         #extracts corrdinates for shape vertices (corners)
-                        points <- as.numeric(unlist(strsplit(gsub("\\]|\\(|\\)", "", as.character(tlf$V3)), ", ")))
-                        points <- data.frame(matrix(points,ncol=2,nrow=length(points)/2, byrow=TRUE))
+                        points <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(pts)), ", "))),ncol=2,nrow=length(pts)/2, byrow=TRUE))
                         
                         #index closest sample in stimulus data to vertices
                         index_vec <- ""
                         for(t in 1:5){
-                                x_index <- abs(data_stim[,1]-points[i,1])
-                                y_index <- abs(data_stim[,2]-points[i,2])
+                                x_index <- abs(data_stim[,1]-points[t,1])
+                                y_index <- abs(data_stim[,2]-points[t,2])
                                 index <- which.min(x_index+y_index)
                                 index_vec <- rbind(index_vec,index)
                         }
@@ -58,7 +58,7 @@ for(i in 1:length(file.names)) {
                         dir_sign <- sign(direction_mat)
                         
                         #loads question of control task (ex.How many segments went "LEFT"?)
-                        direction <- trials[trials$figure_file==name.tlf,14]
+                        direction <- trials[trials$figure_file==name.tlf,16]
                         
                         #counts number of times segments went in the direction specified
                         if (direction=='LEFT'){
@@ -85,8 +85,7 @@ for(i in 1:length(file.names)) {
         }
         else{
                 #create data frames
-                data_stim <- as.numeric(unlist(strsplit(gsub("\\]|\\(|\\)", "", as.character(tlf$V2)), ", ")))
-                data_stim <- data.frame(matrix(data_stim,ncol=3,nrow=length(data_stim)/3, byrow=TRUE))
+                data_stim <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlf)), ", "))),ncol=3,nrow=length(tlf)/3, byrow=TRUE))
                 data_resp <- data.frame(matrix(as.numeric(gsub("\\[|\\]|\\(|\\)", "", as.character(tlt))),ncol=3,nrow=length(tlt)/3, byrow=TRUE))
                 
                 #remove artifacts 
@@ -142,7 +141,7 @@ for(i in 1:length(file.names)) {
                 
                 segs <- matrix()
                 for (y in 1:NROW(data_resp_rem)) {
-                        seg_leg <- sqrt((data_resp_rem[i+1,1]-data_resp_rem[i,1])^2 + (data_resp_rem[i+1,2]-data_resp_rem[i,2])^2)
+                        seg_leg <- sqrt((data_resp_rem[y+1,1]-data_resp_rem[y,1])^2 + (data_resp_rem[y+1,2]-data_resp_rem[y,2])^2)
                         segs <- rbind(segs, seg_leg)
                 }
                 PLresp <- sum(segs, na.rm = TRUE)
@@ -151,7 +150,7 @@ for(i in 1:length(file.names)) {
                 
                 segs <- matrix()
                 for (u in 1:NROW(data_stim)) {
-                        seg_leg <- sqrt((data_stim[i+1,1]-data_stim[i,1])^2 + (data_stim[i+1,2]-data_stim[i,2])^2)
+                        seg_leg <- sqrt((data_stim[u+1,1]-data_stim[u,1])^2 + (data_stim[u+1,2]-data_stim[u,2])^2)
                         segs <- rbind(segs, seg_leg)
                 }
                 PLstim <- sum(segs, na.rm = TRUE)
@@ -199,10 +198,11 @@ colnames(df.out.file) <- c("figure_file","PLstim","PLresp","RawSS","RawSD","tran
 all_data <- merge(trials,df.out.file,by="figure_file")
 colnames(participants)[1] <- paste("participant_id")
 all_data <- merge(participants[,c(1,4:6)],all_data,by="participant_id")
-all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","trace_file","rt","mt","PLresp","RawSS","RawSD","translation","scale","rotation","ProcSS","ProcSD","control_question","control_response","correct_response")]
+all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","trace_file","rt","it","mt","PLresp","RawSS","RawSD","translation","scale","rotation","ProcSS","ProcSD","control_question","control_response","correct_response")]
 
 #change data to numeric where appropriate
 all_data$condition <- as.factor(all_data$condition)
+all_data$figure_type <- as.factor(all_data$figure_type)
 all_data$PLstim <- as.numeric(all_data$PLstim)
 all_data$PLresp <- as.numeric(all_data$PLresp)
 all_data$RawSS <- as.numeric(all_data$RawSS)
