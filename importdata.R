@@ -141,8 +141,8 @@ for(i in 1:length(file.names)) {
                 #get pathlength of participant response 
                 
                 segs <- matrix()
-                for (y in 1:NROW(resp)) {
-                        seg_leg <- sqrt((resp[i+1,1]-resp[i,1])^2 + (resp[i+1,2]-resp[i,2])^2)
+                for (y in 1:NROW(data_resp_rem)) {
+                        seg_leg <- sqrt((data_resp_rem[i+1,1]-data_resp_rem[i,1])^2 + (data_resp_rem[i+1,2]-data_resp_rem[i,2])^2)
                         segs <- rbind(segs, seg_leg)
                 }
                 PLresp <- sum(segs, na.rm = TRUE)
@@ -150,8 +150,8 @@ for(i in 1:length(file.names)) {
                 #stimulus pathlength
                 
                 segs <- matrix()
-                for (u in 1:NROW(stim)) {
-                        seg_leg <- sqrt((stim[i+1,1]-stim[i,1])^2 + (stim[i+1,2]-stim[i,2])^2)
+                for (u in 1:NROW(data_stim)) {
+                        seg_leg <- sqrt((data_stim[i+1,1]-data_stim[i,1])^2 + (data_stim[i+1,2]-data_stim[i,2])^2)
                         segs <- rbind(segs, seg_leg)
                 }
                 PLstim <- sum(segs, na.rm = TRUE)

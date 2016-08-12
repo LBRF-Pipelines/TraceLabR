@@ -11,6 +11,22 @@ random <- all_data[all_data$path_length != 5367.9411255, ]
 repeated <- repeated[with(repeated, order(participant_id, session_num, block_num, trial_num)), ]
 random <- random[with(random, order(participant_id, session_num, block_num, trial_num)), ]
 
+## ASSUMPTIONS TESTING ##
+
+# what is the distribution of path length? does the repeat shape fit in reasonably?
+
+hist(repeated$PLstim, breaks = 20)
+hist(repeated$PLresp, breaks = 20)
+
+hist(random$PLstim, breaks = 20)
+hist(random$PLresp, breaks = 20)
+
+# what is the distribution of movement time (mt)?
+
+
+
+
+
 # mean participant velocity per trial (total trajectory length / total movement time)
 RepV <- repeated$PLresp / repeated$mt
 RanV <- random$PLresp / random$mt
