@@ -1,18 +1,42 @@
 ##### speed accuracy functions ##### 
 
-# find out what pathlength occurred most to find repeated trials
-summary(as.factor(all_data$path_length))
-
 # subset data into repeated and random
-repeated <- all_data[all_data$path_length == 5367.9411255, ]
-random <- all_data[all_data$path_length != 5367.9411255, ]
+repeated <- subset(all_data, figure_type == "fig2")
+random <- subset(all_data, figure_type == "random")
 
 # sort data
 repeated <- repeated[with(repeated, order(participant_id, session_num, block_num, trial_num)), ]
 random <- random[with(random, order(participant_id, session_num, block_num, trial_num)), ]
 
-## ASSUMPTIONS TESTING ##
+#### DATA CHECKING #####
 
+## MOVEMENT TIME ##
+# are participants actually matching the stimulus MT?
+
+# subset all data by condition (repeat vs random don't matter here):
+mt_compare_PP <- subset(all_data, condition == "PP-VR-5", select = c(stimulus_gt, stimulus_mt, mt))
+mt_compare_MI <- subset(all_data, condition == "MI-00-5", select = c(stimulus_gt, stimulus_mt, mt))
+mt_compare_CC <- subset(all_data, condition == "CC-00-5", select = c(stimulus_gt, stimulus_mt, mt))
+
+# plot to see if response MT's are related to stimulus MT's:
+plot(mt_compare_PP[,2],mt_compare_PP[,3])
+plot(mt_compare_MI[,2],mt_compare_MI[,3])
+plot(mt_compare_CC[,2],mt_compare_CC[,3])
+
+# run regressions of same for additional confirmation:
+mt_compare_PP_LM <- lm(mt_compare_PP[,2] ~ mt_compare_PP[,3])
+summary(mt_compare_PP_LM)
+mt_compare_MI_LM <- lm(mt_compare_MI[,2] ~ mt_compare_MI[,3])
+summary(mt_compare_MI_LM)
+mt_compare_CC_LM <- lm(mt_compare_CC[,2] ~ mt_compare_CC[,3])
+summary(mt_compare_CC_LM)
+
+# should be high correlations for all PP and MI groups but not CC.
+
+## CONTROL TASK ##
+
+
+## PATH LENGTHS ##
 # what is the distribution of path length? does the repeat shape fit in reasonably?
 
 # random first (should vary)
