@@ -56,43 +56,43 @@ boxplot(PLstim ~ figure_type, data = all_data, main="PLstim", xlab="figure_type"
 boxplot(PLresp ~ figure_type, data = all_data, main="PLresp", xlab="figure_type", ylab="pixels") # what participant did
 
 
-## VELOCITY ##
+## SPEED ACCURACY FUNCTION EXPLORE ##
+
+# subset data — only need to look at physical groups
+# *** note: have to look at final day of MI and CC groups similarly...
+PP_repeat <- subset(repeated, condition == "PP-VR-5")
+PP_random <- subset(random, condition == "PP-VR-5")
+PP_repeat <- PP_repeat[with(PP_repeat, order(participant_id, session_num, block_num, trial_num)), ]
+PP_random <- PP_random[with(PP_random, order(participant_id, session_num, block_num, trial_num)), ]
 
 # mean velocity of participant response per trial (total trajectory length / total movement time)
-Vresp_rep <- repeated$PLresp / repeated$mt
-Vresp_ran <- random$PLresp / random$mt
-# NOTE: MT may be inaccurate until update from Jon!
+Vresp_rep <- PP_repeat$PLresp / PP_repeat$mt # pixels per second
+Vresp_ran <- PP_random$PLresp / PP_random$mt # pixels per second
 
-# plot error over time (by index): is it getting better? 
-plot(repeated$RawSD)
-plot(random$RawSD)
+# plot error across time: is it getting better? 
+# gotta figure out how to plot across multiple sorters like "order" function...
+#plot(PP_repeat$trial_num, PP_repeat$RawSD)
+#plot(PP_random$trial_num, PP_random$RawSD)
+#plot(PP_repeat$trial_num, PP_repeat$ProcSD)
+#plot(PP_random$trial_num, PP_random$ProcSD)
 
-plot(repeated$ProcSD)
-plot(random$ProcSD)
+## SPEED ACCURACY FUNCTIONS ##
 
-# are they different from beginning to end?
-t.test(repeated$ProcSD[1:25],repeated$ProcSD[26:50])
-t.test(random$ProcSD[1:25],random$ProcSD[26:50])
-# both significant but repeated bigger effect
+# plot raw error against speed:
+plot(Vresp_rep, PP_repeat$RawSD)
+plot(Vresp_ran, PP_random$RawSD)
 
-# plot against velocity (NOTE: MT may be inaccurate until update from Jon!)
-plot(Vresp_rep, repeated$RawSD)
-plot(Vresp_ran, random$RawSD)
+# plot structural error against speed:
+plot(Vresp_rep, PP_repeat$ProcSD)
+plot(Vresp_ran, PP_random$ProcSD)
 
-plot(Vresp_rep, repeated$ProcSD)
-plot(Vresp_ran, random$ProcSD)
+# is there a linear relationship between the speed and accuracy?
+PP_Rep_Raw_LM <- lm(Vresp_rep ~ PP_repeat$RawSD)
+summary(PP_Rep_Raw_LM)
+PP_Ran_Raw_LM <- lm(Vresp_ran ~ PP_random$RawSD)
+summary(PP_Ran_Raw_LM)
 
-# what about plotting error against what they speed saw?
-plot(repeated$avg_velocity, repeated$RawSD)
-plot(repeated$avg_velocity, random$RawSD)
-
-plot(repeated$avg_velocity, repeated$ProcSD)
-plot(repeated$avg_velocity, random$ProcSD)
-
-# is there even a relationship between the speed and accuracy? linear regression:
-# NOTE: MT may be inaccurate until update from Jon!
-Rep_Raw_LM <- lm(Vresp_rep ~ repeated$RawSD)
-Ran_Raw_LM <- lm(Vresp_ran ~ random$RawSD)
-
-Rep_Proc_LM <- lm(Vresp_rep ~ repeated$ProcSD)
-Ran_Proc_LM <- lm(Vresp_ran ~ random$ProcSD)
+PP_Rep_Proc_LM <- lm(Vresp_rep ~ PP_repeat$ProcSD)
+summary(PP_Rep_Proc_LM)
+PP_Ran_Proc_LM <- lm(Vresp_ran ~ PP_random$ProcSD)
+summary(PP_Ran_Proc_LM)
