@@ -24,9 +24,9 @@ for(i in 1:length(file.names)) {
         tlf <- read.table(unz(file.names[i], name.tlf),stringsAsFactors=FALSE, sep=",")
         tlt <- read.table(unz(file.names[i], name.tlt),stringsAsFactors=FALSE, sep=",")
         pts <- read.table(unz(file.names[i], name.pts),stringsAsFactors=FALSE, sep=",")
-        #separates PP groups from MI and CC groups
+        #separate PP data from MI and CC data (remember, final session of MI and CC are also PP sessions)
         if (length(tlt)==1){
-                #separates MI group from CC group
+                #separate MI group from CC group
                 if(trials[trials$figure_file==name.tlf,5]=='MI-00-5'){datarow=c(name.tlf,rep(NA,times=10))}
                 #if in CC group, runs control task
                 else{
