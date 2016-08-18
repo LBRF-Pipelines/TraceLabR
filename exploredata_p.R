@@ -105,7 +105,7 @@ Vresp_ran <- PP_random$PLresp / PP_random$mt # pixels per second
 
 ## SPEED ACCURACY FUNCTIONS ##
 
-# plot error against speed:
+# plot error against SPEED:
 plot(Vresp_rep, PP_repeat$RawSD, col = "blue", xlim = c(0,5000))
 points(Vresp_ran, PP_random$RawSD, col = "black", xlim = c(0,5000))
 
@@ -123,12 +123,40 @@ summary(PP_Ran_Proc_LM)
 PP_Rep_Proc_LM <- lm(Vresp_rep ~ PP_repeat$ProcSD)
 summary(PP_Rep_Proc_LM)
 
-# plot error against MT:
+# plot error against MOVEMENT TIME:
 plot(PP_repeat$mt, PP_repeat$RawSD, col = "blue")
 points(PP_random$mt, PP_random$RawSD, col = "black")
 
 plot(PP_repeat$mt, PP_repeat$ProcSD, col = "blue")
 points(PP_random$mt, PP_random$ProcSD, col = "black")
 
-# plot scale against MT
+# plot scale against SPEED:
+plot(Vresp_rep, PP_repeat$scale, col = "blue")
+points(Vresp_ran, PP_random$scale, col = "black")
+
+# plot scale against MOVEMENT TIME:
+plot(PP_repeat$mt, PP_repeat$scale, col = "blue")
+points(PP_random$mt, PP_random$scale, col = "black")
+
+# plot translation against SPEED:
+plot(Vresp_rep, PP_repeat$translation, col = "blue")
+points(Vresp_ran, PP_random$translation, col = "black")
+
+# plot translation against MOVEMENT TIME:
+plot(PP_repeat$mt, PP_repeat$translation, col = "blue")
+points(PP_random$mt, PP_random$translation, col = "black")
+
+# plot rotation against SPEED:
+plot(Vresp_rep, PP_repeat$rotation, col = "blue")
+points(Vresp_ran, PP_random$rotation, col = "black")
+
+# plot rotation against MOVEMENT TIME:
+plot(PP_repeat$mt, PP_repeat$rotation, col = "blue")
+points(PP_random$mt, PP_random$rotation, col = "black")
+
+
+
+
+
+
 
