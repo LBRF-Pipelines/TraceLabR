@@ -19,6 +19,7 @@ random <- subset(all_data, figure_type == "random")
 repeated <- repeated[with(repeated, order(participant_id, session_num, block_num, trial_num)), ]
 random <- random[with(random, order(participant_id, session_num, block_num, trial_num)), ]
 
+# getting better across session?
 # plot repeated (blue) and random on same figure:
 plot(repeated$RawSD, col = "blue")
 points(random$RawSD, col = "black")
@@ -104,11 +105,11 @@ Vresp_ran <- PP_random$PLresp / PP_random$mt # pixels per second
 
 # plot raw error against speed:
 plot(Vresp_rep, PP_repeat$RawSD, col = "blue", xlim = c(0,10000))
-points(Vresp_ran, PP_random$RawSD, xlim = c(0,10000))
+points(Vresp_ran, PP_random$RawSD, col = "black", xlim = c(0,10000))
 
 # plot structural error against speed:
 plot(Vresp_rep, PP_repeat$ProcSD, col = "blue", xlim = c(0,10000))
-points(Vresp_ran, PP_random$ProcSD, xlim = c(0,10000))
+points(Vresp_ran, PP_random$ProcSD, col = "black", xlim = c(0,10000))
 
 # is there a linear relationship between the speed and accuracy?
 PP_Rep_Raw_LM <- lm(Vresp_rep ~ PP_repeat$RawSD)
