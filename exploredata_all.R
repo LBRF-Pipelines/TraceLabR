@@ -1,21 +1,19 @@
 ##### Exploring Data ##### 
 ##### authored by Tony Ingram #####
 
-## SINGLE PARTICIPANT ##
-
-all_data_p <- subset(all_data, participant_id == 1)
+## ALL PARTICIPANTS ##
 
 # in general (without seperating repeated and random) was there a decrease in error?
-plot(all_data_p$RawSD)
-Raw_LM <- lm(1:length(all_data_p$RawSD) ~ all_data_p$RawSD)
+plot(all_data$RawSD)
+Raw_LM <- lm(1:length(all_data$RawSD) ~ all_data$RawSD)
 summary(Raw_LM)
-plot(all_data_p$ProcSD)
-Proc_LM <- lm(1:length(all_data_p$ProcSD) ~ all_data_p$ProcSD)
+plot(all_data$ProcSD)
+Proc_LM <- lm(1:length(all_data$ProcSD) ~ all_data$ProcSD)
 summary(Proc_LM)
 
 # subset data into repeated and random
-repeated <- subset(all_data_p, figure_type == "fig3")
-random <- subset(all_data_p, figure_type == "random")
+repeated <- subset(all_data, figure_type == "fig3")
+random <- subset(all_data, figure_type == "random")
 
 # sort data by participant, then session, then block, then trial.
 repeated <- repeated[with(repeated, order(participant_id, session_num, block_num, trial_num)), ]
