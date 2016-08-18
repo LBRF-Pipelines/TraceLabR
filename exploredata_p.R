@@ -3,7 +3,7 @@
 
 ## SINGLE PARTICIPANT ##
 
-all_data_p <- subset(all_data, participant_id == 1)
+all_data_p <- subset(all_data, participant_id == 2)
 
 # in general (without seperating repeated and random) was there a decrease in error?
 plot(all_data_p$RawSD)
@@ -106,22 +106,22 @@ Vresp_ran <- PP_random$PLresp / PP_random$mt # pixels per second
 ## SPEED ACCURACY FUNCTIONS ##
 
 # plot error against speed:
-plot(Vresp_rep, PP_repeat$RawSD, col = "blue", xlim = c(0,10000))
-points(Vresp_ran, PP_random$RawSD, col = "black", xlim = c(0,10000))
+plot(Vresp_rep, PP_repeat$RawSD, col = "blue", xlim = c(0,5000))
+points(Vresp_ran, PP_random$RawSD, col = "black", xlim = c(0,5000))
 
-plot(Vresp_rep, PP_repeat$ProcSD, col = "blue", xlim = c(0,10000))
-points(Vresp_ran, PP_random$ProcSD, col = "black", xlim = c(0,10000))
+plot(Vresp_rep, PP_repeat$ProcSD, col = "blue", xlim = c(0,5000))
+points(Vresp_ran, PP_random$ProcSD, col = "black", xlim = c(0,5000))
 
 # is there a linear relationship between the speed and accuracy?
-PP_Rep_Raw_LM <- lm(Vresp_rep ~ PP_repeat$RawSD)
-summary(PP_Rep_Raw_LM)
 PP_Ran_Raw_LM <- lm(Vresp_ran ~ PP_random$RawSD)
 summary(PP_Ran_Raw_LM)
+PP_Rep_Raw_LM <- lm(Vresp_rep ~ PP_repeat$RawSD)
+summary(PP_Rep_Raw_LM)
 
-PP_Rep_Proc_LM <- lm(Vresp_rep ~ PP_repeat$ProcSD)
-summary(PP_Rep_Proc_LM)
 PP_Ran_Proc_LM <- lm(Vresp_ran ~ PP_random$ProcSD)
 summary(PP_Ran_Proc_LM)
+PP_Rep_Proc_LM <- lm(Vresp_rep ~ PP_repeat$ProcSD)
+summary(PP_Rep_Proc_LM)
 
 # plot error against MT:
 plot(PP_repeat$mt, PP_repeat$RawSD, col = "blue")
@@ -129,3 +129,6 @@ points(PP_random$mt, PP_random$RawSD, col = "black")
 
 plot(PP_repeat$mt, PP_repeat$ProcSD, col = "blue")
 points(PP_random$mt, PP_random$ProcSD, col = "black")
+
+# plot scale against MT
+
