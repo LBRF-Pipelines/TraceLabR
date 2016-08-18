@@ -21,6 +21,7 @@ random <- subset(all_data_p, figure_type == "random")
 repeated <- repeated[with(repeated, order(participant_id, session_num, block_num, trial_num)), ]
 random <- random[with(random, order(participant_id, session_num, block_num, trial_num)), ]
 
+# getting better across session?
 # plot repeated (blue) and random on same figure:
 plot(repeated$RawSD, col = "blue")
 points(random$RawSD, col = "black")
@@ -104,13 +105,12 @@ Vresp_ran <- PP_random$PLresp / PP_random$mt # pixels per second
 
 ## SPEED ACCURACY FUNCTIONS ##
 
-# plot raw error against speed:
+# plot error against speed:
 plot(Vresp_rep, PP_repeat$RawSD, col = "blue", xlim = c(0,10000))
-points(Vresp_ran, PP_random$RawSD, xlim = c(0,10000))
+points(Vresp_ran, PP_random$RawSD, col = "black", xlim = c(0,10000))
 
-# plot structural error against speed:
 plot(Vresp_rep, PP_repeat$ProcSD, col = "blue", xlim = c(0,10000))
-points(Vresp_ran, PP_random$ProcSD, xlim = c(0,10000))
+points(Vresp_ran, PP_random$ProcSD, col = "black", xlim = c(0,10000))
 
 # is there a linear relationship between the speed and accuracy?
 PP_Rep_Raw_LM <- lm(Vresp_rep ~ PP_repeat$RawSD)
@@ -122,3 +122,10 @@ PP_Rep_Proc_LM <- lm(Vresp_rep ~ PP_repeat$ProcSD)
 summary(PP_Rep_Proc_LM)
 PP_Ran_Proc_LM <- lm(Vresp_ran ~ PP_random$ProcSD)
 summary(PP_Ran_Proc_LM)
+
+# plot error against MT:
+plot(PP_repeat$mt, PP_repeat$RawSD, col = "blue")
+points(PP_random$mt, PP_random$RawSD, col = "black")
+
+plot(PP_repeat$mt, PP_repeat$ProcSD, col = "blue")
+points(PP_random$mt, PP_random$ProcSD, col = "black")
