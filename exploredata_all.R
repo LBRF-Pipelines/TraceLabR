@@ -4,7 +4,7 @@
 ## ALL PARTICIPANTS ##
 
 # in general (without seperating repeated and random) was there a decrease in error?
-plot(all_data$RawSD)
+plot(all_data$RawSD) # not valid cuz it would go participant 1 for 100, then 2 for 100, across x axis... change this... 
 Raw_LM <- lm(1:length(all_data$RawSD) ~ all_data$RawSD)
 summary(Raw_LM)
 plot(all_data$ProcSD)
