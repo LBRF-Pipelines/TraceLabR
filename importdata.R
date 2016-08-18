@@ -89,8 +89,8 @@ for(i in 1:length(file.names)) {
                 data_resp <- data.frame(matrix(as.numeric(gsub("\\[|\\]|\\(|\\)", "", as.character(tlt))),ncol=3,nrow=length(tlt)/3, byrow=TRUE))
                 
                 #remove artifacts 
-                data_resp_rem <- data_resp[!(data_resp$X1=="1919"&data_resp$X2=="1079"),]
-                data_resp_rem <- data_resp_rem[!(data_resp_rem$X1=="119"&data_resp_rem$X2=="1079"),]
+                data_resp_rem <- data_resp #[!(data_resp$X1=="1919"&data_resp$X2=="1079"),]
+                data_resp_rem <- data_resp_rem #[!(data_resp_rem$X1=="119"&data_resp_rem$X2=="1079"),]
                 
                 #normalize to shortest segement
                 data_resp_rem$trialnum <- seq(from=1,to=length(data_resp_rem$X1),by=1)
@@ -213,6 +213,8 @@ all_data$rotation <- as.numeric(all_data$rotation)
 all_data$ProcSS <- as.numeric(all_data$ProcSS)
 all_data$ProcSD <- as.numeric(all_data$ProcSD)
 all_data$correct_response <- as.integer(all_data$correct_response)
+
+all_data <- all_data[with(all_data, order(participant_id, session_num, block_num, trial_num)), ]
 
 #save .txt file with all_data
 write.table(all_data,"~/RStudio/TraceLabDB/all_data.txt", sep="\t")
