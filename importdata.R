@@ -1,7 +1,9 @@
 ##### TRACELAB ANALYSIS #####
 ##### AUTHORED BY JACK SOLOMON AND TONY INGRAM #####
 
-rm(list = ls())
+rm(list = ls()) # clear work space
+#cat("\014") # clear console
+#graphics.off() # clear figures
 
 library(Morpho)
 library(plyr)
@@ -214,7 +216,7 @@ all_data$ProcSS <- as.numeric(all_data$ProcSS)
 all_data$ProcSD <- as.numeric(all_data$ProcSD)
 all_data$correct_response <- as.integer(all_data$correct_response)
 
-all_data <- all_data[with(all_data, order(participant_id, session_num, block_num, trial_num)), ]
+#all_data <- all_data[with(all_data, order(participant_id, session_num, block_num, trial_num)), ]
 
 #save .txt file with all_data
 write.table(all_data,"~/RStudio/TraceLabDB/all_data.txt", sep="\t")
