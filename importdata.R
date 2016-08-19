@@ -22,15 +22,15 @@ for(i in 1:length(file.names)) {
         name.tlf <- gsub(".zip",".tlf",basename(file.names[i]))
         name.tlt <- gsub(".zip",".tlt",basename(file.names[i]))
         name.pts <- gsub(".zip","_points.txt",basename(file.names[i]))
-        #read in data 
+        # read in data 
         tlf <- read.table(unz(file.names[i], name.tlf),stringsAsFactors=FALSE, sep=",")
         tlt <- read.table(unz(file.names[i], name.tlt),stringsAsFactors=FALSE, sep=",")
         pts <- read.table(unz(file.names[i], name.pts),stringsAsFactors=FALSE, sep=",")
-        #separate PP data from MI and CC data (remember, final session of MI and CC are also PP sessions)
-        if (length(tlt)==1){
-                #separate MI group from CC group
-                if(trials[trials$figure_file==name.tlf,5]=='MI-00-5'){datarow=c(name.tlf,rep(NA,times=10))}
-                #if in CC group, runs control task
+        # separate PP data from MI and CC data (remember, final session of MI and CC are also PP sessions)
+        if (length(tlt)<15){
+                # disclude all groups except CC
+                if(trials[trials$figure_file==name.tlf,5]!='CC-00-5'){datarow=c(name.tlf,rep(NA,times=10))}
+                # if in CC group, runs control task
                 else{
                         #loads stimulus data
                         data_stim <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlf)), ", "))),ncol=3,nrow=length(tlf)/3, byrow=TRUE))
@@ -216,7 +216,7 @@ all_data$ProcSS <- as.numeric(all_data$ProcSS)
 all_data$ProcSD <- as.numeric(all_data$ProcSD)
 all_data$correct_response <- as.integer(all_data$correct_response)
 
-#all_data <- all_data[with(all_data, order(participant_id, session_num, block_num, trial_num)), ]
+all_data <- all_data[with(all_data, order(participant_id, session_num, block_num, trial_num)), ]
 
 #save .txt file with all_data
 write.table(all_data,"~/RStudio/TraceLabDB/all_data.txt", sep="\t")
