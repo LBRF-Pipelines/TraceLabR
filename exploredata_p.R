@@ -103,7 +103,9 @@ Vresp_ran <- PP_random$PLresp / PP_random$mt # pixels per second
 #plot(PP_repeat$trial_num, PP_repeat$ProcSD)
 #plot(PP_random$trial_num, PP_random$ProcSD)
 
-## SPEED ACCURACY FUNCTIONS ##
+##### SPEED ACCURACY FUNCTIONS #####
+
+## single session, whole session ##
 
 # plot error against SPEED:
 plot(Vresp_rep, PP_repeat$RawSD, col = "blue", xlim = c(0,5000))
@@ -154,7 +156,7 @@ points(Vresp_ran, PP_random$rotation, col = "black")
 plot(PP_repeat$mt, PP_repeat$rotation, col = "blue")
 points(PP_random$mt, PP_random$rotation, col = "black")
 
-
+##### first block against last block, within single session #####
 
 
 
