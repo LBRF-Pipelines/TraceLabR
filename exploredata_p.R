@@ -160,5 +160,31 @@ points(PP_random$mt, PP_random$rotation, col = "black")
 
 
 
+##### day to day changes #####
+
+PPran_1 <- subset(PP_random, session_num == 1)
+PPran_2 <- subset(PP_random, session_num == 2)
+PPrep_1 <- subset(PP_repeat, session_num == 1)
+PPrep_2 <- subset(PP_repeat, session_num == 2)
+
+Vran_1 <- PPran_1$PLresp / PPran_1$mt # pixels per second
+Vran_2 <- PPran_2$PLresp / PPran_2$mt # pixels per second
+Vrep_1 <- PPrep_1$PLresp / PPrep_1$mt # pixels per second
+Vrep_2 <- PPrep_2$PLresp / PPrep_2$mt # pixels per second
+
+# plot RAW error against SPEED:
+
+# raw
+plot(Vran_1, PPran_1$RawSD, col = "black", xlim = c(0,5000))
+points(Vran_2, PPran_2$RawSD, col = "blue", xlim = c(0,5000))
+# rep
+plot(Vrep_1, PPrep_1$RawSD, col = "black", xlim = c(0,5000))
+points(Vrep_2, PPrep_2$RawSD, col = "blue", xlim = c(0,5000))
+
+
+
+
+# plot PROC error against SPEED:
+
 
 
