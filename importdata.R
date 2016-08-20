@@ -2,8 +2,8 @@
 ##### AUTHORED BY JACK SOLOMON AND TONY INGRAM #####
 
 rm(list = ls()) # clear work space
-#cat("\014") # clear console
 #graphics.off() # clear figures
+#cat("\014") # clear console
 
 library(Morpho)
 library(plyr)
