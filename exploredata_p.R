@@ -184,19 +184,9 @@ Vrep_s3 <- PPrep_s3$PLresp / PPrep_s3$mt # pixels per second
 plot(Vran_s1, PPran_s1$RawSD, col = "black")
 points(Vran_s3, PPran_s3$RawSD, col = "blue")
 
-SAF_ran_raw_s1 <- PPran_s1$RawSD / Vran_s1
-SAF_ran_raw_s3 <-  PPran_s3$RawSD / Vran_s3
-
-t.test(SAF_ran_raw_s1, SAF_ran_raw_s3)
-
 # rep
 plot(Vrep_s1, PPrep_s1$RawSD, col = "black")
 points(Vrep_s3, PPrep_s3$RawSD, col = "blue")
-
-SAF_rep_raw_s1 <- PPrep_s1$RawSD / Vrep_s1
-SAF_rep_raw_s3 <-  PPrep_s3$RawSD / Vrep_s3
-
-t.test(SAF_rep_raw_s1, SAF_rep_raw_s3)
 
 # plot PROC error against SPEED:
 
@@ -204,18 +194,9 @@ t.test(SAF_rep_raw_s1, SAF_rep_raw_s3)
 plot(Vran_s1, PPran_s1$ProcSD, col = "black")
 points(Vran_s3, PPran_s3$ProcSD, col = "blue")
 
-SAF_ran_proc_s1 <- PPran_s1$ProcSD / Vran_s1
-SAF_ran_proc_s3 <-  PPran_s3$ProcSD / Vran_s3
-
-t.test(SAF_ran_proc_s1, SAF_ran_proc_s3)
-
 # rep
 plot(Vrep_s1, PPrep_s1$ProcSD, col = "black")
 points(Vrep_s3, PPrep_s3$ProcSD, col = "blue")
 
-SAF_rep_proc_s1 <- PPrep_s1$ProcSD / Vrep_s1
-SAF_rep_proc_s3 <-  PPrep_s3$ProcSD / Vrep_s3
-
-t.test(SAF_rep_proc_s1, SAF_rep_proc_s3)
 
 
