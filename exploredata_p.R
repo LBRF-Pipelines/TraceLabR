@@ -107,12 +107,14 @@ Vresp_ran <- PP_random$PLresp / PP_random$mt # pixels per second
 
 ## single session, whole session ##
 
-# plot error against SPEED:
-plot(Vresp_rep, PP_repeat$RawSD, col = "blue", xlim = c(0,5000))
-points(Vresp_ran, PP_random$RawSD, col = "black", xlim = c(0,5000))
+## ERROR (raw and shape):
 
-plot(Vresp_rep, PP_repeat$ProcSD, col = "blue", xlim = c(0,5000))
-points(Vresp_ran, PP_random$ProcSD, col = "black", xlim = c(0,5000))
+# plot error against SPEED:
+plot(Vresp_rep, PP_repeat$RawSD, col = "blue")
+points(Vresp_ran, PP_random$RawSD, col = "black")
+
+plot(Vresp_rep, PP_repeat$ProcSD, col = "blue")
+points(Vresp_ran, PP_random$ProcSD, col = "black")
 
 # is there a linear relationship between the speed and accuracy?
 PP_Ran_Raw_LM <- lm(Vresp_ran ~ PP_random$RawSD)
@@ -132,9 +134,13 @@ points(PP_random$mt, PP_random$RawSD, col = "black")
 plot(PP_repeat$mt, PP_repeat$ProcSD, col = "blue")
 points(PP_random$mt, PP_random$ProcSD, col = "black")
 
+## PARAMETERS (scale, translation, rotation):
+
 # plot scale against SPEED:
 plot(Vresp_rep, PP_repeat$scale, col = "blue")
 points(Vresp_ran, PP_random$scale, col = "black")
+# note: may not be any particular direction... but increasing variability? 
+# how to analyze? absolute distance? 
 
 # plot scale against MOVEMENT TIME:
 plot(PP_repeat$mt, PP_repeat$scale, col = "blue")
@@ -162,29 +168,54 @@ points(PP_random$mt, PP_random$rotation, col = "black")
 
 ##### day to day changes #####
 
-PPran_1 <- subset(PP_random, session_num == 1)
-PPran_2 <- subset(PP_random, session_num == 2)
-PPrep_1 <- subset(PP_repeat, session_num == 1)
-PPrep_2 <- subset(PP_repeat, session_num == 2)
+PPran_s1 <- subset(PP_random, session_num == 1)
+PPran_s3 <- subset(PP_random, session_num == 3)
+PPrep_s1 <- subset(PP_repeat, session_num == 1)
+PPrep_s3 <- subset(PP_repeat, session_num == 3)
 
-Vran_1 <- PPran_1$PLresp / PPran_1$mt # pixels per second
-Vran_2 <- PPran_2$PLresp / PPran_2$mt # pixels per second
-Vrep_1 <- PPrep_1$PLresp / PPrep_1$mt # pixels per second
-Vrep_2 <- PPrep_2$PLresp / PPrep_2$mt # pixels per second
+Vran_s1 <- PPran_s1$PLresp / PPran_s1$mt # pixels per second
+Vran_s3 <- PPran_s3$PLresp / PPran_s3$mt # pixels per second
+Vrep_s1 <- PPrep_s1$PLresp / PPrep_s1$mt # pixels per second
+Vrep_s3 <- PPrep_s3$PLresp / PPrep_s3$mt # pixels per second
 
 # plot RAW error against SPEED:
 
-# raw
-plot(Vran_1, PPran_1$RawSD, col = "black", xlim = c(0,5000))
-points(Vran_2, PPran_2$RawSD, col = "blue", xlim = c(0,5000))
+# ran
+plot(Vran_s1, PPran_s1$RawSD, col = "black")
+points(Vran_s3, PPran_s3$RawSD, col = "blue")
+
+SAF_ran_raw_s1 <- PPran_s1$RawSD / Vran_s1
+SAF_ran_raw_s3 <-  PPran_s3$RawSD / Vran_s3
+
+t.test(SAF_ran_raw_s1, SAF_ran_raw_s3)
+
 # rep
-plot(Vrep_1, PPrep_1$RawSD, col = "black", xlim = c(0,5000))
-points(Vrep_2, PPrep_2$RawSD, col = "blue", xlim = c(0,5000))
+plot(Vrep_s1, PPrep_s1$RawSD, col = "black")
+points(Vrep_s3, PPrep_s3$RawSD, col = "blue")
 
+SAF_rep_raw_s1 <- PPrep_s1$RawSD / Vrep_s1
+SAF_rep_raw_s3 <-  PPrep_s3$RawSD / Vrep_s3
 
-
+t.test(SAF_rep_raw_s1, SAF_rep_raw_s3)
 
 # plot PROC error against SPEED:
 
+# ran
+plot(Vran_s1, PPran_s1$ProcSD, col = "black")
+points(Vran_s3, PPran_s3$ProcSD, col = "blue")
+
+SAF_ran_proc_s1 <- PPran_s1$ProcSD / Vran_s1
+SAF_ran_proc_s3 <-  PPran_s3$ProcSD / Vran_s3
+
+t.test(SAF_ran_proc_s1, SAF_ran_proc_s3)
+
+# rep
+plot(Vrep_s1, PPrep_s1$ProcSD, col = "black")
+points(Vrep_s3, PPrep_s3$ProcSD, col = "blue")
+
+SAF_rep_proc_s1 <- PPrep_s1$ProcSD / Vrep_s1
+SAF_rep_proc_s3 <-  PPrep_s3$ProcSD / Vrep_s3
+
+t.test(SAF_rep_proc_s1, SAF_rep_proc_s3)
 
 
