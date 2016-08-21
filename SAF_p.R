@@ -1,16 +1,24 @@
 ##### Speed Accuracy Functions #####
 ##### authored by Tony Ingram #####
 
-# subset data — only need to look at physical groups
+# subset data — only need to look at physical groups, first and last sessions:
 # *** note: have to look at final day of MI and CC groups similarly...
-PP_repeat <- subset(repeated, condition == "PP-VR-5")
-PP_random <- subset(random, condition == "PP-VR-5")
-PP_repeat <- PP_repeat[with(PP_repeat, order(participant_id, session_num, block_num, trial_num)), ]
-PP_random <- PP_random[with(PP_random, order(participant_id, session_num, block_num, trial_num)), ]
+PP_random_1 <- subset(all_data, (participant_id == "2") & (figure_type == "random") & (session_num == "1"))
+PP_random_5 <- subset(all_data, (participant_id == "2") & (figure_type == "random") & (session_num == "4"))
+PP_repeat_1 <- subset(all_data, (participant_id == "2") & (figure_type == "fig3") & (session_num == "1"))
+PP_repeat_5 <- subset(all_data, (participant_id == "2") & (figure_type == "fig3") & (session_num == "4"))
+# sort by p, s, b, t:
+PP_random_1 <- PP_random_1[with(PP_random_1, order(participant_id, session_num, block_num, trial_num)), ]
+PP_random_5 <- PP_random_5[with(PP_random_5, order(participant_id, session_num, block_num, trial_num)), ]
+PP_repeat_1 <- PP_repeat_1[with(PP_repeat_1, order(participant_id, session_num, block_num, trial_num)), ]
+PP_repeat_5 <- PP_repeat_5[with(PP_repeat_5, order(participant_id, session_num, block_num, trial_num)), ]
 
 # mean velocity of participant response per trial (total trajectory length / total movement time)
-Vresp_rep <- PP_repeat$PLresp / PP_repeat$mt # pixels per second
-Vresp_ran <- PP_random$PLresp / PP_random$mt # pixels per second
+V_ran_1 <- PP_random_1$PLresp / PP_random_1$mt # pixels per second
+V_ran_5 <- PP_random_5$PLresp / PP_random_5$mt # pixels per second
+V_rep_1 <- PP_repeat_1$PLresp / PP_repeat_1$mt # pixels per second
+V_rep_5 <- PP_repeat_5$PLresp / PP_repeat_5$mt # pixels per second
+
 
 ## single session, whole session ##
 
