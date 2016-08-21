@@ -20,36 +20,77 @@ V_rep_1 <- PP_repeat_1$PLresp / PP_repeat_1$mt # pixels per second
 V_rep_5 <- PP_repeat_5$PLresp / PP_repeat_5$mt # pixels per second
 
 
-## single session, whole session ##
+##### SESSION TO SESSION CHANGES #####
 
-## ERROR (raw and shape):
+## ERROR raw and shape (proc):
 
-# plot error against SPEED:
-plot(Vresp_rep, PP_repeat$RawSD, col = "blue")
-points(Vresp_ran, PP_random$RawSD, col = "black")
+# plot RAW error against SPEED:
+plot(V_ran_5, PP_random_5$RawSD, col = "blue")
+points(V_ran_1, PP_random_1$RawSD, col = "black")
 
-plot(Vresp_rep, PP_repeat$ProcSD, col = "blue")
-points(Vresp_ran, PP_random$ProcSD, col = "black")
+plot(V_rep_5, PP_repeat_5$RawSD, col = "blue")
+points(V_rep_1, PP_repeat_1$RawSD, col = "black")
+
+# plot PROC (shape) error against SPEED:
+plot(V_ran_5, PP_random_5$ProcSD, col = "blue")
+points(V_ran_1, PP_random_1$ProcSD, col = "black")
+
+plot(V_rep_5, PP_repeat_5$ProcSD, col = "blue")
+points(V_rep_1, PP_repeat_1$ProcSD, col = "black")
+
+
+# plot RAW error against MOVEMENT TIME:
+
+# plot PROC (shape) error against MOVEMENT TIME:
+
 
 # is there a linear relationship between the speed and accuracy?
-PP_Ran_Raw_LM <- lm(Vresp_ran ~ PP_random$RawSD)
-summary(PP_Ran_Raw_LM)
-PP_Rep_Raw_LM <- lm(Vresp_rep ~ PP_repeat$RawSD)
-summary(PP_Rep_Raw_LM)
+# PROBABLY NOT
+#PP_Ran_Raw_LM <- lm(Vresp_ran ~ PP_random$RawSD)
+#summary(PP_Ran_Raw_LM)
+#PP_Rep_Raw_LM <- lm(Vresp_rep ~ PP_repeat$RawSD)
+#summary(PP_Rep_Raw_LM)
 
-PP_Ran_Proc_LM <- lm(Vresp_ran ~ PP_random$ProcSD)
-summary(PP_Ran_Proc_LM)
-PP_Rep_Proc_LM <- lm(Vresp_rep ~ PP_repeat$ProcSD)
-summary(PP_Rep_Proc_LM)
+#PP_Ran_Proc_LM <- lm(Vresp_ran ~ PP_random$ProcSD)
+#summary(PP_Ran_Proc_LM)
+#PP_Rep_Proc_LM <- lm(Vresp_rep ~ PP_repeat$ProcSD)
+#summary(PP_Rep_Proc_LM)
 
-# plot error against MOVEMENT TIME:
-plot(PP_repeat$mt, PP_repeat$RawSD, col = "blue")
-points(PP_random$mt, PP_random$RawSD, col = "black")
 
-plot(PP_repeat$mt, PP_repeat$ProcSD, col = "blue")
-points(PP_random$mt, PP_random$ProcSD, col = "black")
+## FITTING LOGISTIC FUNCTION ##
 
-## PARAMETERS (scale, translation, rotation):
+## adapted from: https://gist.github.com/kyrcha/74ec4894994e6a8a6d89#file-sigmoid-r 
+# function needed for visualization purposes
+logistic = function(params, x) {
+        params[1] / (1 + exp(-params[2] * (x - params[3])))
+}
+
+x = V_rep_1
+y = PP_repeat_1$ProcSD
+ymax = max(y, na.rm = TRUE)
+xmed = median(x, na.rm = TRUE)
+
+# fitting code
+library(minpack.lm)
+fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=2,c=xmed))
+
+# visualization code
+# get the coefficients using the coef function
+params=coef(fitmodel)
+
+y2 <- logistic(params,x)
+plot(y2,type="l")
+points(y)
+
+
+
+
+
+##### BELOW IS OLD AND NEEDS TO BE FIXED
+
+
+
+## ERROR scale, translation, rotation:
 
 # plot scale against SPEED:
 plot(Vresp_rep, PP_repeat$scale, col = "blue")
@@ -79,40 +120,5 @@ points(PP_random$mt, PP_random$rotation, col = "black")
 
 ##### first block against last block, within single session #####
 
-# to do...
-
-
-##### day to day changes #####
-
-PPran_s1 <- subset(PP_random, session_num == 1)
-PPran_s3 <- subset(PP_random, session_num == 3)
-PPrep_s1 <- subset(PP_repeat, session_num == 1)
-PPrep_s3 <- subset(PP_repeat, session_num == 3)
-
-Vran_s1 <- PPran_s1$PLresp / PPran_s1$mt # pixels per second
-Vran_s3 <- PPran_s3$PLresp / PPran_s3$mt # pixels per second
-Vrep_s1 <- PPrep_s1$PLresp / PPrep_s1$mt # pixels per second
-Vrep_s3 <- PPrep_s3$PLresp / PPrep_s3$mt # pixels per second
-
-# plot RAW error against SPEED:
-
-# ran
-plot(Vran_s1, PPran_s1$RawSD, col = "black")
-points(Vran_s3, PPran_s3$RawSD, col = "blue")
-
-# rep
-plot(Vrep_s1, PPrep_s1$RawSD, col = "black")
-points(Vrep_s3, PPrep_s3$RawSD, col = "blue")
-
-# plot PROC error against SPEED:
-
-# ran
-plot(Vran_s1, PPran_s1$ProcSD, col = "black")
-points(Vran_s3, PPran_s3$ProcSD, col = "blue")
-
-# rep
-plot(Vrep_s1, PPrep_s1$ProcSD, col = "black")
-points(Vrep_s3, PPrep_s3$ProcSD, col = "blue")
-
-
+# to do... 
 
