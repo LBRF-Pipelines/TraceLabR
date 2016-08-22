@@ -16,7 +16,6 @@ summary(Proc_LM)
 # subset data into repeated and random
 repeated <- subset(all_data_p, figure_type == "fig3")
 random <- subset(all_data_p, figure_type == "random")
-
 # sort data by participant, then session, then block, then trial.
 repeated <- repeated[with(repeated, order(participant_id, session_num, block_num, trial_num)), ]
 random <- random[with(random, order(participant_id, session_num, block_num, trial_num)), ]
@@ -31,9 +30,9 @@ points(random$RawSD, col = "black")
 # plot a moving average lines (avg of current, prev 10 and next 10):
 f21 <- rep(1/21,21)
 rep_sym <- filter(repeated$RawSD, f21, sides=2)
-lines(1:200, rep_sym, col="blue", lwd=2)
+lines(1:250, rep_sym, col="blue", lwd=2)
 ran_sym <- filter(random$RawSD, f21, sides=2)
-lines(1:200, ran_sym, col="black", lwd=2)
+lines(1:250, ran_sym, col="black", lwd=2)
 
 Ran_Raw_LM <- lm(1:length(random$RawSD) ~ random$RawSD)
 summary(Ran_Raw_LM)
@@ -45,9 +44,9 @@ points(random$ProcSD, col = "black")
 # plot a moving average lines (avg of current, prev 10 and next 10):
 f21 <- rep(1/21,21)
 rep_sym <- filter(repeated$ProcSD, f21, sides=2)
-lines(1:200, rep_sym, col="blue", lwd=2)
+lines(1:250, rep_sym, col="blue", lwd=2)
 ran_sym <- filter(random$ProcSD, f21, sides=2)
-lines(1:200, ran_sym, col="black", lwd=2)
+lines(1:250, ran_sym, col="black", lwd=2)
 
 Ran_Proc_LM <- lm(1:length(random$ProcSD) ~ random$ProcSD)
 summary(Ran_Proc_LM)
