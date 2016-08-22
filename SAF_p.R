@@ -155,7 +155,7 @@ rep5 <- logistic(rep5_params,x)
 # end loop here! make matrix of parameters! 
 
 # plot fits:
-plot(fit_ran1$X1, ran1, type="l", col="grey")
+plot(fit_ran1$X1, ran1, type="l", col="grey", xlim=c(0,5000), ylim=c(0,500))
 lines(fit_ran5$X1, ran5, col="black")
 lines(fit_rep1$X1, rep1, col="cyan")
 lines(fit_rep5$X1, rep5, col="blue")
