@@ -27,34 +27,47 @@ V_rep_5 <- PP_repeat_5$PLresp / PP_repeat_5$mt # pixels per second
 # plot RAW error against SPEED:
 plot(V_ran_5, PP_random_5$RawSD, col = "blue")
 points(V_ran_1, PP_random_1$RawSD, col = "black")
+PP_Ran_Raw5LM <- lm(V_ran_5 ~ PP_random_5$RawSD)
+summary(PP_Ran_Raw5LM)
+PP_Ran_Raw1LM <- lm(V_ran_1 ~ PP_random_1$RawSD)
+summary(PP_Ran_Raw1LM)
 
 plot(V_rep_5, PP_repeat_5$RawSD, col = "blue")
 points(V_rep_1, PP_repeat_1$RawSD, col = "black")
+PP_Rep_Raw5LM <- lm(V_rep_5 ~ PP_repeat_5$RawSD)
+summary(PP_Rep_Raw5LM)
+PP_Rep_Raw1LM <- lm(V_rep_1 ~ PP_repeat_1$RawSD)
+summary(PP_Rep_Raw1LM)
 
 # plot PROC (shape) error against SPEED:
 plot(V_ran_5, PP_random_5$ProcSD, col = "blue")
 points(V_ran_1, PP_random_1$ProcSD, col = "black")
+PP_Ran_Proc5LM <- lm(V_ran_5 ~ PP_random_5$ProcSD)
+summary(PP_Ran_Proc5LM)
+PP_Ran_Proc1LM <- lm(V_ran_1 ~ PP_random_1$ProcSD)
+summary(PP_Ran_Proc1LM)
 
 plot(V_rep_5, PP_repeat_5$ProcSD, col = "blue")
 points(V_rep_1, PP_repeat_1$ProcSD, col = "black")
+PP_Ran_Proc5LM <- lm(V_ran_5 ~ PP_random_5$ProcSD)
+summary(PP_Ran_Proc5LM)
+PP_Ran_Proc1LM <- lm(V_ran_1 ~ PP_random_1$ProcSD)
+summary(PP_Ran_Proc1LM)
 
 
 # plot RAW error against MOVEMENT TIME:
+plot(PP_random_5$mt, PP_random_5$RawSD, col = "blue")
+points(PP_random_1$mt, PP_random_1$RawSD, col = "black")
+
+plot(PP_repeat_5$mt, PP_repeat_5$RawSD, col = "blue")
+points(PP_repeat_1$mt, PP_repeat_1$RawSD, col = "black")
 
 # plot PROC (shape) error against MOVEMENT TIME:
+plot(PP_random_5$mt, PP_random_5$ProcSD, col = "blue")
+points(PP_random_1$mt, PP_random_1$ProcSD, col = "black")
 
-
-# is there a linear relationship between the speed and accuracy?
-# PROBABLY NOT
-#PP_Ran_Raw_LM <- lm(Vresp_ran ~ PP_random$RawSD)
-#summary(PP_Ran_Raw_LM)
-#PP_Rep_Raw_LM <- lm(Vresp_rep ~ PP_repeat$RawSD)
-#summary(PP_Rep_Raw_LM)
-
-#PP_Ran_Proc_LM <- lm(Vresp_ran ~ PP_random$ProcSD)
-#summary(PP_Ran_Proc_LM)
-#PP_Rep_Proc_LM <- lm(Vresp_rep ~ PP_repeat$ProcSD)
-#summary(PP_Rep_Proc_LM)
+plot(PP_repeat_5$mt, PP_repeat_5$ProcSD, col = "blue")
+points(PP_repeat_1$mt, PP_repeat_1$ProcSD, col = "black")
 
 
 ## FITTING LOGISTIC FUNCTION ##
