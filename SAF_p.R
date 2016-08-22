@@ -72,6 +72,8 @@ points(PP_repeat_1$mt, PP_repeat_1$ProcSD, col = "black")
 
 ## FITTING LOGISTIC FUNCTION ##
 
+##### gotta make matrix which orders data by x! #####
+
 ## adapted from: https://gist.github.com/kyrcha/74ec4894994e6a8a6d89#file-sigmoid-r 
 # function needed for visualization purposes
 logistic = function(params, x) {
@@ -79,13 +81,14 @@ logistic = function(params, x) {
 }
 
 x = V_rep_1
-y = PP_repeat_1$ProcSD
+y = PP_repeat_5$ProcSD
 ymax = max(y, na.rm = TRUE)
 xmed = median(x, na.rm = TRUE)
 
 # fitting code
 library(minpack.lm)
 fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=2,c=xmed))
+summary(fitmodel)
 
 # visualization code
 # get the coefficients using the coef function
