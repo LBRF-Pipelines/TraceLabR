@@ -157,12 +157,12 @@ rep5 <- logistic(rep5_params,x)
 # plot fits:
 plot(fit_ran1$X1, ran1, type="l", col="grey")
 lines(fit_ran5$X1, ran5, col="black")
-lines(fit_rep1$X1, rep1, col="blue")
-lines(fit_rep5$X1, rep5, col="cyan")
+lines(fit_rep1$X1, rep1, col="cyan")
+lines(fit_rep5$X1, rep5, col="blue")
 points(fit_ran1$X1, fit_ran1$X2, col="grey")
 points(fit_ran5$X1, fit_ran5$X2, col="black")
-points(fit_rep1$X1, fit_rep1$X2, col="blue")
-points(fit_rep5$X1, fit_rep5$X2, col="cyan")
+points(fit_rep1$X1, fit_rep1$X2, col="cyan")
+points(fit_rep5$X1, fit_rep5$X2, col="blue")
 
 
 
