@@ -71,32 +71,98 @@ points(PP_repeat_1$mt, PP_repeat_1$ProcSD, col = "black")
 
 
 ## FITTING LOGISTIC FUNCTION ##
-
-##### gotta make matrix which orders data by x! #####
-
 ## adapted from: https://gist.github.com/kyrcha/74ec4894994e6a8a6d89#file-sigmoid-r 
+library(minpack.lm)
+
+# create matrices which orders data by x:
+
+fit_ran1 <- data.frame(matrix(c(V_ran_1,PP_random_1$ProcSD), ncol=2))
+fit_ran1 <- fit_ran1[order(fit_ran1$X1),]
+#plot(fit_ran1$X1,fit_ran1$X2) # plots just for confirmation
+#points(V_ran_1+50,PP_random_1$ProcSD, col= "blue")
+fit_ran5 <- data.frame(matrix(c(V_ran_5,PP_random_5$ProcSD), ncol=2))
+fit_ran5 <- fit_ran5[order(fit_ran5$X1),]
+#plot(fit_ran5$X1,fit_ran5$X2)
+#points(V_ran_5+50,PP_random_5$ProcSD, col= "blue")
+fit_rep1 <- data.frame(matrix(c(V_rep_1,PP_repeat_1$ProcSD), ncol=2))
+fit_rep1 <- fit_rep1[order(fit_rep1$X1),]
+#plot(fit_rep1$X1,fit_rep1$X2)
+#points(V_rep_1+50,PP_repeat_1$ProcSD, col= "blue")
+fit_rep5 <- data.frame(matrix(c(V_rep_5,PP_repeat_5$ProcSD), ncol=2))
+fit_rep5 <- fit_rep5[order(fit_rep5$X1),]
+#plot(fit_rep5$X1,fit_rep5$X2)
+#points(V_rep_5+50,PP_repeat_5$ProcSD, col= "blue")
+
 # function needed for visualization purposes
 logistic = function(params, x) {
         params[1] / (1 + exp(-params[2] * (x - params[3])))
 }
 
-x = V_rep_1
-y = PP_repeat_5$ProcSD
+# really need to make the below code a loop! 
+
+# RANDOM DAY 1
+
+x = fit_ran1$X1
+y = fit_ran1$X2
 ymax = max(y, na.rm = TRUE)
 xmed = median(x, na.rm = TRUE)
-
-# fitting code
-library(minpack.lm)
-fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=2,c=xmed))
+# fitting code:
+fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=0.001,c=xmed))
 summary(fitmodel)
-
-# visualization code
 # get the coefficients using the coef function
-params=coef(fitmodel)
+ran1_params=coef(fitmodel)
+ran1 <- logistic(ran1_params,x)
 
-y2 <- logistic(params,x)
-plot(y2,type="l")
-points(y)
+# RANDOM DAY 5
+
+x = fit_ran5$X1
+y = fit_ran5$X2
+ymax = max(y, na.rm = TRUE)
+xmed = median(x, na.rm = TRUE)
+# fitting code:
+fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=0.001,c=xmed))
+summary(fitmodel)
+# get the coefficients using the coef function
+ran5_params=coef(fitmodel)
+ran5 <- logistic(ran5_params,x)
+
+# REPEAT DAY 1
+
+x = fit_rep1$X1
+y = fit_rep1$X2
+ymax = max(y, na.rm = TRUE)
+xmed = median(x, na.rm = TRUE)
+# fitting code:
+fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=0.001,c=xmed))
+summary(fitmodel)
+# get the coefficients using the coef function
+rep1_params=coef(fitmodel)
+rep1 <- logistic(rep1_params,x)
+
+# REPEAT DAY 5
+
+x = fit_rep5$X1
+y = fit_rep5$X2
+ymax = max(y, na.rm = TRUE)
+xmed = median(x, na.rm = TRUE)
+# fitting code:
+fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=0.001,c=xmed))
+summary(fitmodel)
+# get the coefficients using the coef function
+rep5_params=coef(fitmodel)
+rep5 <- logistic(rep5_params,x)
+
+# end loop here! make matrix of parameters! 
+
+# plot fits:
+plot(fit_ran1$X1, ran1, type="l", col="grey")
+lines(fit_ran5$X1, ran5, col="black")
+lines(fit_rep1$X1, rep1, col="blue")
+lines(fit_rep5$X1, rep5, col="cyan")
+points(fit_ran1$X1, fit_ran1$X2, col="grey")
+points(fit_ran5$X1, fit_ran5$X2, col="black")
+points(fit_rep1$X1, fit_rep1$X2, col="blue")
+points(fit_rep5$X1, fit_rep5$X2, col="cyan")
 
 
 
