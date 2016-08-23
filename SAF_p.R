@@ -105,11 +105,12 @@ logistic = function(params, x) {
 
 x = fit_ran1$X1
 y = fit_ran1$X2
+# parameter guesses:
 ymax = max(y, na.rm = TRUE)
 xmed = median(x, na.rm = TRUE)
-# slope = (fit_ran1[,X2] - ) / (x2 - x1)
+slope = (fit_ran1[length(fit_ran1$X1),2] - fit_ran1[1,2]) / (fit_ran1[length(fit_ran1$X1),1] - fit_ran1[1,1])
 # fitting code:
-fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=0.001,c=xmed))
+fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=slope,c=xmed))
 summary(fitmodel)
 # get the coefficients using the coef function
 ran1_params=coef(fitmodel)
@@ -119,10 +120,12 @@ ran1 <- logistic(ran1_params,x)
 
 x = fit_ran5$X1
 y = fit_ran5$X2
+# parameter guesses:
 ymax = max(y, na.rm = TRUE)
 xmed = median(x, na.rm = TRUE)
+slope = (fit_ran5[length(fit_ran5$X1),2] - fit_ran5[1,2]) / (fit_ran5[length(fit_ran5$X1),1] - fit_ran5[1,1])
 # fitting code:
-fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=0.001,c=xmed))
+fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=slope,c=xmed))
 summary(fitmodel)
 # get the coefficients using the coef function
 ran5_params=coef(fitmodel)
@@ -132,10 +135,12 @@ ran5 <- logistic(ran5_params,x)
 
 x = fit_rep1$X1
 y = fit_rep1$X2
+# parameter guesses:
 ymax = max(y, na.rm = TRUE)
 xmed = median(x, na.rm = TRUE)
+slope = (fit_rep1[length(fit_rep1$X1),2] - fit_rep1[1,2]) / (fit_rep1[length(fit_rep1$X1),1] - fit_rep1[1,1])
 # fitting code:
-fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=0.001,c=xmed))
+fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=slope,c=xmed))
 summary(fitmodel)
 # get the coefficients using the coef function
 rep1_params=coef(fitmodel)
@@ -145,10 +150,12 @@ rep1 <- logistic(rep1_params,x)
 
 x = fit_rep5$X1
 y = fit_rep5$X2
+# parameter guesses:
 ymax = max(y, na.rm = TRUE)
 xmed = median(x, na.rm = TRUE)
+slope = (fit_rep5[length(fit_rep5$X1),2] - fit_rep5[1,2]) / (fit_rep5[length(fit_rep5$X1),1] - fit_rep5[1,1])
 # fitting code:
-fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=0.001,c=xmed))
+fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=slope,c=xmed))
 summary(fitmodel)
 # get the coefficients using the coef function
 rep5_params=coef(fitmodel)
