@@ -70,11 +70,12 @@ plot(PP_repeat_5$mt, PP_repeat_5$ProcSD, col = "blue")
 points(PP_repeat_1$mt, PP_repeat_1$ProcSD, col = "black")
 
 
-## FITTING LOGISTIC FUNCTION ##
+##### FITTING LOGISTIC FUNCTION #####
 ## adapted from: https://gist.github.com/kyrcha/74ec4894994e6a8a6d89#file-sigmoid-r 
-library(minpack.lm)
 
-# create matrices which orders data by x:
+library(minpack.lm) # better algorithm for nonlinear least squares
+
+# create matrices which orders x and y (speed and error) by x:
 
 fit_ran1 <- data.frame(matrix(c(V_ran_1,PP_random_1$ProcSD), ncol=2))
 fit_ran1 <- fit_ran1[order(fit_ran1$X1),]
@@ -106,6 +107,7 @@ x = fit_ran1$X1
 y = fit_ran1$X2
 ymax = max(y, na.rm = TRUE)
 xmed = median(x, na.rm = TRUE)
+# slope = (fit_ran1[,X2] - ) / (x2 - x1)
 # fitting code:
 fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=0.001,c=xmed))
 summary(fitmodel)
