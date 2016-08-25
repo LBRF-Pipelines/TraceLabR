@@ -1,6 +1,11 @@
 ##### TRACELAB ANALYSIS #####
 ##### AUTHORED BY JACK SOLOMON AND TONY INGRAM #####
 
+## TO DO: ##
+# 1. set up so you have option to analyze just one subject. 
+# 2. set up a "drop trial if MT is > 25% off from stimulus MT" thing... 
+# 3. set up a complexity measure! 
+
 rm(list = ls()) # clear work space
 #graphics.off() # clear figures
 #cat("\014") # clear console
