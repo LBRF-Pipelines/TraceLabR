@@ -184,30 +184,30 @@ points(fit_rep5$X1, fit_rep5$X2, col="blue")
 ## ERROR scale, translation, rotation:
 
 # plot scale against SPEED:
-plot(Vresp_rep, PP_repeat$scale, col = "blue")
-points(Vresp_ran, PP_random$scale, col = "black")
+#plot(Vresp_rep, PP_repeat$scale, col = "blue")
+#points(Vresp_ran, PP_random$scale, col = "black")
 # note: may not be any particular direction... but increasing variability? 
 # how to analyze? absolute distance? 
 
 # plot scale against MOVEMENT TIME:
-plot(PP_repeat$mt, PP_repeat$scale, col = "blue")
-points(PP_random$mt, PP_random$scale, col = "black")
+#plot(PP_repeat$mt, PP_repeat$scale, col = "blue")
+#points(PP_random$mt, PP_random$scale, col = "black")
 
 # plot translation against SPEED:
-plot(Vresp_rep, PP_repeat$translation, col = "blue")
-points(Vresp_ran, PP_random$translation, col = "black")
+#plot(Vresp_rep, PP_repeat$translation, col = "blue")
+#points(Vresp_ran, PP_random$translation, col = "black")
 
 # plot translation against MOVEMENT TIME:
-plot(PP_repeat$mt, PP_repeat$translation, col = "blue")
-points(PP_random$mt, PP_random$translation, col = "black")
+#plot(PP_repeat$mt, PP_repeat$translation, col = "blue")
+#points(PP_random$mt, PP_random$translation, col = "black")
 
 # plot rotation against SPEED:
-plot(Vresp_rep, PP_repeat$rotation, col = "blue")
-points(Vresp_ran, PP_random$rotation, col = "black")
+#plot(Vresp_rep, PP_repeat$rotation, col = "blue")
+#points(Vresp_ran, PP_random$rotation, col = "black")
 
 # plot rotation against MOVEMENT TIME:
-plot(PP_repeat$mt, PP_repeat$rotation, col = "blue")
-points(PP_random$mt, PP_random$rotation, col = "black")
+#plot(PP_repeat$mt, PP_repeat$rotation, col = "blue")
+#points(PP_random$mt, PP_random$rotation, col = "black")
 
 ##### first block against last block, within single session #####
 
