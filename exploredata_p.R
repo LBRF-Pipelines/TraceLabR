@@ -3,7 +3,7 @@
 
 ## SINGLE PARTICIPANT ##
 
-all_data_p <- subset(all_data, participant_id == 2)
+all_data_p <- subset(all_data, participant_id == 8)
 
 # in general (without seperating repeated and random) was there a decrease in error?
 plot(all_data_p$RawSD)
@@ -73,9 +73,9 @@ fluctile(table(CC$control_response, CC$correct_response), shape="c")
 # are participants actually matching the stimulus MT?
 
 # subset all data by condition (repeat vs random don't matter here):
-mt_compare_PP <- subset(all_data, condition == "PP-VR-5", select = c(stimulus_gt, stimulus_mt, mt))
-mt_compare_MI <- subset(all_data, condition == "MI-00-5", select = c(stimulus_gt, stimulus_mt, mt))
-mt_compare_CC <- subset(all_data, condition == "CC-00-5", select = c(stimulus_gt, stimulus_mt, mt))
+mt_compare_PP <- subset(all_data_p, condition == "PP-VR-5", select = c(stimulus_gt, stimulus_mt, mt))
+mt_compare_MI <- subset(all_data_p, condition == "MI-00-5", select = c(stimulus_gt, stimulus_mt, mt))
+mt_compare_CC <- subset(all_data_p, condition == "CC-00-5", select = c(stimulus_gt, stimulus_mt, mt))
 
 # plot to see if response MT's are related to stimulus MT's:
 plot(mt_compare_PP[,2],mt_compare_PP[,3])
@@ -94,12 +94,39 @@ summary(mt_compare_CC_LM)
 # consider doing the above comparing repeated vs random... 
 
 
+
+##### the following is done on all participants #####
+
 ## PATH LENGTHS ##
 # what is the distribution of path length? does the repeat shape fit in reasonably?
 
-# boxplots — does repeated fig fall within range of randoms? 
+# boxplots — does repeated fig pathlength fall within range of randoms? 
 boxplot(PLstim ~ figure_type, data = all_data, main="PLstim", xlab="figure_type", ylab="pixels") # what participant saw
 boxplot(PLresp ~ figure_type, data = all_data, main="PLresp", xlab="figure_type", ylab="pixels") # what participant did
+
+## COMPLEXITY ##
+
+# boxlots - does repeated fig complexity fall within range of randoms?
+boxplot(complexity ~ figure_type, data = all_data, main="complexity", xlab="figure_type", ylab="complexity")
+
+##### interactions #####
+
+# subset all data
+Arepeat <- subset(all_data, figure_type == "fig3")
+Arandom <- subset(all_data, figure_type == "random")
+
+# does stim MT affect pathlength?
+plot(Arandom$stimulus_mt, Arandom$PLstim)
+plot(Arepeat$stimulus_mt, Arepeat$PLstim) # you can see that there's smaller pathlength at fastest speed... but it didn' for random!
+
+# does stim MT affect complexity?
+plot(Arandom$stimulus_mt, Arandom$complexity) # looks like generally stim MT does not affect complexity measure — which is good
+plot(Arepeat$stimulus_mt, Arepeat$complexity) # looks like the lowest MT underestimates complexity on repeat... because less data?
+
+# does pathlength affect complexity? vice versa?
+plot(Arandom$PLstim, Arandom$complexity) # YES... makes sense... more curvy shapes tend to be longer — but curviness is divided by length... 
+plot(Arepeat$PLstim, Arepeat$complexity)
+
 
 ##### NOTE: should be looking at each day seperately, and comparing!
 
