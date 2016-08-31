@@ -94,6 +94,7 @@ for(i in 1:length(file.names)) {
                 #create data frames
                 data_stim <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlf)), ", "))),ncol=3,nrow=length(tlf)/3, byrow=TRUE))
                 data_resp <- data.frame(matrix(as.numeric(gsub("\\[|\\]|\\(|\\)", "", as.character(tlt))),ncol=3,nrow=length(tlt)/3, byrow=TRUE))
+                points <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(pts)), ", "))),ncol=2,nrow=length(pts)/2, byrow=TRUE))
                 
                 #remove artifacts 
                 data_resp_rem <- data_resp #[!(data_resp$X1=="1919"&data_resp$X2=="1079"),]
@@ -161,6 +162,20 @@ for(i in 1:length(file.names)) {
                         segs <- rbind(segs, seg_leg)
                 }
                 PLstim <- sum(segs, na.rm = TRUE)
+                
+                ##### COMPLEXITY MEASURES #####
+                
+                ## as measured by extent of curvature using a modified sinuosity calculation 
+                ## complexity = (stimulus pathlength) / (perimeter of straight lines between segment points)
+                
+                segs <- matrix()
+                for (j in 1:NROW(points)) {
+                        seg_leg <- sqrt((points[j+1,1]-points[j,1])^2 + (points[j+1,2]-points[j,2])^2)
+                        segs <- rbind(segs, seg_leg)
+                }
+                perimeter <- sum(segs, na.rm = TRUE)
+                
+                complexity <- PLstim/perimeter
                 
                 ##### PLOTS #####
                 
