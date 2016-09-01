@@ -2,8 +2,8 @@
 ##### AUTHORED BY JACK SOLOMON AND TONY INGRAM #####
 
 rm(list = ls()) # clear work space
-#graphics.off() # clear figures
-#cat("\014") # clear console
+graphics.off() # clear figures
+cat("\014") # clear console
 
 library(Morpho)
 library(plyr)
@@ -15,7 +15,7 @@ trials <- read.csv("~/RStudio/TraceLabDB/trials.csv", stringsAsFactors = FALSE)
 ##### PUT SPECIFIC TRIAL HERE #####
 
 # Find .zip file for trial you want:
-file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p8_2016-08-30 13:59:06/testing/session_1/p8_s1_b1_t4_2016-08-30.zip"
+file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p8_2016-08-30 13:59:06/training/session_3/p8_s3_b5_t20_2016-09-01.zip"
 
 out.file <- ""
 # Apply the function to all files.
@@ -36,6 +36,20 @@ out.file <- ""
                 #remove artifacts 
                 data_resp_rem <- data_resp #[!(data_resp$X1=="1919"&data_resp$X2=="1079"),]
                 data_resp_rem <- data_resp_rem #[!(data_resp_rem$X1=="119"&data_resp_rem$X2=="1079"),]
+                
+                # get rid of repeat points at end of trajectory (from when people miss green)
+                clip_index <- ""
+                for(i in 1:length(data_resp$X1)){
+                        if(data_resp[i,1]==data_resp[i+5,1] & data_resp[i,2]==data_resp[i+5,2]){
+                                break;
+                        }
+                        else{
+                                clip_index <- i
+                        }
+                        data_resp_clip <- data_resp[1:i,]
+                }
+                new_mt <- max(data_resp_clip$X3)
+                
                 
                 #normalize to shortest segement
                 data_resp_rem$trialnum <- seq(from=1,to=length(data_resp_rem$X1),by=1)
