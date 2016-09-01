@@ -87,7 +87,7 @@ for(i in 1:length(file.names)) {
                                 out <- count(dir_sign[,2])
                                 corr.resp <- as.numeric(out[out$x==-1,2])
                         }
-                        datarow =c(name.tlf,rep(NA,times=9),corr.resp)
+                        datarow =c(name.tlf,rep(NA,times=10),corr.resp)
                 }
         }
         else{
