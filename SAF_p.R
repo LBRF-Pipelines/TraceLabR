@@ -24,35 +24,67 @@ V_rep_5 <- PP_repeat_5$PLresp / PP_repeat_5$mt # pixels per second
 
 ## ERROR raw and shape (proc):
 
-# plot RAW error against SPEED:
+# RAW error against speed:
 plot(V_ran_5, PP_random_5$RawSD, col = "blue")
 points(V_ran_1, PP_random_1$RawSD, col = "black")
 
 plot(V_rep_5, PP_repeat_5$RawSD, col = "blue")
 points(V_rep_1, PP_repeat_1$RawSD, col = "black")
 
-# plot PROC (shape) error against SPEED:
+# SHAPE (proc) error against speed:
 plot(V_ran_5, PP_random_5$ProcSD, col = "blue")
 points(V_ran_1, PP_random_1$ProcSD, col = "black")
 
 plot(V_rep_5, PP_repeat_5$ProcSD, col = "blue")
 points(V_rep_1, PP_repeat_1$ProcSD, col = "black")
 
+# SCALE error against speed:
+plot(V_ran_5, PP_random_5$scale, col = "blue", ylim = c(.2,1.2))
+points(V_ran_1, PP_random_1$scale, col = "black") # as speed increases, people shrink!
+
+plot(V_rep_5, PP_repeat_5$scale, col = "blue")
+points(V_rep_1, PP_repeat_1$scale, col = "black") # as speed increases, people shrink!
+
+# TRANSLATION error against speed:
+plot(V_ran_5, PP_random_5$translation, col = "blue")
+points(V_ran_1, PP_random_1$translation, col = "black")
+
+plot(V_rep_5, PP_repeat_5$translation, col = "blue")
+points(V_rep_1, PP_repeat_1$translation, col = "black")
+
+# ROTATION error against speed:
+plot(V_ran_5, PP_random_5$rotation, col = "blue", ylim = c(0,1.1))
+points(V_ran_1, PP_random_1$rotation, col = "black")
+
+plot(V_rep_5, PP_repeat_5$rotation, col = "blue", ylim = c(0,0.3), xlim = c(1000,4500))
+points(V_rep_1, PP_repeat_1$rotation, col = "black")
+
+
 ## ERROR vs COMPLEXITY ##
 
-# raw error against complexity
+# only do for random shapes — repeated would just be straight vertical lines
+
+# RAW error against complexity
 plot(PP_random_1$complexity, PP_random_1$RawSD, col = "black")
 points(PP_random_5$complexity, PP_random_5$RawSD, col = "blue")
 
-plot(PP_repeat_1$complexity, PP_repeat_1$RawSD, col = "black")
-points(PP_repeat_5$complexity, PP_repeat_5$RawSD, col = "blue")
-
-# shape (proc) error against complexity
+# SHAPE (proc) error against complexity
 plot(PP_random_1$complexity, PP_random_1$ProcSD, col = "black")
-plot(PP_random_5$complexity, PP_random_5$ProcSD, col = "blue")
+points(PP_random_5$complexity, PP_random_5$ProcSD, col = "blue")
 
-plot(PP_repeat_1$complexity, PP_repeat_1$ProcSD, col = "black")
-plot(PP_repeat_5$complexity, PP_repeat_5$ProcSD, col = "blue")
+# SCALE error against complexity
+plot(PP_random_1$complexity, PP_random_1$scale, col = "black", ylim = c(0.25,1.25))
+points(PP_random_5$complexity, PP_random_5$scale, col = "blue")
+
+# TRANSLATION error against complexity
+plot(PP_random_1$complexity, PP_random_1$translation, col = "black")
+points(PP_random_5$complexity, PP_random_5$translation, col = "blue")
+
+# ROTATION error against complexity
+plot(PP_random_1$complexity, PP_random_1$rotation, col = "black")
+points(PP_random_5$complexity, PP_random_5$rotation, col = "blue")
+
+
 
 ## 3D plots of speed-complexity-error ##
 library(rgl)
