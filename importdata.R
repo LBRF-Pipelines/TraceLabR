@@ -2,8 +2,7 @@
 ##### AUTHORED BY JACK SOLOMON AND TONY INGRAM #####
 
 ## TO DO: ##
-# 1. set up so you have option to analyze just one subject / trial. 
-# 2. set up a "drop trial if MT is > 25% off from stimulus MT" thing... 
+# 1. set up a "drop trial if MT is > 25% off from stimulus MT" thing...
 
 rm(list = ls()) # clear work space
 #graphics.off() # clear figures
