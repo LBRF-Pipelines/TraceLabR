@@ -41,10 +41,10 @@ out.file <- ""
                         }
                         else{
                                 clip_index <- i
+                                data_resp_clip <- data_resp[1:i,]
+                                new_mt <- max(data_resp_clip$X3)
                         }
-                        data_resp_clip <- data_resp[1:i,]
                 }
-                new_mt <- max(data_resp_clip$X3)
                 data_resp <- data_resp_clip
                 
                 #remove artifacts 
