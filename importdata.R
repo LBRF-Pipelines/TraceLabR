@@ -2,7 +2,7 @@
 ##### AUTHORED BY JACK SOLOMON AND TONY INGRAM #####
 
 ## TO DO: ##
-# 1. set up so you have option to analyze just one subject. 
+# 1. set up so you have option to analyze just one subject / trial. 
 # 2. set up a "drop trial if MT is > 25% off from stimulus MT" thing... 
 
 rm(list = ls()) # clear work space
@@ -194,6 +194,7 @@ for(i in 1:length(file.names)) {
                 plot(data_stim$X1,data_stim$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20, col=data_stim$Col)
                 points(data_resp_rem$X1,data_resp_rem$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20 ,col=data_resp_rem$Col)
                 points(data_sub$X1,data_sub$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20 ,col=data_sub$Col)
+                title(main = c(name.tlt, " raw"))
                 
                 #plot centroids (note that one of these is down sampled data)
                 points(trans$trans[1],trans$trans[2],pch=8,col="black")
@@ -203,6 +204,7 @@ for(i in 1:length(file.names)) {
                 
                 plot(trans$X, xlim=c(-960,960), ylim=c(540,-540))
                 points(trans$Y, col="red")
+                title(main = c(name.tlt, " proc"))
                 
                 ##### save variables to a row & subsequently a file #####
                 
