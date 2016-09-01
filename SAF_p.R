@@ -3,10 +3,10 @@
 
 # subset data — only need to look at physical groups, first and last sessions:
 # *** note: have to look at final day of MI and CC groups similarly...
-PP_random_1 <- subset(all_data, (participant_id == "2") & (figure_type == "random") & (session_num == "1"))
-PP_random_5 <- subset(all_data, (participant_id == "2") & (figure_type == "random") & (session_num == "5"))
-PP_repeat_1 <- subset(all_data, (participant_id == "2") & (figure_type == "fig3") & (session_num == "1"))
-PP_repeat_5 <- subset(all_data, (participant_id == "2") & (figure_type == "fig3") & (session_num == "5"))
+PP_random_1 <- subset(all_data, (participant_id == "8") & (figure_type == "random") & (session_num == "1"))
+PP_random_5 <- subset(all_data, (participant_id == "8") & (figure_type == "random") & (session_num == "2"))
+PP_repeat_1 <- subset(all_data, (participant_id == "8") & (figure_type == "fig3") & (session_num == "1"))
+PP_repeat_5 <- subset(all_data, (participant_id == "8") & (figure_type == "fig3") & (session_num == "2"))
 # sort by p, s, b, t:
 PP_random_1 <- PP_random_1[with(PP_random_1, order(participant_id, session_num, block_num, trial_num)), ]
 PP_random_5 <- PP_random_5[with(PP_random_5, order(participant_id, session_num, block_num, trial_num)), ]
@@ -56,18 +56,18 @@ summary(PP_Ran_Proc1LM)
 
 
 # plot RAW error against MOVEMENT TIME:
-plot(PP_random_5$mt, PP_random_5$RawSD, col = "blue")
-points(PP_random_1$mt, PP_random_1$RawSD, col = "black")
+#plot(PP_random_5$mt, PP_random_5$RawSD, col = "blue")
+#points(PP_random_1$mt, PP_random_1$RawSD, col = "black")
 
-plot(PP_repeat_5$mt, PP_repeat_5$RawSD, col = "blue")
-points(PP_repeat_1$mt, PP_repeat_1$RawSD, col = "black")
+#plot(PP_repeat_5$mt, PP_repeat_5$RawSD, col = "blue")
+#points(PP_repeat_1$mt, PP_repeat_1$RawSD, col = "black")
 
 # plot PROC (shape) error against MOVEMENT TIME:
-plot(PP_random_5$mt, PP_random_5$ProcSD, col = "blue")
-points(PP_random_1$mt, PP_random_1$ProcSD, col = "black")
+#plot(PP_random_5$mt, PP_random_5$ProcSD, col = "blue")
+#points(PP_random_1$mt, PP_random_1$ProcSD, col = "black")
 
-plot(PP_repeat_5$mt, PP_repeat_5$ProcSD, col = "blue")
-points(PP_repeat_1$mt, PP_repeat_1$ProcSD, col = "black")
+#plot(PP_repeat_5$mt, PP_repeat_5$ProcSD, col = "blue")
+#points(PP_repeat_1$mt, PP_repeat_1$ProcSD, col = "black")
 
 
 ##### FITTING LOGISTIC FUNCTION #####
