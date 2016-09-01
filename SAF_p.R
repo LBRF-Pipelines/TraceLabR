@@ -4,9 +4,9 @@
 # subset data — only need to look at physical groups, first and last sessions:
 # *** note: have to look at final day of MI and CC groups similarly...
 PP_random_1 <- subset(all_data, (participant_id == "8") & (figure_type == "random") & (session_num == "1"))
-PP_random_5 <- subset(all_data, (participant_id == "8") & (figure_type == "random") & (session_num == "2"))
+PP_random_5 <- subset(all_data, (participant_id == "8") & (figure_type == "random") & (session_num == "3"))
 PP_repeat_1 <- subset(all_data, (participant_id == "8") & (figure_type == "fig3") & (session_num == "1"))
-PP_repeat_5 <- subset(all_data, (participant_id == "8") & (figure_type == "fig3") & (session_num == "2"))
+PP_repeat_5 <- subset(all_data, (participant_id == "8") & (figure_type == "fig3") & (session_num == "3"))
 # sort by p, s, b, t:
 PP_random_1 <- PP_random_1[with(PP_random_1, order(participant_id, session_num, block_num, trial_num)), ]
 PP_random_5 <- PP_random_5[with(PP_random_5, order(participant_id, session_num, block_num, trial_num)), ]
@@ -53,10 +53,10 @@ plot(V_rep_5, PP_repeat_5$translation, col = "blue")
 points(V_rep_1, PP_repeat_1$translation, col = "black")
 
 # ROTATION error against speed:
-plot(V_ran_5, PP_random_5$rotation, col = "blue", ylim = c(0,1.1))
+plot(V_ran_5, PP_random_5$rotation, col = "blue")
 points(V_ran_1, PP_random_1$rotation, col = "black")
 
-plot(V_rep_5, PP_repeat_5$rotation, col = "blue", ylim = c(0,0.3), xlim = c(1000,4500))
+plot(V_rep_5, PP_repeat_5$rotation, col = "blue", ylim = c(0,0.3))
 points(V_rep_1, PP_repeat_1$rotation, col = "black")
 
 
@@ -114,6 +114,8 @@ plot3d(PP_repeat_5$complexity, V_rep_5, PP_repeat_5$RawSD, col="blue", size=3)
 
 library(minpack.lm) # better algorithm for nonlinear least squares
 
+## SHAPE ##
+
 # create matrices which orders x and y (speed and error) by x:
 
 fit_ran1 <- data.frame(matrix(c(V_ran_1,PP_random_1$ProcSD), ncol=2))
@@ -147,7 +149,7 @@ y = fit_ran1$X2
 # parameter guesses:
 ymax = max(y, na.rm = TRUE)
 xmed = median(x, na.rm = TRUE)
-slope = (fit_ran1[length(fit_ran1$X1),2] - fit_ran1[1,2]) / (fit_ran1[length(fit_ran1$X1),1] - fit_ran1[1,1])
+slope = (fit_ran1[which.max(fit_ran1$X1),2] - fit_ran1[1,2]) / (fit_ran1[which.max(fit_ran1$X1),1] - fit_ran1[1,1])
 # fitting code:
 fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=slope,c=xmed))
 summary(fitmodel)
@@ -162,7 +164,7 @@ y = fit_ran5$X2
 # parameter guesses:
 ymax = max(y, na.rm = TRUE)
 xmed = median(x, na.rm = TRUE)
-slope = (fit_ran5[length(fit_ran5$X1),2] - fit_ran5[1,2]) / (fit_ran5[length(fit_ran5$X1),1] - fit_ran5[1,1])
+slope = (fit_ran5[which.max(fit_ran5$X1),2] - fit_ran5[1,2]) / (fit_ran5[which.max(fit_ran5$X1),1] - fit_ran5[1,1])
 # fitting code:
 fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=slope,c=xmed))
 summary(fitmodel)
@@ -177,7 +179,7 @@ y = fit_rep1$X2
 # parameter guesses:
 ymax = max(y, na.rm = TRUE)
 xmed = median(x, na.rm = TRUE)
-slope = (fit_rep1[length(fit_rep1$X1),2] - fit_rep1[1,2]) / (fit_rep1[length(fit_rep1$X1),1] - fit_rep1[1,1])
+slope = (fit_rep1[which.max(fit_rep1$X1),2] - fit_rep1[1,2]) / (fit_rep1[which.max(fit_rep1$X1),1] - fit_rep1[1,1])
 # fitting code:
 fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=slope,c=xmed))
 summary(fitmodel)
@@ -192,7 +194,7 @@ y = fit_rep5$X2
 # parameter guesses:
 ymax = max(y, na.rm = TRUE)
 xmed = median(x, na.rm = TRUE)
-slope = (fit_rep5[length(fit_rep5$X1),2] - fit_rep5[1,2]) / (fit_rep5[length(fit_rep5$X1),1] - fit_rep5[1,1])
+slope = (fit_rep5[which.max(fit_rep5$X1),2] - fit_rep5[1,2]) / (fit_rep5[which.max(fit_rep5$X1),1] - fit_rep5[1,1])
 # fitting code:
 fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=slope,c=xmed))
 summary(fitmodel)
@@ -203,7 +205,7 @@ rep5 <- logistic(rep5_params,x)
 # end loop here! make matrix of parameters! 
 
 # plot fits:
-plot(fit_ran1$X1, ran1, type="l", col="grey", xlim=c(0,5000), ylim=c(0,500))
+plot(fit_ran1$X1, ran1, type="l", col="grey", xlim=c(0,6000), ylim=c(0,600))
 lines(fit_ran5$X1, ran5, col="black")
 lines(fit_rep1$X1, rep1, col="cyan")
 lines(fit_rep5$X1, rep5, col="blue")
@@ -211,42 +213,10 @@ points(fit_ran1$X1, fit_ran1$X2, col="grey")
 points(fit_ran5$X1, fit_ran5$X2, col="black")
 points(fit_rep1$X1, fit_rep1$X2, col="cyan")
 points(fit_rep5$X1, fit_rep5$X2, col="blue")
+title(main="Shape (ProcSD)")
 
 
 
-
-
-##### BELOW IS OLD AND NEEDS TO BE FIXED
-
-
-
-## ERROR scale, translation, rotation:
-
-# plot scale against SPEED:
-#plot(Vresp_rep, PP_repeat$scale, col = "blue")
-#points(Vresp_ran, PP_random$scale, col = "black")
-# note: may not be any particular direction... but increasing variability? 
-# how to analyze? absolute distance? 
-
-# plot scale against MOVEMENT TIME:
-#plot(PP_repeat$mt, PP_repeat$scale, col = "blue")
-#points(PP_random$mt, PP_random$scale, col = "black")
-
-# plot translation against SPEED:
-#plot(Vresp_rep, PP_repeat$translation, col = "blue")
-#points(Vresp_ran, PP_random$translation, col = "black")
-
-# plot translation against MOVEMENT TIME:
-#plot(PP_repeat$mt, PP_repeat$translation, col = "blue")
-#points(PP_random$mt, PP_random$translation, col = "black")
-
-# plot rotation against SPEED:
-#plot(Vresp_rep, PP_repeat$rotation, col = "blue")
-#points(Vresp_ran, PP_random$rotation, col = "black")
-
-# plot rotation against MOVEMENT TIME:
-#plot(PP_repeat$mt, PP_repeat$rotation, col = "blue")
-#points(PP_random$mt, PP_random$rotation, col = "black")
 
 ##### first block against last block, within single session #####
 
