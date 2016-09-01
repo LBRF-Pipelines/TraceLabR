@@ -23,12 +23,13 @@ random <- random[with(random, order(participant_id, session_num, block_num, tria
 
 #### FIRST ROUGH LOOK AT DATA #### 
 
-# getting better across session?
-# plot repeated (blue) and random on same figure:
+# getting better across session? note: this isn't a good way to look because there's many speeds!
+
+# plot RAW repeated (blue) and random (black) on same figure:
 plot(repeated$RawSD, col = "blue")
 points(random$RawSD, col = "black")
-# plot a moving average lines (avg of current, prev 10 and next 10):
-f21 <- rep(1/21,21)
+# plot a moving average lines:
+f21 <- rep(1/21,21) # avg of current, prev 10 and next 10
 rep_sym <- filter(repeated$RawSD, f21, sides=2)
 lines(1:250, rep_sym, col="blue", lwd=2)
 ran_sym <- filter(random$RawSD, f21, sides=2)
@@ -39,10 +40,11 @@ summary(Ran_Raw_LM)
 Rep_Raw_LM <- lm(1:length(repeated$RawSD) ~ repeated$RawSD)
 summary(Rep_Raw_LM)
 
+# plot SHAPE (proc) repeated (blue) and random (black) on same figure:
 plot(repeated$ProcSD, col = "blue")
 points(random$ProcSD, col = "black")
-# plot a moving average lines (avg of current, prev 10 and next 10):
-f21 <- rep(1/21,21)
+# plot a moving average lines:
+f21 <- rep(1/21,21) # avg of current, prev 10 and next 10
 rep_sym <- filter(repeated$ProcSD, f21, sides=2)
 lines(1:250, rep_sym, col="blue", lwd=2)
 ran_sym <- filter(random$ProcSD, f21, sides=2)
@@ -125,7 +127,7 @@ plot(Arepeat$stimulus_mt, Arepeat$complexity) # looks like the lowest MT underes
 
 # does pathlength affect complexity? vice versa?
 plot(Arandom$PLstim, Arandom$complexity) # YES... makes sense... more curvy shapes tend to be longer — but curviness is divided by length... 
-plot(Arepeat$PLstim, Arepeat$complexity)
+plot(Arepeat$PLstim, Arepeat$complexity) # if you zoom in enough, you see that it's basically a straight line... first order ODE?
 
 
 ##### NOTE: should be looking at each day seperately, and comparing!
