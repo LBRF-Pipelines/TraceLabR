@@ -27,32 +27,35 @@ V_rep_5 <- PP_repeat_5$PLresp / PP_repeat_5$mt # pixels per second
 # plot RAW error against SPEED:
 plot(V_ran_5, PP_random_5$RawSD, col = "blue")
 points(V_ran_1, PP_random_1$RawSD, col = "black")
-PP_Ran_Raw5LM <- lm(V_ran_5 ~ PP_random_5$RawSD)
-summary(PP_Ran_Raw5LM)
-PP_Ran_Raw1LM <- lm(V_ran_1 ~ PP_random_1$RawSD)
-summary(PP_Ran_Raw1LM)
 
 plot(V_rep_5, PP_repeat_5$RawSD, col = "blue")
 points(V_rep_1, PP_repeat_1$RawSD, col = "black")
-PP_Rep_Raw5LM <- lm(V_rep_5 ~ PP_repeat_5$RawSD)
-summary(PP_Rep_Raw5LM)
-PP_Rep_Raw1LM <- lm(V_rep_1 ~ PP_repeat_1$RawSD)
-summary(PP_Rep_Raw1LM)
 
 # plot PROC (shape) error against SPEED:
 plot(V_ran_5, PP_random_5$ProcSD, col = "blue")
 points(V_ran_1, PP_random_1$ProcSD, col = "black")
-PP_Ran_Proc5LM <- lm(V_ran_5 ~ PP_random_5$ProcSD)
-summary(PP_Ran_Proc5LM)
-PP_Ran_Proc1LM <- lm(V_ran_1 ~ PP_random_1$ProcSD)
-summary(PP_Ran_Proc1LM)
 
 plot(V_rep_5, PP_repeat_5$ProcSD, col = "blue")
 points(V_rep_1, PP_repeat_1$ProcSD, col = "black")
-PP_Ran_Proc5LM <- lm(V_ran_5 ~ PP_random_5$ProcSD)
-summary(PP_Ran_Proc5LM)
-PP_Ran_Proc1LM <- lm(V_ran_1 ~ PP_random_1$ProcSD)
-summary(PP_Ran_Proc1LM)
+
+## ERROR vs COMPLEXITY ##
+
+# raw error against complexity
+plot(PP_random_1$complexity, PP_random_1$RawSD, col = "black")
+points(PP_random_5$complexity, PP_random_5$RawSD, col = "blue")
+
+plot(PP_repeat_1$complexity, PP_repeat_1$RawSD, col = "black")
+points(PP_repeat_5$complexity, PP_repeat_5$RawSD, col = "blue")
+
+# shape (proc) error against complexity
+plot(PP_random_1$complexity, PP_random_1$ProcSD, col = "black")
+plot(PP_random_5$complexity, PP_random_5$ProcSD, col = "blue")
+
+plot(PP_repeat_1$complexity, PP_repeat_1$ProcSD, col = "black")
+plot(PP_repeat_5$complexity, PP_repeat_5$ProcSD, col = "blue")
+
+
+
 
 
 # plot RAW error against MOVEMENT TIME:
