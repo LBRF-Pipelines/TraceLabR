@@ -2,8 +2,8 @@
 ##### AUTHORED BY JACK SOLOMON AND TONY INGRAM #####
 
 rm(list = ls()) # clear work space
-graphics.off() # clear figures
-cat("\014") # clear console
+#graphics.off() # clear figures
+#cat("\014") # clear console
 
 library(Morpho)
 library(plyr)
@@ -33,14 +33,10 @@ out.file <- ""
                 data_resp <- data.frame(matrix(as.numeric(gsub("\\[|\\]|\\(|\\)", "", as.character(tlt))),ncol=3,nrow=length(tlt)/3, byrow=TRUE))
                 points <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(pts)), ", "))),ncol=2,nrow=length(pts)/2, byrow=TRUE))
                 
-                #remove artifacts 
-                data_resp_rem <- data_resp #[!(data_resp$X1=="1919"&data_resp$X2=="1079"),]
-                data_resp_rem <- data_resp_rem #[!(data_resp_rem$X1=="119"&data_resp_rem$X2=="1079"),]
-                
                 # get rid of repeat points at end of trajectory (from when people miss green)
                 clip_index <- ""
                 for(i in 1:length(data_resp$X1)){
-                        if(data_resp[i,1]==data_resp[i+5,1] & data_resp[i,2]==data_resp[i+5,2]){
+                        if(data_resp[i,1]==data_resp[i+1,1] & data_resp[i,2]==data_resp[i+1,2]){
                                 break;
                         }
                         else{
@@ -49,7 +45,11 @@ out.file <- ""
                         data_resp_clip <- data_resp[1:i,]
                 }
                 new_mt <- max(data_resp_clip$X3)
+                data_resp <- data_resp_clip
                 
+                #remove artifacts 
+                data_resp_rem <- data_resp #[!(data_resp$X1=="1919"&data_resp$X2=="1079"),]
+                data_resp_rem <- data_resp_rem #[!(data_resp_rem$X1=="119"&data_resp_rem$X2=="1079"),]
                 
                 #normalize to shortest segement
                 data_resp_rem$trialnum <- seq(from=1,to=length(data_resp_rem$X1),by=1)
