@@ -54,9 +54,13 @@ plot(PP_random_5$complexity, PP_random_5$ProcSD, col = "blue")
 plot(PP_repeat_1$complexity, PP_repeat_1$ProcSD, col = "black")
 plot(PP_repeat_5$complexity, PP_repeat_5$ProcSD, col = "blue")
 
+## 3D plots of speed-complexity-error ##
+library(rgl)
+plot3d(PP_random_1$complexity, V_ran_1, PP_random_1$RawSD, col="black", size=3)
+plot3d(PP_random_5$complexity, V_ran_5, PP_random_5$RawSD, col="blue", size=3)
 
-
-
+plot3d(PP_repeat_1$complexity, V_rep_1, PP_repeat_1$RawSD, col="black", size=3)
+plot3d(PP_repeat_5$complexity, V_rep_5, PP_repeat_5$RawSD, col="blue", size=3)
 
 # plot RAW error against MOVEMENT TIME:
 #plot(PP_random_5$mt, PP_random_5$RawSD, col = "blue")
