@@ -5,8 +5,8 @@
 # 1. create new column in all_data for mt_clip
 
 rm(list = ls()) # clear work space
-#graphics.off() # clear figures
-#cat("\014") # clear console
+graphics.off() # clear figures
+cat("\014") # clear console
 
 library(Morpho)
 library(plyr)
@@ -30,7 +30,7 @@ for(i in 1:length(file.names)) {
         tlt <- read.table(unz(file.names[i], name.tlt),stringsAsFactors=FALSE, sep=",")
         pts <- read.table(unz(file.names[i], name.pts),stringsAsFactors=FALSE, sep=",")
         # separate PP data from MI and CC data (remember, final session of MI and CC are also PP sessions)
-        if (length(tlt)<15){
+        if (length(tlt)<30){
                 # disclude all groups except CC
                 if(trials[trials$figure_file==name.tlf,5]!='CC-00-5'){datarow=c(name.tlf,rep(NA,times=11))}
                 # if in CC group, runs control task
@@ -100,7 +100,7 @@ for(i in 1:length(file.names)) {
                 
                 # get rid of repeat points at end of trajectory (from when people miss green)
                 clip_index <- rep(0, length(data_resp_rem$X1))
-                for(k in 1:(length(data_resp_rem$X1)-1)){
+                for(k in 11:(length(data_resp_rem$X1)-1)){
                         if(data_resp_rem[k,1]!=data_resp_rem[k+1,1] | data_resp_rem[k,2]!=data_resp_rem[k+1,2]){
                                 clip_index[k] <- 1
                         }
@@ -108,11 +108,11 @@ for(i in 1:length(file.names)) {
                                 clip_index[k] <- 0
                         }
                 }
-                if(which(clip_index==0)[1]<5){
+                if(sum(clip_index)<5){
                         datarow=c(name.tlf,rep(NA,times=11))
                 }
                 else{
-                        clip <- which(clip_index==0)[1]
+                        clip <- which(clip_index[11:length(clip_index)]==0)[1]
                         data_resp_clip <- data_resp_rem[1:clip,]
                         mt_clip <- max(data_resp_clip$X3)
                         data_resp_rem <- data_resp_clip
