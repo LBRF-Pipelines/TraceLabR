@@ -49,7 +49,7 @@ out.file <- ""
                 }
                 clip <- which(clip_index==0)[1]
                 data_resp_clip <- data_resp_rem[1:clip,]
-                new_mt <- max(data_resp_clip$X3)
+                mt_clip <- max(data_resp_clip$X3)
                 data_resp_rem <- data_resp_clip
                 
                 #normalize to shortest segement
