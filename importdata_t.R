@@ -2,8 +2,8 @@
 ##### AUTHORED BY JACK SOLOMON AND TONY INGRAM #####
 
 rm(list = ls()) # clear work space
-#graphics.off() # clear figures
-#cat("\014") # clear console
+graphics.off() # clear figures
+cat("\014") # clear console
 
 library(Morpho)
 library(plyr)
@@ -16,6 +16,10 @@ trials <- read.csv("~/RStudio/TraceLabDB/trials.csv", stringsAsFactors = FALSE)
 
 # Find .zip file for trial you want:
 file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p8_2016-08-30 13:59:06/training/session_3/p8_s3_b5_t20_2016-09-01.zip"
+#file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p4_2016-08-26 11:06:02/testing/session_1/p4_s1_b1_t10_2016-08-26.zip"
+#file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p5_2016-08-26 11:56:53/testing/session_1/p5_s1_b3_t10_2016-08-26.zip"
+#file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p4_2016-08-26 11:06:02/testing/session_1/p4_s1_b5_t15_2016-08-26.zip"
+#file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p8_2016-08-30 13:59:06/testing/session_1/p8_s1_b4_t5_2016-08-30.zip"
 
 out.file <- ""
 # Apply the function to all files.
@@ -39,12 +43,12 @@ out.file <- ""
                 
                 # get rid of repeat points at end of trajectory (from when people miss green)
                 clip_index <- rep(0, length(data_resp_rem$X1))
-                for(i in 1:(length(data_resp_rem$X1)-1)){
-                        if(data_resp_rem[i,1]!=data_resp_rem[i+1,1] | data_resp_rem[i,2]!=data_resp_rem[i+1,2]){ 
-                                clip_index[i] <- 1
+                for(k in 1:(length(data_resp_rem$X1)-1)){
+                        if(data_resp_rem[k,1]!=data_resp_rem[k+1,1] | data_resp_rem[k,2]!=data_resp_rem[k+1,2]){ 
+                                clip_index[k] <- 1
                         }
                         else{
-                                clip_index[i] <- 0
+                                clip_index[k] <- 0
                         }
                 }
                 clip <- which(clip_index==0)[1] 
