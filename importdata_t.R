@@ -39,7 +39,7 @@ out.file <- ""
                 
                 # get rid of repeat points at end of trajectory (from when people miss green)
                 clip_index <- rep(0, length(data_resp_rem$X1))
-                for(i in 1:length(data_resp_rem$X1)){
+                for(i in 1:(length(data_resp_rem$X1)-1)){
                         if(data_resp_rem[i,1]!=data_resp_rem[i+1,1] | data_resp_rem[i,2]!=data_resp_rem[i+1,2]){ 
                                 clip_index[i] <- 1
                         }
@@ -47,7 +47,7 @@ out.file <- ""
                                 clip_index[i] <- 0
                         }
                 }
-                clip <- which(clip_index==0)[1]
+                clip <- which(clip_index==0)[1] 
                 data_resp_clip <- data_resp_rem[1:clip,]
                 mt_clip <- max(data_resp_clip$X3)
                 data_resp_rem <- data_resp_clip
