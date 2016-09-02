@@ -25,39 +25,40 @@ V_rep_5 <- PP_repeat_5$PLresp / PP_repeat_5$mt_clip # pixels per second
 ## ERROR raw and shape (proc):
 
 # RAW error against speed:
-plot(V_ran_5, PP_random_5$RawSD, col = "blue")
-points(V_ran_1, PP_random_1$RawSD, col = "black")
+plot(V_ran_1, PP_random_1$RawSD, col = "black")
+points(V_ran_5, PP_random_5$RawSD, col = "blue")
 
-plot(V_rep_5, PP_repeat_5$RawSD, col = "blue")
-points(V_rep_1, PP_repeat_1$RawSD, col = "black")
+plot(V_rep_1, PP_repeat_1$RawSD, col = "black")
+points(V_rep_5, PP_repeat_5$RawSD, col = "blue")
 
 # SHAPE (proc) error against speed:
-plot(V_ran_5, PP_random_5$ProcSD, col = "blue")
-points(V_ran_1, PP_random_1$ProcSD, col = "black")
+plot(V_ran_1, PP_random_1$ProcSD, col = "black")
+points(V_ran_5, PP_random_5$ProcSD, col = "blue")
 
-plot(V_rep_5, PP_repeat_5$ProcSD, col = "blue")
-points(V_rep_1, PP_repeat_1$ProcSD, col = "black")
+plot(V_rep_1, PP_repeat_1$ProcSD, col = "black")
+points(V_rep_5, PP_repeat_5$ProcSD, col = "blue")
 
 # SCALE error against speed:
-plot(V_ran_5, PP_random_5$scale, col = "blue", ylim = c(.2,1.2))
-points(V_ran_1, PP_random_1$scale, col = "black") # as speed increases, people shrink!
+plot(V_ran_1, PP_random_1$scale, col = "black")
+points(V_ran_5, PP_random_5$scale, col = "blue") # as speed increases, people shrink!
 
-plot(V_rep_5, PP_repeat_5$scale, col = "blue")
-points(V_rep_1, PP_repeat_1$scale, col = "black") # as speed increases, people shrink!
+plot(V_rep_1, PP_repeat_1$scale, col = "black", ylim = c(0.5,1.1), xlim=c(1000,5000))
+points(V_rep_5, PP_repeat_5$scale, col = "blue") # as speed increases, people shrink!
+# maybe, to make "error" the y-axis, take absolute value away from 1? direction matters though... 
 
 # TRANSLATION error against speed:
-plot(V_ran_5, PP_random_5$translation, col = "blue")
-points(V_ran_1, PP_random_1$translation, col = "black")
+plot(V_ran_1, PP_random_1$translation, col = "black")
+points(V_ran_5, PP_random_5$translation, col = "blue")
 
-plot(V_rep_5, PP_repeat_5$translation, col = "blue")
-points(V_rep_1, PP_repeat_1$translation, col = "black")
+plot(V_rep_1, PP_repeat_1$translation, col = "black")
+points(V_rep_5, PP_repeat_5$translation, col = "blue")
 
 # ROTATION error against speed:
-plot(V_ran_5, PP_random_5$rotation, col = "blue")
-points(V_ran_1, PP_random_1$rotation, col = "black")
+plot(V_ran_1, PP_random_1$rotation, col = "black")
+points(V_ran_5, PP_random_5$rotation, col = "blue")
 
-plot(V_rep_5, PP_repeat_5$rotation, col = "blue", ylim = c(0,0.3))
-points(V_rep_1, PP_repeat_1$rotation, col = "black")
+plot(V_rep_1, PP_repeat_1$rotation, col = "black", ylim = c(0,0.3))
+points(V_rep_5, PP_repeat_5$rotation, col = "blue")
 
 
 ## ERROR vs COMPLEXITY ##
