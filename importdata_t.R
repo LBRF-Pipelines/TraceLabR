@@ -33,23 +33,24 @@ out.file <- ""
                 data_resp <- data.frame(matrix(as.numeric(gsub("\\[|\\]|\\(|\\)", "", as.character(tlt))),ncol=3,nrow=length(tlt)/3, byrow=TRUE))
                 points <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(pts)), ", "))),ncol=2,nrow=length(pts)/2, byrow=TRUE))
                 
-                # get rid of repeat points at end of trajectory (from when people miss green)
-                clip_index <- ""
-                for(i in 1:length(data_resp$X1)){
-                        if(data_resp[i,1]==data_resp[i+1,1] & data_resp[i,2]==data_resp[i+1,2]){
-                                break;
-                        }
-                        else{
-                                clip_index <- i
-                                data_resp_clip <- data_resp[1:i,]
-                                new_mt <- max(data_resp_clip$X3)
-                        }
-                }
-                data_resp <- data_resp_clip
-                
                 #remove artifacts 
                 data_resp_rem <- data_resp #[!(data_resp$X1=="1919"&data_resp$X2=="1079"),]
                 data_resp_rem <- data_resp_rem #[!(data_resp_rem$X1=="119"&data_resp_rem$X2=="1079"),]
+                
+                # get rid of repeat points at end of trajectory (from when people miss green)
+                clip_index <- rep(0, length(data_resp_rem$X1))
+                for(i in 1:length(data_resp_rem$X1)){
+                        if(data_resp_rem[i,1]!=data_resp_rem[i+1,1] | data_resp_rem[i,2]!=data_resp_rem[i+1,2]){ 
+                                clip_index[i] <- 1
+                        }
+                        else{
+                                clip_index[i] <- 0
+                        }
+                }
+                clip <- which(clip_index==0)[1]
+                data_resp_clip <- data_resp_rem[1:clip,]
+                new_mt <- max(data_resp_clip$X3)
+                data_resp_rem <- data_resp_clip
                 
                 #normalize to shortest segement
                 data_resp_rem$trialnum <- seq(from=1,to=length(data_resp_rem$X1),by=1)
