@@ -41,10 +41,11 @@ out.file <- ""
                 data_resp_rem <- data_resp #[!(data_resp$X1=="1919"&data_resp$X2=="1079"),]
                 data_resp_rem <- data_resp_rem #[!(data_resp_rem$X1=="119"&data_resp_rem$X2=="1079"),]
                 
-                # get rid of repeat points at end of trajectory (from when people miss green)
-                clip_index <- rep(0, length(data_resp_rem$X1))
-                for(k in 1:(length(data_resp_rem$X1)-1)){
-                        if(data_resp_rem[k,1]!=data_resp_rem[k+1,1] | data_resp_rem[k,2]!=data_resp_rem[k+1,2]){ 
+                #find repeated points (from when people miss green, for example)
+                clip_index <- rep(1, length(data_resp_rem$X1))
+                #clip_index gives a vector of 1's and 0's where 0 means point 'i' has same [x,y] as point 'i-1'
+                for(k in 2:(length(data_resp_rem$X1))){ #start at 2 as first point will never be same as previous
+                        if(data_resp_rem[k,1]!=data_resp_rem[k-1,1] | data_resp_rem[k,2]!=data_resp_rem[k-1,2]){
                                 clip_index[k] <- 1
                         }
                         else{
