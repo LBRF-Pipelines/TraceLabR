@@ -2,7 +2,7 @@
 ##### AUTHORED BY JACK SOLOMON AND TONY INGRAM #####
 
 ## TO DO: ##
-# 1. set up a "drop trial if MT is > 25% off from stimulus MT" thing...
+# 1. create new column in all_data for mt_clip
 
 rm(list = ls()) # clear work space
 #graphics.off() # clear figures
