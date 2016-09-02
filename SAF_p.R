@@ -219,7 +219,9 @@ points(fit_rep1$X1, fit_rep1$X2, col="cyan")
 points(fit_rep5$X1, fit_rep5$X2, col="blue")
 title(main="Shape (ProcSD)")
 
+## PLOT RANDOM, DAY 1, 2, 3, 4, 5 — colour gradient? 
 
+## PLOT REPEAT, DAY 1, 2, 3, 4, 5 — colour gradient?
 
 
 ##### first block against last block, within single session #####
