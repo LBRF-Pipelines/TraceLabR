@@ -51,8 +51,8 @@ out.file <- ""
                                 clip_index[k] <- 0
                         }
                 }
-                clip <- which(clip_index==0)[1] 
-                data_resp_clip <- data_resp_rem[1:clip,]
+                data_resp_clip <- cbind(data_resp_rem,clip_index)
+                data_resp_clip <- data_resp_clip[!(data_resp_clip$clip_index==0),1:3]
                 mt_clip <- max(data_resp_clip$X3)
                 data_resp_rem <- data_resp_clip
                 
