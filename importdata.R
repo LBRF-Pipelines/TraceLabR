@@ -2,11 +2,10 @@
 ##### AUTHORED BY JACK SOLOMON AND TONY INGRAM #####
 
 ## TO DO: ##
-# 1. create new column in all_data for mt_clip
 
 rm(list = ls()) # clear work space
-graphics.off() # clear figures
-cat("\014") # clear console
+#graphics.off() # clear figures
+#cat("\014") # clear console
 
 library(Morpho)
 library(plyr)
@@ -32,7 +31,7 @@ for(i in 1:length(file.names)) {
         # separate PP data from MI and CC data (remember, final session of MI and CC are also PP sessions)
         if (length(tlt)<15){
                 # disclude all groups except CC
-                if(trials[trials$figure_file==name.tlf,5]!='CC-00-5'){datarow=c(name.tlf,rep(NA,times=11))}
+                if(trials[trials$figure_file==name.tlf,5]!='CC-00-5'){datarow=c(name.tlf,rep(NA,times=12))}
                 # if in CC group, runs control task
                 else{
                         #loads stimulus data
@@ -85,7 +84,7 @@ for(i in 1:length(file.names)) {
                                 out <- count(dir_sign[,2])
                                 corr.resp <- as.numeric(out[out$x==-1,2])
                         }
-                        datarow =c(name.tlf,rep(NA,times=10),corr.resp)
+                        datarow =c(name.tlf,rep(NA,times=11),corr.resp)
                 }
         }
         else{
@@ -111,7 +110,7 @@ for(i in 1:length(file.names)) {
                 }
                 #decide minimum response length — if not reached, report NA's for trial
                 if(sum(clip_index)<5){
-                        datarow=c(name.tlf,rep(NA,times=11))
+                        datarow=c(name.tlf,rep(NA,times=12))
                 }
                 else{
                         #remove all repeated response points (when person not moving)
@@ -231,7 +230,7 @@ for(i in 1:length(file.names)) {
                         
                         ##### save variables to a row & subsequently a file #####
                         
-                        datarow <- c(name.tlf,PLstim,complexity,PLresp,RawSS,RawSD,translation,scale,rotation,ProcSS,ProcSD,rep(NA,times=1))
+                        datarow <- c(name.tlf,PLstim,complexity,mt_clip,PLresp,RawSS,RawSD,translation,scale,rotation,ProcSS,ProcSD,rep(NA,times=1))
                 }
         }
         out.file <- rbind(out.file, datarow)
@@ -239,19 +238,20 @@ for(i in 1:length(file.names)) {
 
 #change output to df
 df.out.file <- data.frame(out.file[-1,],stringsAsFactors = FALSE)
-colnames(df.out.file) <- c("figure_file","PLstim","complexity","PLresp","RawSS","RawSD","translation","scale","rotation","ProcSS","ProcSD","correct_response")
+colnames(df.out.file) <- c("figure_file","PLstim","complexity","mt_clip","PLresp","RawSS","RawSD","translation","scale","rotation","ProcSS","ProcSD","correct_response")
 
 #combine proc_df with db
 all_data <- merge(trials,df.out.file,by="figure_file")
 colnames(participants)[1] <- paste("participant_id")
 all_data <- merge(participants[,c(1,4:6)],all_data,by="participant_id")
-all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","complexity","trace_file","rt","it","mt","PLresp","RawSS","RawSD","translation","scale","rotation","ProcSS","ProcSD","control_question","control_response","correct_response")]
+all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","complexity","trace_file","rt","it","mt","mt_clip","PLresp","RawSS","RawSD","translation","scale","rotation","ProcSS","ProcSD","control_question","control_response","correct_response")]
 
 #change data to numeric where appropriate
 all_data$condition <- as.factor(all_data$condition)
 all_data$figure_type <- as.factor(all_data$figure_type)
 all_data$PLstim <- as.numeric(all_data$PLstim)
 all_data$complexity <- as.numeric(all_data$complexity)
+all_data$mt_clip <- as.numeric(all_data$mt_clip)
 all_data$PLresp <- as.numeric(all_data$PLresp)
 all_data$RawSS <- as.numeric(all_data$RawSS)
 all_data$RawSD <- as.numeric(all_data$RawSD)
