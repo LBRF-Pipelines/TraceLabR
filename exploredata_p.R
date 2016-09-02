@@ -75,21 +75,21 @@ fluctile(table(CC$control_response, CC$correct_response), shape="c")
 # are participants actually matching the stimulus MT?
 
 # subset all data by condition (repeat vs random don't matter here):
-mt_compare_PP <- subset(all_data_p, condition == "PP-VR-5", select = c(stimulus_gt, stimulus_mt, mt))
-mt_compare_MI <- subset(all_data_p, condition == "MI-00-5", select = c(stimulus_gt, stimulus_mt, mt))
-mt_compare_CC <- subset(all_data_p, condition == "CC-00-5", select = c(stimulus_gt, stimulus_mt, mt))
+mt_compare_PP <- subset(all_data_p, condition == "PP-VR-5", select = c(stimulus_gt, stimulus_mt, mt, mt_clip))
+mt_compare_MI <- subset(all_data_p, condition == "MI-00-5", select = c(stimulus_gt, stimulus_mt, mt, mt_clip))
+mt_compare_CC <- subset(all_data_p, condition == "CC-00-5", select = c(stimulus_gt, stimulus_mt, mt, mt_clip))
 
 # plot to see if response MT's are related to stimulus MT's:
-plot(mt_compare_PP[,2],mt_compare_PP[,3])
-plot(mt_compare_MI[,2],mt_compare_MI[,3])
-plot(mt_compare_CC[,2],mt_compare_CC[,3])
+plot(mt_compare_PP[,2],mt_compare_PP[,4])
+plot(mt_compare_MI[,2],mt_compare_MI[,4])
+plot(mt_compare_CC[,2],mt_compare_CC[,4])
 
 # run regressions of same for additional confirmation:
-mt_compare_PP_LM <- lm(mt_compare_PP[,2] ~ mt_compare_PP[,3])
+mt_compare_PP_LM <- lm(mt_compare_PP[,2] ~ mt_compare_PP[,4])
 summary(mt_compare_PP_LM)
-mt_compare_MI_LM <- lm(mt_compare_MI[,2] ~ mt_compare_MI[,3])
+mt_compare_MI_LM <- lm(mt_compare_MI[,2] ~ mt_compare_MI[,4])
 summary(mt_compare_MI_LM)
-mt_compare_CC_LM <- lm(mt_compare_CC[,2] ~ mt_compare_CC[,3])
+mt_compare_CC_LM <- lm(mt_compare_CC[,2] ~ mt_compare_CC[,4])
 summary(mt_compare_CC_LM)
 # should be high correlations for all PP and MI groups but not CC.
 
