@@ -98,116 +98,136 @@ for(i in 1:length(file.names)) {
                 data_resp_rem <- data_resp #[!(data_resp$X1=="1919"&data_resp$X2=="1079"),]
                 data_resp_rem <- data_resp_rem #[!(data_resp_rem$X1=="119"&data_resp_rem$X2=="1079"),]
                 
-                #normalize to shortest segement
-                data_resp_rem$trialnum <- seq(from=1,to=length(data_resp_rem$X1),by=1)
-                data_stim$trialnum <- seq(from=1,to=length(data_stim$X1),by=1)
-                rem_seq <- round(seq(from=1, to=ifelse(length(data_resp_rem$X1)>length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1)), by=ifelse(length(data_resp_rem$X1)>length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1))/ifelse(length(data_resp_rem$X1)<length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1))),digits=0)
-                data_sub <- if(length(data_resp_rem$X1)==length(rem_seq)) {data_stim[c(rem_seq),]} else {data_resp_rem[c(rem_seq),]}
-                
-                ##### PROCRUSTES ANALYSIS #####
-                
-                #take (x,y) coordinates only
-                stim <- if(length(data_stim$X1)==length(data_sub$X1)) {data_stim[,c(1,2)]} else {data_sub[,c(1,2)]}
-                resp <- if(length(data_resp_rem$X1)==length(data_sub$X1)) {data_resp_rem[,c(1,2)]} else {data_sub[,c(1,2)]}
-                
-                #procrustes transformation
-                trans <- rotonto(stim, resp, scale = TRUE, signref = FALSE, reflection = FALSE, weights = NULL, centerweight = FALSE)
-                
-                #get translation
-                translation <- sqrt((trans$transy[,1] - trans$trans[,1])^2 + (trans$transy[,2] - trans$trans[,2])^2)
-                
-                #get scale factor
-                scale <- trans$bet
-                
-                #get rotation angle *radians*
-                #from rotation matrix — don't know what I mean? wiki: rotation matrix
-                #should be same number for each case below... so just pick one:
-                rotation <- acos(trans$gamm[1,1])
-                # asin(trans$gamm[2,1]) 
-                # -asin(trans$gamm[1,2])
-                # acos(trans$gamm[2,2])
-                
-                #get shape error (i.e. Procrustes SS)
-                
-                ProcSS <- sum(((trans$Y-trans$X)-mean((trans$Y-trans$X)))^2)
-                ProcVar <- ProcSS/(length(stim[,1])-1)
-                ProcSD <- sqrt(ProcVar)
-                
-                #get raw error
-                
-                stimaray <- data.matrix(stim)
-                resparay <- data.matrix(resp)
-                RawSS <- sum(((stimaray-resparay)-mean((stimaray-resparay)))^2)
-                RawVar <- RawSS/(length(stim[,1])-1)
-                RawSD <- sqrt(RawVar)
-                
-                ##### path length #####
-                
-                #get pathlength of participant response 
-                
-                segs <- matrix()
-                for (y in 1:NROW(data_resp_rem)) {
-                        seg_leg <- sqrt((data_resp_rem[y+1,1]-data_resp_rem[y,1])^2 + (data_resp_rem[y+1,2]-data_resp_rem[y,2])^2)
-                        segs <- rbind(segs, seg_leg)
+                # get rid of repeat points at end of trajectory (from when people miss green)
+                clip_index <- rep(0, length(data_resp_rem$X1))
+                for(k in 1:(length(data_resp_rem$X1)-1)){
+                        if(data_resp_rem[k,1]!=data_resp_rem[k+1,1] | data_resp_rem[k,2]!=data_resp_rem[k+1,2]){
+                                clip_index[k] <- 1
+                        }
+                        else{
+                                clip_index[k] <- 0
+                        }
                 }
-                PLresp <- sum(segs, na.rm = TRUE)
-                
-                #stimulus pathlength
-                
-                segs <- matrix()
-                for (u in 1:NROW(data_stim)) {
-                        seg_leg <- sqrt((data_stim[u+1,1]-data_stim[u,1])^2 + (data_stim[u+1,2]-data_stim[u,2])^2)
-                        segs <- rbind(segs, seg_leg)
+                if(which(clip_index==0)[1]<5){
+                        datarow=c(name.tlf,rep(NA,times=11))
                 }
-                PLstim <- sum(segs, na.rm = TRUE)
-                
-                ##### COMPLEXITY MEASURES #####
-                
-                ## as measured by extent of curvature using a modified sinuosity calculation 
-                ## complexity = (stimulus pathlength) / (perimeter of straight lines between segment points)
-                
-                segs <- matrix()
-                for (j in 1:NROW(points)) {
-                        seg_leg <- sqrt((points[j+1,1]-points[j,1])^2 + (points[j+1,2]-points[j,2])^2)
-                        segs <- rbind(segs, seg_leg)
+                else{
+                        clip <- which(clip_index==0)[1]
+                        data_resp_clip <- data_resp_rem[1:clip,]
+                        mt_clip <- max(data_resp_clip$X3)
+                        data_resp_rem <- data_resp_clip
+                        
+                        #normalize to shortest segement
+                        data_resp_rem$trialnum <- seq(from=1,to=length(data_resp_rem$X1),by=1)
+                        data_stim$trialnum <- seq(from=1,to=length(data_stim$X1),by=1)
+                        rem_seq <- round(seq(from=1, to=ifelse(length(data_resp_rem$X1)>length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1)), by=ifelse(length(data_resp_rem$X1)>length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1))/ifelse(length(data_resp_rem$X1)<length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1))),digits=0)
+                        data_sub <- if(length(data_resp_rem$X1)==length(rem_seq)) {data_stim[c(rem_seq),]} else {data_resp_rem[c(rem_seq),]}
+                        
+                        ##### PROCRUSTES ANALYSIS #####
+                        
+                        #take (x,y) coordinates only
+                        stim <- if(length(data_stim$X1)==length(data_sub$X1)) {data_stim[,c(1,2)]} else {data_sub[,c(1,2)]}
+                        resp <- if(length(data_resp_rem$X1)==length(data_sub$X1)) {data_resp_rem[,c(1,2)]} else {data_sub[,c(1,2)]}
+                        
+                        #procrustes transformation
+                        trans <- rotonto(stim, resp, scale = TRUE, signref = FALSE, reflection = FALSE, weights = NULL, centerweight = FALSE)
+                        
+                        #get translation
+                        translation <- sqrt((trans$transy[,1] - trans$trans[,1])^2 + (trans$transy[,2] - trans$trans[,2])^2)
+                        
+                        #get scale factor
+                        scale <- trans$bet
+                        
+                        #get rotation angle *radians*
+                        #from rotation matrix — don't know what I mean? wiki: rotation matrix
+                        #should be same number for each case below... so just pick one:
+                        rotation <- acos(trans$gamm[1,1])
+                        # asin(trans$gamm[2,1]) 
+                        # -asin(trans$gamm[1,2])
+                        # acos(trans$gamm[2,2])
+                        
+                        #get shape error (i.e. Procrustes SS)
+                        
+                        ProcSS <- sum(((trans$Y-trans$X)-mean((trans$Y-trans$X)))^2)
+                        ProcVar <- ProcSS/(length(stim[,1])-1)
+                        ProcSD <- sqrt(ProcVar)
+                        
+                        #get raw error
+                        
+                        stimaray <- data.matrix(stim)
+                        resparay <- data.matrix(resp)
+                        RawSS <- sum(((stimaray-resparay)-mean((stimaray-resparay)))^2)
+                        RawVar <- RawSS/(length(stim[,1])-1)
+                        RawSD <- sqrt(RawVar)
+                        
+                        ##### path length #####
+                        
+                        #get pathlength of participant response 
+                        
+                        segs <- matrix()
+                        for (y in 1:NROW(data_resp_rem)) {
+                                seg_leg <- sqrt((data_resp_rem[y+1,1]-data_resp_rem[y,1])^2 + (data_resp_rem[y+1,2]-data_resp_rem[y,2])^2)
+                                segs <- rbind(segs, seg_leg)
+                        }
+                        PLresp <- sum(segs, na.rm = TRUE)
+                        
+                        #stimulus pathlength
+                        
+                        segs <- matrix()
+                        for (u in 1:NROW(data_stim)) {
+                                seg_leg <- sqrt((data_stim[u+1,1]-data_stim[u,1])^2 + (data_stim[u+1,2]-data_stim[u,2])^2)
+                                segs <- rbind(segs, seg_leg)
+                        }
+                        PLstim <- sum(segs, na.rm = TRUE)
+                        
+                        ##### COMPLEXITY MEASURES #####
+                        
+                        ## as measured by extent of curvature using a modified sinuosity calculation 
+                        ## complexity = (stimulus pathlength) / (perimeter of straight lines between segment points)
+                        
+                        segs <- matrix()
+                        for (j in 1:NROW(points)) {
+                                seg_leg <- sqrt((points[j+1,1]-points[j,1])^2 + (points[j+1,2]-points[j,2])^2)
+                                segs <- rbind(segs, seg_leg)
+                        }
+                        perimeter <- sum(segs, na.rm = TRUE)
+                        
+                        complexity <- PLstim/perimeter
+                        
+                        ##### PLOTS #####
+                        
+                        #plot shapes pre transforms:
+                        
+                        #adding colour to points
+                        #direction of movement: lighter to darker
+                        #stim = grey to black, resp = cyan to blue, resp_sub = yellow to green
+                        rbPalstim <- colorRampPalette(c("grey","black"))
+                        data_stim$Col <- rbPalstim(length(data_stim$X3))[as.numeric(cut(data_stim$X3,breaks=length(data_stim$X3)))]
+                        rbPalresp <- colorRampPalette(c("cyan","blue"))
+                        data_resp_rem$Col <- rbPalresp(length(data_resp_rem$X3))[as.numeric(cut(data_resp_rem$X3,breaks=length(data_resp_rem$X3)))]
+                        rbPalsub <- colorRampPalette(c("yellow","green"))
+                        data_sub$Col <- rbPalsub(length(data_sub$X3))[as.numeric(cut(data_sub$X3,breaks=length(data_sub$X3)))]
+                        
+                        #plot points 
+                        plot(data_stim$X1,data_stim$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20, col=data_stim$Col)
+                        points(data_resp_rem$X1,data_resp_rem$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20 ,col=data_resp_rem$Col)
+                        points(data_sub$X1,data_sub$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20 ,col=data_sub$Col)
+                        title(main = c(name.tlt, " raw"))
+                        
+                        #plot centroids (note that one of these is down sampled data)
+                        points(trans$trans[1],trans$trans[2],pch=8,col="black")
+                        points(trans$transy[1],trans$transy[2],pch=8,col="blue")
+                        
+                        #plot shapes post transforms:
+                        
+                        plot(trans$X, xlim=c(-960,960), ylim=c(540,-540))
+                        points(trans$Y, col="red")
+                        title(main = c(name.tlt, " proc"))
+                        
+                        ##### save variables to a row & subsequently a file #####
+                        
+                        datarow <- c(name.tlf,PLstim,complexity,PLresp,RawSS,RawSD,translation,scale,rotation,ProcSS,ProcSD,rep(NA,times=1))
                 }
-                perimeter <- sum(segs, na.rm = TRUE)
-                
-                complexity <- PLstim/perimeter
-                
-                ##### PLOTS #####
-                
-                #plot shapes pre transforms:
-                
-                #adding colour to points
-                #direction of movement: lighter to darker
-                #stim = grey to black, resp = cyan to blue, resp_sub = yellow to green
-                rbPalstim <- colorRampPalette(c("grey","black"))
-                data_stim$Col <- rbPalstim(length(data_stim$X3))[as.numeric(cut(data_stim$X3,breaks=length(data_stim$X3)))]
-                rbPalresp <- colorRampPalette(c("cyan","blue"))
-                data_resp_rem$Col <- rbPalresp(length(data_resp_rem$X3))[as.numeric(cut(data_resp_rem$X3,breaks=length(data_resp_rem$X3)))]
-                rbPalsub <- colorRampPalette(c("yellow","green"))
-                data_sub$Col <- rbPalsub(length(data_sub$X3))[as.numeric(cut(data_sub$X3,breaks=length(data_sub$X3)))]
-                
-                #plot points 
-                plot(data_stim$X1,data_stim$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20, col=data_stim$Col)
-                points(data_resp_rem$X1,data_resp_rem$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20 ,col=data_resp_rem$Col)
-                points(data_sub$X1,data_sub$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20 ,col=data_sub$Col)
-                title(main = c(name.tlt, " raw"))
-                
-                #plot centroids (note that one of these is down sampled data)
-                points(trans$trans[1],trans$trans[2],pch=8,col="black")
-                points(trans$transy[1],trans$transy[2],pch=8,col="blue")
-                
-                #plot shapes post transforms:
-                
-                plot(trans$X, xlim=c(-960,960), ylim=c(540,-540))
-                points(trans$Y, col="red")
-                title(main = c(name.tlt, " proc"))
-                
-                ##### save variables to a row & subsequently a file #####
-                
-                datarow <- c(name.tlf,PLstim,complexity,PLresp,RawSS,RawSD,translation,scale,rotation,ProcSS,ProcSD,rep(NA,times=1))
         }
         out.file <- rbind(out.file, datarow)
 }
