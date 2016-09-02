@@ -4,9 +4,9 @@
 # subset data — only need to look at physical groups, first and last sessions:
 # *** note: have to look at final day of MI and CC groups similarly...
 PP_random_1 <- subset(all_data, (participant_id == "8") & (figure_type == "random") & (session_num == "1"))
-PP_random_5 <- subset(all_data, (participant_id == "8") & (figure_type == "random") & (session_num == "3"))
+PP_random_5 <- subset(all_data, (participant_id == "8") & (figure_type == "random") & (session_num == "4"))
 PP_repeat_1 <- subset(all_data, (participant_id == "8") & (figure_type == "fig3") & (session_num == "1"))
-PP_repeat_5 <- subset(all_data, (participant_id == "8") & (figure_type == "fig3") & (session_num == "3"))
+PP_repeat_5 <- subset(all_data, (participant_id == "8") & (figure_type == "fig3") & (session_num == "4"))
 # sort by p, s, b, t:
 PP_random_1 <- PP_random_1[with(PP_random_1, order(participant_id, session_num, block_num, trial_num)), ]
 PP_random_5 <- PP_random_5[with(PP_random_5, order(participant_id, session_num, block_num, trial_num)), ]
@@ -14,10 +14,10 @@ PP_repeat_1 <- PP_repeat_1[with(PP_repeat_1, order(participant_id, session_num, 
 PP_repeat_5 <- PP_repeat_5[with(PP_repeat_5, order(participant_id, session_num, block_num, trial_num)), ]
 
 # mean velocity of participant response per trial (total trajectory length / total movement time)
-V_ran_1 <- PP_random_1$PLresp / PP_random_1$mt # pixels per second
-V_ran_5 <- PP_random_5$PLresp / PP_random_5$mt # pixels per second
-V_rep_1 <- PP_repeat_1$PLresp / PP_repeat_1$mt # pixels per second
-V_rep_5 <- PP_repeat_5$PLresp / PP_repeat_5$mt # pixels per second
+V_ran_1 <- PP_random_1$PLresp / PP_random_1$mt_clip # pixels per second
+V_ran_5 <- PP_random_5$PLresp / PP_random_5$mt_clip # pixels per second
+V_rep_1 <- PP_repeat_1$PLresp / PP_repeat_1$mt_clip # pixels per second
+V_rep_5 <- PP_repeat_5$PLresp / PP_repeat_5$mt_clip # pixels per second
 
 
 ##### SESSION TO SESSION CHANGES #####
