@@ -1,6 +1,10 @@
 ##### Speed Accuracy Functions #####
 ##### authored by Tony Ingram #####
 
+## TO DO: ##
+# 1. add "lower bound" to fitting function
+# 2. create matrix of fit parameters
+
 # subset data — only need to look at physical groups, first and last sessions:
 # *** note: have to look at final day of MI and CC groups similarly...
 PP_random_1 <- subset(all_data, (participant_id == "8") & (figure_type == "random") & (session_num == "1"))
@@ -140,7 +144,8 @@ library(minpack.lm) # better algorithm for nonlinear least squares
 
 fit_ran1 <- data.frame(matrix(c(V_ran_1,PP_random_1$ProcSD), ncol=2))
 fit_ran1 <- fit_ran1[order(fit_ran1$X1),]
-#plot(fit_ran1$X1,fit_ran1$X2) # plots just for confirmation
+## plots just for confirmation:
+#plot(fit_ran1$X1,fit_ran1$X2)
 #points(V_ran_1+50,PP_random_1$ProcSD, col= "blue")
 fit_ran2 <- data.frame(matrix(c(V_ran_2,PP_random_2$ProcSD), ncol=2))
 fit_ran2 <- fit_ran2[order(fit_ran2$X1),]
@@ -364,12 +369,12 @@ plot(fit_rep1$X1, rep1, type="l", col="gray80", xlim=c(0,6000), ylim=c(0,600))
 lines(fit_rep2$X1, rep2, col="gray60")
 lines(fit_rep3$X1, rep3, col="gray40")
 lines(fit_rep4$X1, rep4, col="gray20")
-lines(fit_rep5$X1, rep5, col="gray0")
+#lines(fit_rep5$X1, rep5, col="gray0")
 points(fit_rep1$X1, fit_rep1$X2, col="gray80")
 points(fit_rep2$X1, fit_rep2$X2, col="gray60")
 points(fit_rep3$X1, fit_rep3$X2, col="gray40")
 points(fit_rep4$X1, fit_rep4$X2, col="gray20")
-points(fit_rep5$X1, fit_rep5$X2, col="gray0")
+#points(fit_rep5$X1, fit_rep5$X2, col="gray0")
 title(main="Repeated Shape (ProcSD) SAF")
 
 ##### first block against last block, within single session #####
