@@ -2,6 +2,7 @@
 ##### AUTHORED BY JACK SOLOMON AND TONY INGRAM #####
 
 ## TO DO: ##
+# 1. change complexity measure to use computer generated pathlength
 
 rm(list = ls()) # clear work space
 #graphics.off() # clear figures
