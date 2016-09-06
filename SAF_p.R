@@ -11,12 +11,12 @@ PP_random_1 <- subset(all_data, (participant_id == "8") & (figure_type == "rando
 PP_random_2 <- subset(all_data, (participant_id == "8") & (figure_type == "random") & (session_num == "2"))
 PP_random_3 <- subset(all_data, (participant_id == "8") & (figure_type == "random") & (session_num == "3"))
 PP_random_4 <- subset(all_data, (participant_id == "8") & (figure_type == "random") & (session_num == "4"))
-PP_random_5 <- subset(all_data, (participant_id == "8") & (figure_type == "random") & (session_num == "4"))
+PP_random_5 <- subset(all_data, (participant_id == "8") & (figure_type == "random") & (session_num == "5"))
 PP_repeat_1 <- subset(all_data, (participant_id == "8") & (figure_type == "fig3") & (session_num == "1"))
 PP_repeat_2 <- subset(all_data, (participant_id == "8") & (figure_type == "fig3") & (session_num == "2"))
 PP_repeat_3 <- subset(all_data, (participant_id == "8") & (figure_type == "fig3") & (session_num == "3"))
 PP_repeat_4 <- subset(all_data, (participant_id == "8") & (figure_type == "fig3") & (session_num == "4"))
-PP_repeat_5 <- subset(all_data, (participant_id == "8") & (figure_type == "fig3") & (session_num == "4"))
+PP_repeat_5 <- subset(all_data, (participant_id == "8") & (figure_type == "fig3") & (session_num == "5"))
 
 # sort by p, s, b, t:
 PP_random_1 <- PP_random_1[with(PP_random_1, order(participant_id, session_num, block_num, trial_num)), ]
