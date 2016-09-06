@@ -2,7 +2,6 @@
 ##### AUTHORED BY JACK SOLOMON AND TONY INGRAM #####
 
 ## TO DO: ##
-# 1. change complexity measure to use computer generated pathlength
 
 rm(list = ls()) # clear work space
 #graphics.off() # clear figures
@@ -110,7 +109,7 @@ for(i in 1:length(file.names)) {
                         }
                 }
                 #decide minimum response length — if not reached, report NA's for trial
-                if(sum(clip_index)<5){
+                if(sum(clip_index)<10){
                         datarow=c(name.tlf,rep(NA,times=12))
                 }
                 else{
@@ -196,8 +195,9 @@ for(i in 1:length(file.names)) {
                                 segs <- rbind(segs, seg_leg)
                         }
                         perimeter <- sum(segs, na.rm = TRUE)
-                        
-                        complexity <- PLstim/perimeter
+                        pathlength <- trials[trials$figure_file==name.tlf,12]
+                        sinuosity <- pathlength/perimeter
+                        complexity <- sinuosity
                         
                         ##### PLOTS #####
                         
