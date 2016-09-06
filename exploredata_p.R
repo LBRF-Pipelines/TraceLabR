@@ -5,6 +5,9 @@
 
 all_data_p <- subset(all_data, participant_id == 8)
 
+# how much data per speed made it in? 
+aggregate(!is.na(PLresp) ~ stimulus_gt, all_data_p, sum)
+
 # in general (without seperating repeated and random) was there a decrease in error?
 plot(all_data_p$RawSD)
 Raw_LM <- lm(1:length(all_data_p$RawSD) ~ all_data_p$RawSD)
