@@ -1,8 +1,6 @@
 ##### TRACELAB ANALYSIS #####
 ##### AUTHORED BY JACK SOLOMON AND TONY INGRAM #####
 
-## TO DO: ##
-
 rm(list = ls()) # clear work space
 #graphics.off() # clear figures
 #cat("\014") # clear console
