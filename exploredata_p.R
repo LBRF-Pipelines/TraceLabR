@@ -3,7 +3,7 @@
 
 ## SINGLE PARTICIPANT ##
 
-all_data_p <- subset(all_data, participant_id == 8)
+all_data_p <- subset(all_data, participant_id == 11)
 
 # how much data per speed made it in? 
 aggregate(!is.na(PLresp) ~ stimulus_gt, all_data_p, sum)
@@ -22,6 +22,13 @@ random <- subset(all_data_p, figure_type == "random")
 # sort data by participant, then session, then block, then trial.
 repeated <- repeated[with(repeated, order(participant_id, session_num, block_num, trial_num)), ]
 random <- random[with(random, order(participant_id, session_num, block_num, trial_num)), ]
+
+# subset data into repeated and random, but only at median speed
+repeated_med <- subset(all_data_p, figure_type == "fig3" & stimulus_gt == 1500)
+random_med <- subset(all_data_p, figure_type == "random" & stimulus_gt == 1500)
+# sort data by participant, then session, then block, then trial.
+repeated_med <- repeated_med[with(repeated_med, order(participant_id, session_num, block_num, trial_num)), ]
+random_med <- random_med[with(random_med, order(participant_id, session_num, block_num, trial_num)), ]
 
 
 #### FIRST ROUGH LOOK AT DATA #### 
