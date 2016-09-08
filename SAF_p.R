@@ -1,9 +1,10 @@
 ##### Speed Accuracy Functions #####
 ##### authored by Tony Ingram #####
 
-## TO DO: ##
-# 1. add "lower bound" to fitting function
-# 2. create matrix of fit parameters
+## TO DO ##
+# 1. look through and find out what loops can actually be functions!
+# 2. add "lower bound" to fitting function
+# 3. create matrix of fit parameters
 
 # subset data — only need to look at physical groups, first and last sessions:
 # *** note: have to look at final day of MI and CC groups similarly...

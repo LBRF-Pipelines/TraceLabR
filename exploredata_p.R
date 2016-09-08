@@ -1,6 +1,9 @@
 ##### Exploring Data ##### 
 ##### authored by Tony Ingram #####
 
+## TO DO ##
+# 1. look through and find out what loops can actually be functions!
+
 ## SINGLE PARTICIPANT ##
 
 all_data_p <- subset(all_data, participant_id == 11)

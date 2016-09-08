@@ -1,6 +1,9 @@
 ##### TRACELAB ANALYSIS #####
 ##### AUTHORED BY JACK SOLOMON AND TONY INGRAM #####
 
+## TO DO ##
+# 1. look through and find out what loops can actually be functions!
+
 rm(list = ls()) # clear work space
 #graphics.off() # clear figures
 #cat("\014") # clear console
