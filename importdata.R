@@ -180,8 +180,8 @@ for(i in 1:length(file.names)) {
                         raw_error_SD <- sd(raw_dist)
                         
                         # pre-procrustes transform sum of squares and SD:
-                        raw_SS <- sum(raw_dist^2)
-                        raw_SD <- sqrt(raw_SS/(length(raw_dist)-1))
+                        raw_procSS <- sum(raw_dist^2)
+                        raw_procSD <- sqrt(raw_procSS/(length(raw_dist)-1))
                         
                         ##### path length #####
                         
