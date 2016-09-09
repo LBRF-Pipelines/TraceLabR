@@ -164,9 +164,18 @@ out.file <- ""
                 points(trans$Y, col="red")
                 title(main = c(name.tlt, " proc"))
                 
-                dist = rep(0, length(trans$Y[,1]))
+                # create vector of point by point distances (error) between stimulus and response:
+                shape_dist = rep(0, length(trans$Y[,1]))
                 for (h in 1:length(trans$Y[,1])){
-                dist[h] = as.numeric(sqrt(((trans$Y[h,1]-trans$X[h,1])^2)+((trans$Y[h,2]-trans$X[h,2])^2)))
+                shape_dist[h] = as.numeric(sqrt(((trans$Y[h,1]-trans$X[h,1])^2)+((trans$Y[h,2]-trans$X[h,2])^2)))
                 }
-                SSdist <- sum(dist^2)
+                # error throughout trial:
+                shape_error_tot <- sum(dist)
+                shape_error_mean <- mean(dist)
+                shape_error_SD <- sd(dist)
                 
+                # "ordinary procrustes sum of squares" and SD:
+                shape_procSS <- sum(dist^2)
+                shape_procSD <- sqrt(distSS/(length(dist)-1))
+                        
+                        
