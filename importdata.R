@@ -32,7 +32,7 @@ for(i in 1:length(file.names)) {
         # separate PP data from MI and CC data (remember, final session of MI and CC are also PP sessions)
         if (length(tlt)<15){
                 # disclude all groups except CC
-                if(trials[trials$figure_file==name.tlf,5]!='CC-00-5'){datarow=c(name.tlf,rep(NA,times=12))}
+                if(trials[trials$figure_file==name.tlf,5]!='CC-00-5'){datarow=c(name.tlf,rep(NA,times=18))}
                 # if in CC group, runs control task
                 else{
                         #loads stimulus data
@@ -85,7 +85,7 @@ for(i in 1:length(file.names)) {
                                 out <- count(dir_sign[,2])
                                 corr.resp <- as.numeric(out[out$x==-1,2])
                         }
-                        datarow =c(name.tlf,rep(NA,times=11),corr.resp)
+                        datarow =c(name.tlf,rep(NA,times=17),corr.resp)
                 }
         }
         else{
@@ -111,7 +111,7 @@ for(i in 1:length(file.names)) {
                 }
                 #decide minimum response length — if not reached, report NA's for trial
                 if(sum(clip_index)<10){
-                        datarow=c(name.tlf,rep(NA,times=12))
+                        datarow=c(name.tlf,rep(NA,times=18))
                 }
                 else{
                         #remove all repeated response points (when person not moving)
@@ -254,7 +254,7 @@ for(i in 1:length(file.names)) {
                         
                         ##### save variables to a row & subsequently a file #####
                         
-                        datarow <- c(name.tlf,PLstim,complexity,mt_clip,PLresp,raw_procSS,raw_procSD,translation,scale,rotation,shape_procSS,shape_procSD,rep(NA,times=1))
+                        datarow <- c(name.tlf,PLstim,complexity,mt_clip,PLresp,raw_error_tot,raw_error_mean,raw_error_SD,raw_procSS,raw_procSD,translation,scale,rotation,shape_error_tot,shape_error_mean,shape_error_SD,shape_procSS,shape_procSD,rep(NA,times=1))
                 }
         }
         out.file <- rbind(out.file, datarow)
@@ -262,13 +262,13 @@ for(i in 1:length(file.names)) {
 
 #change output to df
 df.out.file <- data.frame(out.file[-1,],stringsAsFactors = FALSE)
-colnames(df.out.file) <- c("figure_file","PLstim","complexity","mt_clip","PLresp","raw_procSS","raw_procSD","translation","scale","rotation","shape_procSS","shape_procSD","correct_response")
+colnames(df.out.file) <- c("figure_file","PLstim","complexity","mt_clip","PLresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSS","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSS","shape_procSD","correct_response")
 
 #combine proc_df with db
 all_data <- merge(trials,df.out.file,by="figure_file")
 colnames(participants)[1] <- paste("participant_id")
 all_data <- merge(participants[,c(1,4:6)],all_data,by="participant_id")
-all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","complexity","trace_file","rt","it","mt","mt_clip","PLresp","raw_procSS","raw_procSD","translation","scale","rotation","shape_procSS","shape_procSD","control_question","control_response","correct_response")]
+all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","complexity","trace_file","rt","it","mt","mt_clip","PLresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSS","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSS","shape_procSD","control_question","control_response","correct_response")]
 
 #change data to numeric where appropriate
 all_data$condition <- as.factor(all_data$condition)
@@ -277,11 +277,17 @@ all_data$PLstim <- as.numeric(all_data$PLstim)
 all_data$complexity <- as.numeric(all_data$complexity)
 all_data$mt_clip <- as.numeric(all_data$mt_clip)
 all_data$PLresp <- as.numeric(all_data$PLresp)
+all_data$raw_error_tot <- as.numeric(all_data$raw_error_tot)
+all_data$raw_error_mean <- as.numeric(all_data$raw_error_mean)
+all_data$raw_error_SD <- as.numeric(all_data$raw_error_SD)
 all_data$raw_procSS <- as.numeric(all_data$raw_procSS)
 all_data$raw_procSD <- as.numeric(all_data$raw_procSD)
 all_data$translation <- as.numeric(all_data$translation)
 all_data$scale <- as.numeric(all_data$scale)
 all_data$rotation <- as.numeric(all_data$rotation)
+all_data$shape_error_tot <- as.numeric(all_data$shape_error_tot)
+all_data$shape_error_mean <- as.numeric(all_data$shape_error_mean)
+all_data$shape_error_SD <- as.numeric(all_data$shape_error_SD)
 all_data$shape_procSS <- as.numeric(all_data$shape_procSS)
 all_data$shape_procSD <- as.numeric(all_data$shape_procSD)
 all_data$correct_response <- as.integer(all_data$correct_response)
