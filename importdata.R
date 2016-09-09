@@ -167,6 +167,10 @@ for(i in 1:length(file.names)) {
                         shape_procSS <- sum(shape_dist^2)
                         shape_procSD <- sqrt(shape_procSS/(length(shape_dist)-1))
                         
+                        # NOTE: SD of error is NOT same as procSD — in SD you're subtracting each data point from the mean 
+                        # and squaring that. For ProcSD you just take the distance between points and square that. It just 
+                        # happens that in our error SD, the error's ARE distances between points. 
+                        
                         ## RAW ERROR ##
                         
                         # create vector of point by point distances (error) between stimulus and response:
@@ -250,7 +254,7 @@ for(i in 1:length(file.names)) {
                         
                         ##### save variables to a row & subsequently a file #####
                         
-                        datarow <- c(name.tlf,PLstim,complexity,mt_clip,PLresp,RawSS,RawSD,translation,scale,rotation,ProcSS,ProcSD,rep(NA,times=1))
+                        datarow <- c(name.tlf,PLstim,complexity,mt_clip,PLresp,raw_procSS,raw_procSD,translation,scale,rotation,shape_procSS,shape_procSD,rep(NA,times=1))
                 }
         }
         out.file <- rbind(out.file, datarow)
@@ -258,13 +262,13 @@ for(i in 1:length(file.names)) {
 
 #change output to df
 df.out.file <- data.frame(out.file[-1,],stringsAsFactors = FALSE)
-colnames(df.out.file) <- c("figure_file","PLstim","complexity","mt_clip","PLresp","RawSS","RawSD","translation","scale","rotation","ProcSS","ProcSD","correct_response")
+colnames(df.out.file) <- c("figure_file","PLstim","complexity","mt_clip","PLresp","raw_procSS","raw_procSD","translation","scale","rotation","shape_procSS","shape_procSD","correct_response")
 
 #combine proc_df with db
 all_data <- merge(trials,df.out.file,by="figure_file")
 colnames(participants)[1] <- paste("participant_id")
 all_data <- merge(participants[,c(1,4:6)],all_data,by="participant_id")
-all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","complexity","trace_file","rt","it","mt","mt_clip","PLresp","RawSS","RawSD","translation","scale","rotation","ProcSS","ProcSD","control_question","control_response","correct_response")]
+all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","complexity","trace_file","rt","it","mt","mt_clip","PLresp","raw_procSS","raw_procSD","translation","scale","rotation","shape_procSS","shape_procSD","control_question","control_response","correct_response")]
 
 #change data to numeric where appropriate
 all_data$condition <- as.factor(all_data$condition)
@@ -273,13 +277,13 @@ all_data$PLstim <- as.numeric(all_data$PLstim)
 all_data$complexity <- as.numeric(all_data$complexity)
 all_data$mt_clip <- as.numeric(all_data$mt_clip)
 all_data$PLresp <- as.numeric(all_data$PLresp)
-all_data$RawSS <- as.numeric(all_data$RawSS)
-all_data$RawSD <- as.numeric(all_data$RawSD)
+all_data$raw_procSS <- as.numeric(all_data$raw_procSS)
+all_data$raw_procSD <- as.numeric(all_data$raw_procSD)
 all_data$translation <- as.numeric(all_data$translation)
 all_data$scale <- as.numeric(all_data$scale)
 all_data$rotation <- as.numeric(all_data$rotation)
-all_data$ProcSS <- as.numeric(all_data$ProcSS)
-all_data$ProcSD <- as.numeric(all_data$ProcSD)
+all_data$shape_procSS <- as.numeric(all_data$shape_procSS)
+all_data$shape_procSD <- as.numeric(all_data$shape_procSD)
 all_data$correct_response <- as.integer(all_data$correct_response)
 
 all_data <- all_data[with(all_data, order(participant_id, session_num, block_num, trial_num)), ]
