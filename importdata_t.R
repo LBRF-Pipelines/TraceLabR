@@ -164,7 +164,6 @@ out.file <- ""
                 points(trans$Y, col="red")
                 title(main = c(name.tlt, " proc"))
                 
-                
                 dist = rep(0, length(trans$Y[,1]))
                 for (h in 1:length(trans$Y[,1])){
                 dist[h] = as.numeric(sqrt(((trans$Y[h,1]-trans$X[h,1])^2)+((trans$Y[h,2]-trans$X[h,2])^2)))
