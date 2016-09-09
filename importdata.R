@@ -151,19 +151,37 @@ for(i in 1:length(file.names)) {
                         # -asin(trans$gamm[1,2])
                         # acos(trans$gamm[2,2])
                         
-                        #get shape error (i.e. Procrustes SS)
+                        ## SHAPE ERROR ##
                         
-                        ProcSS <- sum(((trans$Y-trans$X)-mean((trans$Y-trans$X)))^2)
-                        ProcVar <- ProcSS/(length(stim[,1])-1)
-                        ProcSD <- sqrt(ProcVar)
+                        # create vector of point by point distances (error) between stimulus and response:
+                        shape_dist = rep(0, length(trans$Y[,1]))
+                        for (h in 1:length(shape_dist)){
+                                shape_dist[h] = as.numeric(sqrt(((trans$Y[h,1]-trans$X[h,1])^2)+((trans$Y[h,2]-trans$X[h,2])^2)))
+                        }
+                        # error throughout trial:
+                        shape_error_tot <- sum(shape_dist)
+                        shape_error_mean <- mean(shape_dist)
+                        shape_error_SD <- sd(shape_dist)
                         
-                        #get raw error
+                        # "ordinary procrustes sum of squares" and SD:
+                        shape_procSS <- sum(shape_dist^2)
+                        shape_procSD <- sqrt(shape_procSS/(length(shape_dist)-1))
                         
-                        stimaray <- data.matrix(stim)
-                        resparay <- data.matrix(resp)
-                        RawSS <- sum(((stimaray-resparay)-mean((stimaray-resparay)))^2)
-                        RawVar <- RawSS/(length(stim[,1])-1)
-                        RawSD <- sqrt(RawVar)
+                        ## RAW ERROR ##
+                        
+                        # create vector of point by point distances (error) between stimulus and response:
+                        raw_dist = rep(0, length(resp[,1]))
+                        for (m in 1:length(raw_dist)){
+                                raw_dist[m] = as.numeric(sqrt(((resp[m,1]-stim[m,1])^2)+((resp[m,2]-stim[m,2])^2)))
+                        }
+                        # error throughout trial:
+                        raw_error_tot <- sum(raw_dist)
+                        raw_error_mean <- mean(raw_dist)
+                        raw_error_SD <- sd(raw_dist)
+                        
+                        # pre-procrustes transform sum of squares and SD:
+                        raw_SS <- sum(raw_dist^2)
+                        raw_SD <- sqrt(raw_SS/(length(raw_dist)-1))
                         
                         ##### path length #####
                         
