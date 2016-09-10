@@ -8,16 +8,16 @@
 
 # subset data — only need to look at physical groups, first and last sessions:
 # *** note: have to look at final day of MI and CC groups similarly...
-PP_random_1 <- subset(all_data, (participant_id == "8") & (figure_type == "random") & (session_num == "1"))
-PP_random_2 <- subset(all_data, (participant_id == "8") & (figure_type == "random") & (session_num == "2"))
-PP_random_3 <- subset(all_data, (participant_id == "8") & (figure_type == "random") & (session_num == "3"))
-PP_random_4 <- subset(all_data, (participant_id == "8") & (figure_type == "random") & (session_num == "4"))
-PP_random_5 <- subset(all_data, (participant_id == "8") & (figure_type == "random") & (session_num == "5"))
-PP_repeat_1 <- subset(all_data, (participant_id == "8") & (figure_type == "fig3") & (session_num == "1"))
-PP_repeat_2 <- subset(all_data, (participant_id == "8") & (figure_type == "fig3") & (session_num == "2"))
-PP_repeat_3 <- subset(all_data, (participant_id == "8") & (figure_type == "fig3") & (session_num == "3"))
-PP_repeat_4 <- subset(all_data, (participant_id == "8") & (figure_type == "fig3") & (session_num == "4"))
-PP_repeat_5 <- subset(all_data, (participant_id == "8") & (figure_type == "fig3") & (session_num == "5"))
+PP_random_1 <- subset(all_data, (participant_id == "11") & (figure_type == "random") & (session_num == "1"))
+PP_random_2 <- subset(all_data, (participant_id == "11") & (figure_type == "random") & (session_num == "2"))
+PP_random_3 <- subset(all_data, (participant_id == "11") & (figure_type == "random") & (session_num == "3"))
+PP_random_4 <- subset(all_data, (participant_id == "11") & (figure_type == "random") & (session_num == "3"))
+PP_random_5 <- subset(all_data, (participant_id == "11") & (figure_type == "random") & (session_num == "3"))
+PP_repeat_1 <- subset(all_data, (participant_id == "11") & (figure_type == "fig3") & (session_num == "1"))
+PP_repeat_2 <- subset(all_data, (participant_id == "11") & (figure_type == "fig3") & (session_num == "2"))
+PP_repeat_3 <- subset(all_data, (participant_id == "11") & (figure_type == "fig3") & (session_num == "3"))
+PP_repeat_4 <- subset(all_data, (participant_id == "11") & (figure_type == "fig3") & (session_num == "3"))
+PP_repeat_5 <- subset(all_data, (participant_id == "11") & (figure_type == "fig3") & (session_num == "3"))
 
 # sort by p, s, b, t:
 PP_random_1 <- PP_random_1[with(PP_random_1, order(participant_id, session_num, block_num, trial_num)), ]
@@ -49,40 +49,40 @@ V_rep_5 <- PP_repeat_5$PLresp / PP_repeat_5$mt_clip # pixels per second
 ## ERROR raw and shape (proc):
 
 # RAW error against speed:
-plot(V_ran_1, PP_random_1$RawSD, col = "black")
-points(V_ran_5, PP_random_5$RawSD, col = "blue")
+plot(V_ran_1, PP_random_1$raw_error_mean, col = "black")
+plot(V_ran_5, PP_random_5$raw_error_mean, col = "blue")
 
-plot(V_rep_1, PP_repeat_1$RawSD, col = "black")
-points(V_rep_5, PP_repeat_5$RawSD, col = "blue")
+plot(V_rep_1, PP_repeat_1$raw_error_mean, col = "black")
+plot(V_rep_5, PP_repeat_5$raw_error_mean, col = "blue")
 
 # SHAPE (proc) error against speed:
-plot(V_ran_1, PP_random_1$ProcSD, col = "black")
-points(V_ran_5, PP_random_5$ProcSD, col = "blue")
+plot(V_ran_1, PP_random_1$shape_error_mean, col = "black")
+plot(V_ran_5, PP_random_5$shape_error_mean, col = "blue")
 
-plot(V_rep_1, PP_repeat_1$ProcSD, col = "black")
-points(V_rep_5, PP_repeat_5$ProcSD, col = "blue")
+plot(V_rep_1, PP_repeat_1$shape_error_mean, col = "black")
+plot(V_rep_5, PP_repeat_5$shape_error_mean, col = "blue")
 
 # SCALE error against speed:
 plot(V_ran_1, PP_random_1$scale, col = "black")
-points(V_ran_5, PP_random_5$scale, col = "blue") # as speed increases, people shrink!
+plot(V_ran_5, PP_random_5$scale, col = "blue") # as speed increases, people shrink!
 
-plot(V_rep_1, PP_repeat_1$scale, col = "black", ylim = c(0.5,1.1), xlim=c(1000,5000))
-points(V_rep_5, PP_repeat_5$scale, col = "blue") # as speed increases, people shrink!
+plot(V_rep_1, PP_repeat_1$scale, col = "black")
+plot(V_rep_5, PP_repeat_5$scale, col = "blue") # as speed increases, people shrink!
 # maybe, to make "error" the y-axis, take absolute value away from 1? direction matters though... 
 
 # TRANSLATION error against speed:
 plot(V_ran_1, PP_random_1$translation, col = "black")
-points(V_ran_5, PP_random_5$translation, col = "blue")
+plot(V_ran_5, PP_random_5$translation, col = "blue")
 
 plot(V_rep_1, PP_repeat_1$translation, col = "black")
-points(V_rep_5, PP_repeat_5$translation, col = "blue")
+plot(V_rep_5, PP_repeat_5$translation, col = "blue")
 
 # ROTATION error against speed:
 plot(V_ran_1, PP_random_1$rotation, col = "black")
-points(V_ran_5, PP_random_5$rotation, col = "blue")
+plot(V_ran_5, PP_random_5$rotation, col = "blue")
 
-plot(V_rep_1, PP_repeat_1$rotation, col = "black", ylim = c(0,0.3))
-points(V_rep_5, PP_repeat_5$rotation, col = "blue")
+plot(V_rep_1, PP_repeat_1$rotation, col = "black")
+plot(V_rep_5, PP_repeat_5$rotation, col = "blue")
 
 
 ## ERROR vs COMPLEXITY ##
@@ -90,15 +90,15 @@ points(V_rep_5, PP_repeat_5$rotation, col = "blue")
 # only do for random shapes — repeated would just be straight vertical lines
 
 # RAW error against complexity
-plot(PP_random_1$complexity, PP_random_1$RawSD, col = "black")
-points(PP_random_5$complexity, PP_random_5$RawSD, col = "blue")
+plot(PP_random_1$complexity, PP_random_1$raw_error_mean, col = "black")
+points(PP_random_5$complexity, PP_random_5$raw_error_mean, col = "blue")
 
-# SHAPE (proc) error against complexity
-plot(PP_random_1$complexity, PP_random_1$ProcSD, col = "black")
-points(PP_random_5$complexity, PP_random_5$ProcSD, col = "blue")
+# SHAPE error against complexity
+plot(PP_random_1$complexity, PP_random_1$shape_error_mean, col = "black")
+points(PP_random_5$complexity, PP_random_5$shape_error_mean, col = "blue")
 
 # SCALE error against complexity
-plot(PP_random_1$complexity, PP_random_1$scale, col = "black", ylim = c(0.25,1.25))
+plot(PP_random_1$complexity, PP_random_1$scale, col = "black")
 points(PP_random_5$complexity, PP_random_5$scale, col = "blue")
 
 # TRANSLATION error against complexity
@@ -113,11 +113,11 @@ points(PP_random_5$complexity, PP_random_5$rotation, col = "blue")
 
 ## 3D plots of speed-complexity-error ##
 library(rgl)
-plot3d(PP_random_1$complexity, V_ran_1, PP_random_1$RawSD, col="black", size=3)
-plot3d(PP_random_5$complexity, V_ran_5, PP_random_5$RawSD, col="blue", size=3)
+plot3d(PP_random_1$complexity, V_ran_1, PP_random_1$shape_error_mean, col="black", size=3)
+plot3d(PP_random_5$complexity, V_ran_5, PP_random_5$shape_error_mean, col="blue", size=3)
 
-plot3d(PP_repeat_1$complexity, V_rep_1, PP_repeat_1$RawSD, col="black", size=3)
-plot3d(PP_repeat_5$complexity, V_rep_5, PP_repeat_5$RawSD, col="blue", size=3)
+plot3d(PP_repeat_1$complexity, V_rep_1, PP_repeat_1$shape_error_mean, col="black", size=3)
+plot3d(PP_repeat_5$complexity, V_rep_5, PP_repeat_5$shape_error_mean, col="blue", size=3)
 
 # plot RAW error against MOVEMENT TIME:
 #plot(PP_random_5$mt, PP_random_5$RawSD, col = "blue")
@@ -143,29 +143,29 @@ library(minpack.lm) # better algorithm for nonlinear least squares
 
 # create matrices which orders x and y (speed and error) by x:
 
-fit_ran1 <- data.frame(matrix(c(V_ran_1,PP_random_1$ProcSD), ncol=2))
+fit_ran1 <- data.frame(matrix(c(V_ran_1,PP_random_1$shape_error_mean), ncol=2))
 fit_ran1 <- fit_ran1[order(fit_ran1$X1),]
 ## plots just for confirmation:
 #plot(fit_ran1$X1,fit_ran1$X2)
-#points(V_ran_1+50,PP_random_1$ProcSD, col= "blue")
-fit_ran2 <- data.frame(matrix(c(V_ran_2,PP_random_2$ProcSD), ncol=2))
+#points(V_ran_1+50,PP_random_1$shape_error_mean, col= "blue")
+fit_ran2 <- data.frame(matrix(c(V_ran_2,PP_random_2$shape_error_mean), ncol=2))
 fit_ran2 <- fit_ran2[order(fit_ran2$X1),]
-fit_ran3 <- data.frame(matrix(c(V_ran_3,PP_random_3$ProcSD), ncol=2))
+fit_ran3 <- data.frame(matrix(c(V_ran_3,PP_random_3$shape_error_mean), ncol=2))
 fit_ran3 <- fit_ran3[order(fit_ran3$X1),]
-fit_ran4 <- data.frame(matrix(c(V_ran_4,PP_random_4$ProcSD), ncol=2))
+fit_ran4 <- data.frame(matrix(c(V_ran_4,PP_random_4$shape_error_mean), ncol=2))
 fit_ran4 <- fit_ran4[order(fit_ran4$X1),]
-fit_ran5 <- data.frame(matrix(c(V_ran_5,PP_random_5$ProcSD), ncol=2))
+fit_ran5 <- data.frame(matrix(c(V_ran_5,PP_random_5$shape_error_mean), ncol=2))
 fit_ran5 <- fit_ran5[order(fit_ran5$X1),]
 
-fit_rep1 <- data.frame(matrix(c(V_rep_1,PP_repeat_1$ProcSD), ncol=2))
+fit_rep1 <- data.frame(matrix(c(V_rep_1,PP_repeat_1$shape_error_mean), ncol=2))
 fit_rep1 <- fit_rep1[order(fit_rep1$X1),]
-fit_rep2 <- data.frame(matrix(c(V_rep_2,PP_repeat_2$ProcSD), ncol=2))
+fit_rep2 <- data.frame(matrix(c(V_rep_2,PP_repeat_2$shape_error_mean), ncol=2))
 fit_rep2 <- fit_rep2[order(fit_rep2$X1),]
-fit_rep3 <- data.frame(matrix(c(V_rep_3,PP_repeat_3$ProcSD), ncol=2))
+fit_rep3 <- data.frame(matrix(c(V_rep_3,PP_repeat_3$shape_error_mean), ncol=2))
 fit_rep3 <- fit_rep3[order(fit_rep3$X1),]
-fit_rep4 <- data.frame(matrix(c(V_rep_4,PP_repeat_4$ProcSD), ncol=2))
+fit_rep4 <- data.frame(matrix(c(V_rep_4,PP_repeat_4$shape_error_mean), ncol=2))
 fit_rep4 <- fit_rep4[order(fit_rep4$X1),]
-fit_rep5 <- data.frame(matrix(c(V_rep_5,PP_repeat_5$ProcSD), ncol=2))
+fit_rep5 <- data.frame(matrix(c(V_rep_5,PP_repeat_5$shape_error_mean), ncol=2))
 fit_rep5 <- fit_rep5[order(fit_rep5$X1),]
 
 # function needed for visualization purposes
