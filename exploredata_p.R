@@ -12,12 +12,19 @@ all_data_p <- subset(all_data, participant_id == 11)
 aggregate(!is.na(PLresp) ~ stimulus_gt, all_data_p, sum)
 
 # in general (without seperating repeated and random) was there a decrease in error?
-plot(all_data_p$RawSD)
-Raw_LM <- lm(1:length(all_data_p$RawSD) ~ all_data_p$RawSD)
-summary(Raw_LM)
-plot(all_data_p$ProcSD)
-Proc_LM <- lm(1:length(all_data_p$ProcSD) ~ all_data_p$ProcSD)
-summary(Proc_LM)
+plot(all_data_p$raw_error_mean) #looks like error mean is the best score to look at... IMO
+plot(all_data_p$raw_error_SD) 
+plot(all_data_p$raw_procSD) #looks almost exectly like error_mean
+
+raw_LM <- lm(1:length(all_data_p$raw_error_mean) ~ all_data_p$raw_error_mean)
+summary(raw_LM)
+
+plot(all_data_p$shape_error_mean)
+plot(all_data_p$shape_error_SD)
+plot(all_data_p$shape_procSD)
+
+shape_LM <- lm(1:length(all_data_p$shape_error_mean) ~ all_data_p$shape_error_mean)
+summary(shape_LM)
 
 # subset data into repeated and random
 repeated <- subset(all_data_p, figure_type == "fig3")
@@ -39,33 +46,47 @@ random_med <- random_med[with(random_med, order(participant_id, session_num, blo
 # getting better across session? note: this isn't a good way to look because there's many speeds!
 
 # plot RAW repeated (blue) and random (black) on same figure:
-plot(repeated$RawSD, col = "blue")
-points(random$RawSD, col = "black")
-# plot a moving average lines:
-f21 <- rep(1/21,21) # avg of current, prev 10 and next 10
-rep_sym <- filter(repeated$RawSD, f21, sides=2)
-lines(1:250, rep_sym, col="blue", lwd=2)
-ran_sym <- filter(random$RawSD, f21, sides=2)
-lines(1:250, ran_sym, col="black", lwd=2)
+plot(random$raw_error_mean, col = "black")
+plot(repeated$raw_error_mean, col = "blue")
 
-Ran_Raw_LM <- lm(1:length(random$RawSD) ~ random$RawSD)
+plot(random$raw_error_SD, col = "black")
+plot(repeated$raw_error_SD, col = "blue")
+
+plot(random$raw_procSD, col = "black")
+plot(repeated$raw_procSD, col = "blue")
+
+# plot a moving average lines:
+# f21 <- rep(1/21,21) # avg of current, prev 10 and next 10
+# rep_sym <- filter(repeated$raw_error_mean, f21, sides=2)
+# lines(1:250, rep_sym, col="blue", lwd=2)
+# ran_sym <- filter(random$raw_error_mean, f21, sides=2)
+# lines(1:250, ran_sym, col="black", lwd=2)
+
+Ran_Raw_LM <- lm(1:length(random$raw_error_mean) ~ random$raw_error_mean)
 summary(Ran_Raw_LM)
-Rep_Raw_LM <- lm(1:length(repeated$RawSD) ~ repeated$RawSD)
+Rep_Raw_LM <- lm(1:length(repeated$raw_error_mean) ~ repeated$raw_error_mean)
 summary(Rep_Raw_LM)
 
 # plot SHAPE (proc) repeated (blue) and random (black) on same figure:
-plot(repeated$ProcSD, col = "blue")
-points(random$ProcSD, col = "black")
-# plot a moving average lines:
-f21 <- rep(1/21,21) # avg of current, prev 10 and next 10
-rep_sym <- filter(repeated$ProcSD, f21, sides=2)
-lines(1:250, rep_sym, col="blue", lwd=2)
-ran_sym <- filter(random$ProcSD, f21, sides=2)
-lines(1:250, ran_sym, col="black", lwd=2)
+plot(random$shape_error_mean, col = "black")
+plot(repeated$shape_error_mean, col = "blue")
 
-Ran_Proc_LM <- lm(1:length(random$ProcSD) ~ random$ProcSD)
+plot(random$shape_error_SD, col = "black")
+plot(repeated$shape_error_SD, col = "blue")
+
+plot(random$shape_procSD, col = "black")
+plot(repeated$shape_procSD, col = "blue")
+
+# plot a moving average lines:
+# f21 <- rep(1/21,21) # avg of current, prev 10 and next 10
+# rep_sym <- filter(repeated$shape_error_mean, f21, sides=2)
+# lines(1:250, rep_sym, col="blue", lwd=2)
+# ran_sym <- filter(random$shape_error_mean, f21, sides=2)
+# lines(1:250, ran_sym, col="black", lwd=2)
+
+Ran_Proc_LM <- lm(1:length(random$shape_error_mean) ~ random$shape_error_mean)
 summary(Ran_Proc_LM)
-Rep_Proc_LM <- lm(1:length(repeated$ProcSD) ~ repeated$ProcSD)
+Rep_Proc_LM <- lm(1:length(repeated$shape_error_mean) ~ repeated$shape_error_mean)
 summary(Rep_Proc_LM)
 
 
