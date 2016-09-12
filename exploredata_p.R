@@ -6,7 +6,7 @@
 
 ## SINGLE PARTICIPANT ##
 
-all_data_p <- subset(all_data, participant_id == 11)
+all_data_p <- subset(all_data, participant_id == 8)
 
 # how much data per speed made it in? 
 aggregate(!is.na(PLresp) ~ stimulus_gt, all_data_p, sum)
@@ -25,6 +25,22 @@ plot(all_data_p$shape_procSD)
 
 shape_LM <- lm(1:length(all_data_p$shape_error_mean) ~ all_data_p$shape_error_mean)
 summary(shape_LM)
+
+plot(all_data_p$scale)
+
+scale_LM <- lm(1:length(all_data_p$scale) ~ all_data_p$scale)
+summary(scale_LM)
+
+plot(all_data_p$rotation)
+
+rotation_LM <- lm(1:length(all_data_p$rotation) ~ all_data_p$rotation)
+summary(rotation_LM)
+
+plot(all_data_p$translation)
+
+translation_LM <- lm(1:length(all_data_p$translation) ~ all_data_p$translation)
+summary(translation_LM)
+
 
 # subset data into repeated and random
 repeated <- subset(all_data_p, figure_type == "fig3")
