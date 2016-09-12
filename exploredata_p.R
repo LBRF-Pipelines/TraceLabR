@@ -49,19 +49,12 @@ random <- subset(all_data_p, figure_type == "random")
 repeated <- repeated[with(repeated, order(participant_id, session_num, block_num, trial_num)), ]
 random <- random[with(random, order(participant_id, session_num, block_num, trial_num)), ]
 
-# subset data into repeated and random, but only at median speed
-repeated_med <- subset(all_data_p, figure_type == "fig3" & stimulus_gt == 1500)
-random_med <- subset(all_data_p, figure_type == "random" & stimulus_gt == 1500)
-# sort data by participant, then session, then block, then trial.
-repeated_med <- repeated_med[with(repeated_med, order(participant_id, session_num, block_num, trial_num)), ]
-random_med <- random_med[with(random_med, order(participant_id, session_num, block_num, trial_num)), ]
-
-
 #### FIRST ROUGH LOOK AT DATA #### 
 
 # getting better across session? note: this isn't a good way to look because there's many speeds!
 
 # plot RAW repeated (blue) and random (black) on same figure:
+
 plot(random$raw_error_mean, col = "black")
 plot(repeated$raw_error_mean, col = "blue")
 
@@ -84,6 +77,7 @@ Rep_Raw_LM <- lm(1:length(repeated$raw_error_mean) ~ repeated$raw_error_mean)
 summary(Rep_Raw_LM)
 
 # plot SHAPE (proc) repeated (blue) and random (black) on same figure:
+
 plot(random$shape_error_mean, col = "black")
 plot(repeated$shape_error_mean, col = "blue")
 
@@ -104,6 +98,53 @@ Ran_Proc_LM <- lm(1:length(random$shape_error_mean) ~ random$shape_error_mean)
 summary(Ran_Proc_LM)
 Rep_Proc_LM <- lm(1:length(repeated$shape_error_mean) ~ repeated$shape_error_mean)
 summary(Rep_Proc_LM)
+
+## SAME, BUT MEDIAN SPEED ONLY ## 
+
+# subset data into repeated and random, but only at median speed
+repeated_med <- subset(all_data_p, figure_type == "fig3" & stimulus_gt == 1500)
+random_med <- subset(all_data_p, figure_type == "random" & stimulus_gt == 1500)
+# sort data by participant, then session, then block, then trial.
+repeated_med <- repeated_med[with(repeated_med, order(participant_id, session_num, block_num, trial_num)), ]
+random_med <- random_med[with(random_med, order(participant_id, session_num, block_num, trial_num)), ]
+
+# RAW med
+
+plot(random_med$raw_error_mean, col = "black")
+plot(repeated_med$raw_error_mean, col = "blue")
+
+plot(random_med$raw_error_SD, col = "black")
+plot(repeated_med$raw_error_SD, col = "blue")
+
+plot(random_med$raw_procSD, col = "black")
+plot(repeated_med$raw_procSD, col = "blue")
+
+# SHAPE med
+
+plot(random_med$shape_error_mean, col = "black")
+plot(repeated_med$shape_error_mean, col = "blue")
+
+plot(random_med$shape_error_SD, col = "black")
+plot(repeated_med$shape_error_SD, col = "blue")
+
+plot(random_med$shape_procSD, col = "black")
+plot(repeated_med$shape_procSD, col = "blue")
+
+# SCALE med
+
+plot(random_med$scale, col = "black")
+plot(repeated_med$scale, col = "blue")
+
+# ROTATION med
+
+plot(random_med$rotation, col = "black")
+plot(repeated_med$rotation, col = "blue", ylim = c(0.0,0.3))
+
+# TRANSLATION med
+
+plot(random_med$translation, col = "black")
+plot(repeated_med$translation, col = "blue")
+
 
 
 #### DATA CHECKING #####
