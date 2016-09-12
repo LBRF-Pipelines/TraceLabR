@@ -6,7 +6,7 @@
 
 ## SINGLE PARTICIPANT ##
 
-all_data_p <- subset(all_data, participant_id == 8)
+all_data_p <- subset(all_data, participant_id == 11)
 
 # how much data per speed made it in? 
 aggregate(!is.na(PLresp) ~ stimulus_gt, all_data_p, sum)
@@ -99,7 +99,23 @@ summary(Ran_Proc_LM)
 Rep_Proc_LM <- lm(1:length(repeated$shape_error_mean) ~ repeated$shape_error_mean)
 summary(Rep_Proc_LM)
 
-## SAME, BUT MEDIAN SPEED ONLY ## 
+# SCALE
+
+plot(random$scale, col = "black")
+plot(repeated$scale, col = "blue")
+
+# ROTATION
+
+plot(random$rotation, col = "black")
+plot(repeated$rotation, col = "blue")
+
+# TRANSLATION
+
+plot(random$translation, col = "black")
+plot(repeated$translation, col = "blue")
+
+
+##### SAME, BUT MEDIAN SPEED ONLY #####
 
 # subset data into repeated and random, but only at median speed
 repeated_med <- subset(all_data_p, figure_type == "fig3" & stimulus_gt == 1500)
@@ -138,7 +154,7 @@ plot(repeated_med$scale, col = "blue")
 # ROTATION med
 
 plot(random_med$rotation, col = "black")
-plot(repeated_med$rotation, col = "blue", ylim = c(0.0,0.3))
+plot(repeated_med$rotation, col = "blue")
 
 # TRANSLATION med
 
