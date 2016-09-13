@@ -2,7 +2,7 @@
 ##### authored by Tony Ingram #####
 
 ## TO DO ##
-# 1. look through and find out what loops can actually be functions!
+# 1. look at looping fitting, so I can do other error outcomes (raw, shape, scale, rot, trans)
 # 2. add "lower bound" to fitting function
 # 3. create matrix of fit parameters
 
@@ -145,9 +145,6 @@ library(minpack.lm) # better algorithm for nonlinear least squares
 
 fit_ran1 <- data.frame(matrix(c(V_ran_1,PP_random_1$shape_error_mean), ncol=2))
 fit_ran1 <- fit_ran1[order(fit_ran1$X1),]
-## plots just for confirmation:
-#plot(fit_ran1$X1,fit_ran1$X2)
-#points(V_ran_1+50,PP_random_1$shape_error_mean, col= "blue")
 fit_ran2 <- data.frame(matrix(c(V_ran_2,PP_random_2$shape_error_mean), ncol=2))
 fit_ran2 <- fit_ran2[order(fit_ran2$X1),]
 fit_ran3 <- data.frame(matrix(c(V_ran_3,PP_random_3$shape_error_mean), ncol=2))
