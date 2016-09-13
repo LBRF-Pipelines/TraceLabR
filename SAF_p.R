@@ -11,13 +11,13 @@
 PP_random_1 <- subset(all_data, (participant_id == "11") & (figure_type == "random") & (session_num == "1"))
 PP_random_2 <- subset(all_data, (participant_id == "11") & (figure_type == "random") & (session_num == "2"))
 PP_random_3 <- subset(all_data, (participant_id == "11") & (figure_type == "random") & (session_num == "3"))
-PP_random_4 <- subset(all_data, (participant_id == "11") & (figure_type == "random") & (session_num == "3"))
-PP_random_5 <- subset(all_data, (participant_id == "11") & (figure_type == "random") & (session_num == "3"))
+PP_random_4 <- subset(all_data, (participant_id == "11") & (figure_type == "random") & (session_num == "4"))
+PP_random_5 <- subset(all_data, (participant_id == "11") & (figure_type == "random") & (session_num == "5"))
 PP_repeat_1 <- subset(all_data, (participant_id == "11") & (figure_type == "fig3") & (session_num == "1"))
 PP_repeat_2 <- subset(all_data, (participant_id == "11") & (figure_type == "fig3") & (session_num == "2"))
 PP_repeat_3 <- subset(all_data, (participant_id == "11") & (figure_type == "fig3") & (session_num == "3"))
-PP_repeat_4 <- subset(all_data, (participant_id == "11") & (figure_type == "fig3") & (session_num == "3"))
-PP_repeat_5 <- subset(all_data, (participant_id == "11") & (figure_type == "fig3") & (session_num == "3"))
+PP_repeat_4 <- subset(all_data, (participant_id == "11") & (figure_type == "fig3") & (session_num == "4"))
+PP_repeat_5 <- subset(all_data, (participant_id == "11") & (figure_type == "fig3") & (session_num == "5"))
 
 # sort by p, s, b, t:
 PP_random_1 <- PP_random_1[with(PP_random_1, order(participant_id, session_num, block_num, trial_num)), ]
@@ -173,164 +173,90 @@ logistic = function(params, x) {
         params[1] / (1 + exp(-params[2] * (x - params[3])))
 }
 
-# really need to make the below code a loop! 
+# function for fitting logistic function
+logfit = function(x, y){
+        ymax = max(y, na.rm = TRUE)
+        xmed = median(x, na.rm = TRUE)
+        slope = (y[which.max(y)] - y[1]) / (x[which.max(x)] - x[1])
+        # fitting code:
+        fit <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=slope,c=xmed))
+        return(fit)
+}
 
 ## RANDOM TRAJECTORY FITS ##
 
 # RANDOM DAY 1
 
-x = fit_ran1$X1
-y = fit_ran1$X2
-# parameter guesses:
-ymax = max(y, na.rm = TRUE)
-xmed = median(x, na.rm = TRUE)
-slope = (y[which.max(y)] - y[1]) / (x[which.max(x)] - x[1])
-# fitting code:
-fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=slope,c=xmed))
-summary(fitmodel)
-# get the coefficients using the coef function
-ran1_params=coef(fitmodel)
-ran1 <- logistic(ran1_params,x)
+fitmodel <- logfit(fit_ran1$X1,fit_ran1$X2) # fit data to equation
+summary(fitmodel) # see fit summary
+ran1_params=coef(fitmodel) # get parameter coefficients 
+ran1 <- logistic(ran1_params,fit_ran1$X1) # get fit for plots
 
 # RANDOM DAY 2
 
-x = fit_ran2$X1
-y = fit_ran2$X2
-# parameter guesses:
-ymax = max(y, na.rm = TRUE)
-xmed = median(x, na.rm = TRUE)
-slope = (y[which.max(y)] - y[1]) / (x[which.max(x)] - x[1])
-# fitting code:
-fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=slope,c=xmed))
+fitmodel <- logfit(fit_ran2$X1,fit_ran2$X2)
 summary(fitmodel)
-# get the coefficients using the coef function
 ran2_params=coef(fitmodel)
-ran2 <- logistic(ran2_params,x)
+ran2 <- logistic(ran2_params,fit_ran2$X1)
 
 # RANDOM DAY 3
 
-x = fit_ran3$X1
-y = fit_ran3$X2
-# parameter guesses:
-ymax = max(y, na.rm = TRUE)
-xmed = median(x, na.rm = TRUE)
-slope = (y[which.max(y)] - y[1]) / (x[which.max(x)] - x[1])
-# fitting code:
-fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=slope,c=xmed))
+fitmodel <- logfit(fit_ran3$X1,fit_ran3$X2)
 summary(fitmodel)
-# get the coefficients using the coef function
 ran3_params=coef(fitmodel)
-ran3 <- logistic(ran3_params,x)
+ran3 <- logistic(ran3_params,fit_ran3$X1)
 
 # RANDOM DAY 4
 
-x = fit_ran4$X1
-y = fit_ran4$X2
-# parameter guesses:
-ymax = max(y, na.rm = TRUE)
-xmed = median(x, na.rm = TRUE)
-slope = (y[which.max(y)] - y[1]) / (x[which.max(x)] - x[1])
-# fitting code:
-fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=slope,c=xmed))
+fitmodel <- logfit(fit_ran4$X1,fit_ran4$X2)
 summary(fitmodel)
-# get the coefficients using the coef function
 ran4_params=coef(fitmodel)
-ran4 <- logistic(ran4_params,x)
-
+ran4 <- logistic(ran4_params,fit_ran4$X1)
 
 # RANDOM DAY 5
 
-x = fit_ran5$X1
-y = fit_ran5$X2
-# parameter guesses:
-ymax = max(y, na.rm = TRUE)
-xmed = median(x, na.rm = TRUE)
-slope = (y[which.max(y)] - y[1]) / (x[which.max(x)] - x[1])
-# fitting code:
-fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=slope,c=xmed))
+fitmodel <- logfit(fit_ran5$X1,fit_ran5$X2)
 summary(fitmodel)
-# get the coefficients using the coef function
 ran5_params=coef(fitmodel)
-ran5 <- logistic(ran5_params,x)
-
+ran5 <- logistic(ran5_params,fit_ran5$X1)
 
 
 ## REPEATED TRAJECTORY FITS ##
 
 # REPEAT DAY 1
 
-x = fit_rep1$X1
-y = fit_rep1$X2
-# parameter guesses:
-ymax = max(y, na.rm = TRUE)
-xmed = median(x, na.rm = TRUE)
-slope = (y[which.max(y)] - y[1]) / (x[which.max(x)] - x[1])
-# fitting code:
-fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=slope,c=xmed))
+fitmodel <- logfit(fit_rep1$X1,fit_rep1$X2)
 summary(fitmodel)
-# get the coefficients using the coef function
 rep1_params=coef(fitmodel)
-rep1 <- logistic(rep1_params,x)
+rep1 <- logistic(rep1_params,fit_rep1$X1)
 
 # REPEAT DAY 2
 
-x = fit_rep2$X1
-y = fit_rep2$X2
-# parameter guesses:
-ymax = max(y, na.rm = TRUE)
-xmed = median(x, na.rm = TRUE)
-slope = (y[which.max(y)] - y[1]) / (x[which.max(x)] - x[1])
-# fitting code:
-fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=slope,c=xmed))
+fitmodel <- logfit(fit_rep2$X1,fit_rep2$X2)
 summary(fitmodel)
-# get the coefficients using the coef function
 rep2_params=coef(fitmodel)
-rep2 <- logistic(rep2_params,x)
+rep2 <- logistic(rep2_params,fit_rep2$X1)
 
 # REPEAT DAY 3
 
-x = fit_rep3$X1
-y = fit_rep3$X2
-# parameter guesses:
-ymax = max(y, na.rm = TRUE)
-xmed = median(x, na.rm = TRUE)
-slope = (y[which.max(y)] - y[1]) / (x[which.max(x)] - x[1])
-# fitting code:
-fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=slope,c=xmed))
+fitmodel <- logfit(fit_rep3$X1,fit_rep3$X2)
 summary(fitmodel)
-# get the coefficients using the coef function
 rep3_params=coef(fitmodel)
-rep3 <- logistic(rep3_params,x)
+rep3 <- logistic(rep3_params,fit_rep3$X1)
 
 # REPEAT DAY 4
 
-x = fit_rep4$X1
-y = fit_rep4$X2
-# parameter guesses:
-ymax = max(y, na.rm = TRUE)
-xmed = median(x, na.rm = TRUE)
-slope = (y[which.max(y)] - y[1]) / (x[which.max(x)] - x[1])
-# fitting code:
-fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=slope,c=xmed))
+fitmodel <- logfit(fit_rep4$X1,fit_rep4$X2)
 summary(fitmodel)
-# get the coefficients using the coef function
 rep4_params=coef(fitmodel)
-rep4 <- logistic(rep4_params,x)
+rep4 <- logistic(rep4_params,fit_rep4$X1)
 
 # REPEAT DAY 5
 
-x = fit_rep5$X1
-y = fit_rep5$X2
-# parameter guesses:
-ymax = max(y, na.rm = TRUE)
-xmed = median(x, na.rm = TRUE)
-slope = (y[which.max(y)] - y[1]) / (x[which.max(x)] - x[1])
-# fitting code:
-fitmodel <- nlsLM(y ~ a/(1 + exp(-(b * (x-c)))), start=list(a=ymax,b=slope,c=xmed))
+fitmodel <- logfit(fit_rep5$X1,fit_rep5$X2)
 summary(fitmodel)
-# get the coefficients using the coef function
 rep5_params=coef(fitmodel)
-rep5 <- logistic(rep5_params,x)
+rep5 <- logistic(rep5_params,fit_rep5$X1)
 
 # end loop here! make matrix of parameters! 
 
