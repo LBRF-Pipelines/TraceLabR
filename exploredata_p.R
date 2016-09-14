@@ -6,7 +6,7 @@
 
 ## SINGLE PARTICIPANT ##
 
-all_data_p <- subset(all_data, participant_id == 11)
+all_data_p <- subset(all_data, participant_id == 13)
 
 # how much data per speed made it in? 
 aggregate(!is.na(PLresp) ~ stimulus_gt, all_data_p, sum)
