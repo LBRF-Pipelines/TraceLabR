@@ -3,6 +3,7 @@
 
 ## TO DO ##
 # 1. look through and find out what loops can actually be functions!
+# 2. go through and change loop inits that are = "" to something else... like = matrix()
 
 rm(list = ls()) # clear work space
 #graphics.off() # clear figures
@@ -19,7 +20,7 @@ trials <- read.csv("~/RStudio/TraceLabDB/trials.csv", stringsAsFactors = FALSE)
 path <- "~/TraceLab/ExpAssets/Data"
 file.names <- dir(path, recursive = TRUE, full.names = TRUE,pattern="\\.zip$")
 
-out.file <- ""
+out.file <- "" # note, using "" here is why everything is output as a character string at the end, and needs reverting... messy code. Gotta refine. This should be = matrix()
 # Apply the function to all files.
 for(i in 1:length(file.names)) {
         name.tlf <- gsub(".zip",".tlf",basename(file.names[i]))
