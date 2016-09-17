@@ -6,7 +6,7 @@
 
 ## SINGLE PARTICIPANT ##
 
-all_data_p <- subset(all_data, participant_id == 13)
+all_data_p <- subset(all_data, participant_id == 14)
 
 # how much data per speed made it in? 
 aggregate(!is.na(PLresp) ~ stimulus_gt, all_data_p, sum)
@@ -26,7 +26,7 @@ plot(all_data_p$shape_procSD)
 shape_LM <- lm(1:length(all_data_p$shape_error_mean) ~ all_data_p$shape_error_mean)
 summary(shape_LM)
 
-plot(all_data_p$scale)
+plot(all_data_p$scale, ylim = c(0,2))
 
 scale_LM <- lm(1:length(all_data_p$scale) ~ all_data_p$scale)
 summary(scale_LM)
@@ -43,7 +43,7 @@ summary(translation_LM)
 
 
 # subset data into repeated and random
-repeated <- subset(all_data_p, figure_type == "fig3")
+repeated <- subset(all_data_p, figure_type == "fig2")
 random <- subset(all_data_p, figure_type == "random")
 # sort data by participant, then session, then block, then trial.
 repeated <- repeated[with(repeated, order(participant_id, session_num, block_num, trial_num)), ]
@@ -101,8 +101,8 @@ summary(Rep_Proc_LM)
 
 # SCALE
 
-plot(random$scale, col = "black")
-plot(repeated$scale, col = "blue")
+plot(random$scale, col = "black", ylim = c(0,2))
+plot(repeated$scale, col = "blue", ylim = c(0,2))
 
 # ROTATION
 
@@ -118,7 +118,7 @@ plot(repeated$translation, col = "blue")
 ##### SAME, BUT MEDIAN SPEED ONLY #####
 
 # subset data into repeated and random, but only at median speed
-repeated_med <- subset(all_data_p, figure_type == "fig3" & stimulus_gt == 1500)
+repeated_med <- subset(all_data_p, figure_type == "fig2" & stimulus_gt == 1500)
 random_med <- subset(all_data_p, figure_type == "random" & stimulus_gt == 1500)
 # sort data by participant, then session, then block, then trial.
 repeated_med <- repeated_med[with(repeated_med, order(participant_id, session_num, block_num, trial_num)), ]
@@ -182,7 +182,7 @@ fluctile(table(CC$control_response, CC$correct_response), shape="c")
 # are participants actually matching the stimulus MT?
 
 # subset all data by condition (repeat vs random don't matter here):
-mt_compare_PP <- subset(all_data_p, condition == "PP-VR-5", select = c(stimulus_gt, stimulus_mt, mt, mt_clip))
+mt_compare_PP <- subset(all_data_p, condition == "PP-00-1" | condition == "PP-00-5" | condition == "PP-VV-5" | condition == "PP-RR-5" | condition == "PP-VR-5", select = c(stimulus_gt, stimulus_mt, mt, mt_clip))
 mt_compare_MI <- subset(all_data_p, condition == "MI-00-5", select = c(stimulus_gt, stimulus_mt, mt, mt_clip))
 mt_compare_CC <- subset(all_data_p, condition == "CC-00-5", select = c(stimulus_gt, stimulus_mt, mt, mt_clip))
 
