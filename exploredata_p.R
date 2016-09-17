@@ -189,7 +189,7 @@ mt_compare_CC <- subset(all_data_p, condition == "CC-00-5", select = c(stimulus_
 # plot to see if response MT's are related to stimulus MT's:
 plot(mt_compare_PP[,2],mt_compare_PP[,4])
 plot(mt_compare_MI[,2],mt_compare_MI[,3])
-plot(mt_compare_CC[,2],mt_compare_CC[,4])
+plot(mt_compare_CC[,2],mt_compare_CC[,3])
 
 # run regressions of same for additional confirmation:
 mt_compare_PP_LM <- lm(mt_compare_PP[,2] ~ mt_compare_PP[,4])
