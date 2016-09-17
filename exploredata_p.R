@@ -194,9 +194,9 @@ plot(mt_compare_CC[,2],mt_compare_CC[,3]) # CC never has clipped mt... except da
 # run regressions of same for additional confirmation:
 mt_compare_PP_LM <- lm(mt_compare_PP[,2] ~ mt_compare_PP[,4])
 summary(mt_compare_PP_LM)
-mt_compare_MI_LM <- lm(mt_compare_MI[,2] ~ mt_compare_MI[,4])
+mt_compare_MI_LM <- lm(mt_compare_MI[,2] ~ mt_compare_MI[,3])
 summary(mt_compare_MI_LM)
-mt_compare_CC_LM <- lm(mt_compare_CC[,2] ~ mt_compare_CC[,4])
+mt_compare_CC_LM <- lm(mt_compare_CC[,2] ~ mt_compare_CC[,3])
 summary(mt_compare_CC_LM)
 # should be high correlations for all PP and MI groups but not CC.
 
