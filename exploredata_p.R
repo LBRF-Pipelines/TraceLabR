@@ -3,10 +3,13 @@
 
 ## TO DO ##
 # 1. look through and find out what loops can actually be functions!
+# 2. for MT check, find out how to color plots by day
+
+library(ggplot2)
 
 ## SINGLE PARTICIPANT ##
 
-all_data_p <- subset(all_data, participant_id == 14)
+all_data_p <- subset(all_data, participant_id == 13)
 
 # how much data per speed made it in? 
 aggregate(!is.na(PLresp) ~ stimulus_gt, all_data_p, sum)
@@ -187,6 +190,7 @@ mt_compare_MI <- subset(all_data_p, condition == "MI-00-5", select = c(stimulus_
 mt_compare_CC <- subset(all_data_p, condition == "CC-00-5", select = c(stimulus_gt, stimulus_mt, mt, mt_clip))
 
 # plot to see if response MT's are related to stimulus MT's:
+# COLOR BY DAY USING GGPLOT
 plot(mt_compare_PP[,2],mt_compare_PP[,4])
 plot(mt_compare_MI[,2],mt_compare_MI[,3]) # MI never has clipped mt... except day 5!
 plot(mt_compare_CC[,2],mt_compare_CC[,3]) # CC never has clipped mt... except day 5! 

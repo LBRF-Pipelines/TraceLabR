@@ -11,6 +11,7 @@ rm(list = ls()) # clear work space
 
 library(Morpho)
 library(plyr)
+library(ggplot2)
 
 # Read in .db information
 participants <- read.csv("~/RStudio/TraceLabDB/participants.csv")

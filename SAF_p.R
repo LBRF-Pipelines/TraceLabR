@@ -6,6 +6,8 @@
 # 2. add "lower bound" to fitting function
 # 3. create matrix of fit parameters
 
+library(ggplot2)
+
 # subset data — only need to look at physical groups, first and last sessions:
 # *** note: have to look at final day of MI and CC groups similarly...
 PP_random_1 <- subset(all_data, (participant_id == "11") & (figure_type == "random") & (session_num == "1"))
