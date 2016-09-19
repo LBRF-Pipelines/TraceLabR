@@ -9,15 +9,26 @@ library(ggplot2)
 
 ## SINGLE PARTICIPANT ##
 
-all_data_p <- subset(all_data, participant_id == 13)
+all_data_p <- subset(all_data, participant_id == 8)
 
 # how much data per speed made it in? 
 aggregate(!is.na(PLresp) ~ stimulus_gt, all_data_p, sum)
 
 # in general (without seperating repeated and random) was there a decrease in error?
-plot(all_data_p$raw_error_mean) #looks like error mean is the best score to look at... IMO
-plot(all_data_p$raw_error_SD) 
-plot(all_data_p$raw_procSD) #looks almost exectly like error_mean
+
+ggplot(data = all_data_p, mapping = aes(
+        x = seq(length=nrow(all_data_p)), y = raw_error_mean
+        , color = figure_type
+)) + geom_point(na.rm = TRUE) + geom_smooth(na.rm = TRUE) + theme_minimal()
+
+ggplot(data = all_data_p, mapping = aes(
+        x = seq(length=nrow(all_data_p)), y = raw_error_SD
+)) + geom_point(na.rm = TRUE) + geom_smooth(na.rm = TRUE) + theme_minimal()
+
+ggplot(data = all_data_p, mapping = aes(
+        x = seq(length=nrow(all_data_p)), y = raw_procSD
+)) + geom_point(na.rm = TRUE) + geom_smooth(na.rm = TRUE) + theme_minimal()
+
 
 raw_LM <- lm(1:length(all_data_p$raw_error_mean) ~ all_data_p$raw_error_mean)
 summary(raw_LM)
