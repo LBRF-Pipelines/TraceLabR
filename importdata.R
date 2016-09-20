@@ -2,8 +2,8 @@
 ##### AUTHORED BY JACK SOLOMON AND TONY INGRAM #####
 
 ## TO DO ##
-# 1. look through and find out what loops can actually be functions!
-# 2. go through and change loop inits that are = "" to something else... like = matrix()
+# 1. go through and change loop inits that are = "" to something else... like = matrix()
+# 2. add removal of "technical error" type extreme values... 
 
 rm(list = ls()) # clear work space
 #graphics.off() # clear figures
