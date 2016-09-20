@@ -10,7 +10,8 @@ rm(list = ls()) # clear work space
 #cat("\014") # clear console
 
 library(Morpho)
-library(plyr)
+library(plyr) # remember to use plyr::count()
+library(dplyr) # remember to use :: format to call functions
 library(ggplot2)
 
 # Read in .db information
@@ -69,22 +70,22 @@ for(i in 1:length(file.names)) {
                         
                         #counts number of times segments went in the direction specified
                         if (direction=='LEFT'){
-                                out <- count(dir_sign[,1])
+                                out <- plyr::count(dir_sign[,1])
                                 corr.resp <- as.numeric(out[out$x==-1,2])
                         }
                         
                         if (direction=="RIGHT"){
-                                out <- count(dir_sign[,1])
+                                out <- plyr::count(dir_sign[,1])
                                 corr.resp <- as.numeric(out[out$x==1,2])
                         }
                         
                         if (direction=="DOWN"){
-                                out <- count(dir_sign[,2])
+                                out <- plyr::count(dir_sign[,2])
                                 corr.resp <- as.numeric(out[out$x==1,2])
                         }
                         
                         if (direction=="UP"){
-                                out <- count(dir_sign[,2])
+                                out <- plyr::count(dir_sign[,2])
                                 corr.resp <- as.numeric(out[out$x==-1,2])
                         }
                         datarow =c(name.tlf,rep(NA,times=17),corr.resp)
