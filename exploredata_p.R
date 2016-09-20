@@ -10,8 +10,7 @@ graphics.off() # clear figures
 library(ggplot2)
 
 ## SINGLE PARTICIPANT ##
-
-all_data_p <- subset(all_data, participant_id == 17)
+all_data_p <- subset(all_data, participant_id == 8)
 
 # how much data per speed made it in? 
 # PP:
@@ -24,6 +23,7 @@ aggregate(!is.na(control_response) ~ stimulus_gt, all_data_p, sum)
 ## in general was there a decrease in error? ##
 
 # RAW:
+
 ggplot(data = all_data_p, mapping = aes(
         x = seq(length=nrow(all_data_p))
         , y = raw_error_mean
@@ -48,10 +48,8 @@ ggplot(data = all_data_p, mapping = aes(
         geom_smooth(na.rm = TRUE) + 
         theme_minimal()
 
-raw_LM <- lm(1:length(all_data_p$raw_error_mean) ~ all_data_p$raw_error_mean)
-summary(raw_LM)
-
 # SHAPE:
+
 ggplot(data = all_data_p, mapping = aes(
         x = seq(length=nrow(all_data_p))
         , y = shape_error_mean
@@ -76,90 +74,50 @@ ggplot(data = all_data_p, mapping = aes(
         geom_smooth(na.rm = TRUE) + 
         theme_minimal()
 
-shape_LM <- lm(1:length(all_data_p$shape_error_mean) ~ all_data_p$shape_error_mean)
-summary(shape_LM)
-
 # SCALE:
-ggplot(data = all_data_p, mapping = aes(
-        x = seq(length=nrow(all_data_p))
+
+all_data_p1 <- filter(
+        .data = all_data_p
+        , scale < 2
+)
+ggplot(data = all_data_p1, mapping = aes(
+        x = seq(length=nrow(all_data_p1))
         , y = scale
         , color = figure_type
 )) + geom_point(na.rm = TRUE, alpha = .5) + 
         geom_smooth(na.rm = TRUE) + 
         theme_minimal()
 
-plot(all_data_p$scale, ylim = c(0,2))
+# ROTATION:
 
-scale_LM <- lm(1:length(all_data_p$scale) ~ all_data_p$scale)
-summary(scale_LM)
+all_data_p2 <- filter(
+        .data = all_data_p
+        , rotation < 1
+)
+ggplot(data = all_data_p2, mapping = aes(
+        x = seq(length=nrow(all_data_p2))
+        , y = rotation
+        , color = figure_type
+)) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal()
 
-plot(all_data_p$rotation)
+# TRANSLATION: 
 
-rotation_LM <- lm(1:length(all_data_p$rotation) ~ all_data_p$rotation)
-summary(rotation_LM)
+all_data_p3 <- filter(
+        .data = all_data_p
+        , translation < 300
+)
+ggplot(data = all_data_p3, mapping = aes(
+        x = seq(length=nrow(all_data_p3))
+        , y = translation
+        , color = figure_type
+)) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal()
 
-plot(all_data_p$translation)
 
-translation_LM <- lm(1:length(all_data_p$translation) ~ all_data_p$translation)
-summary(translation_LM)
-
-
-
-
-
-
-# subset data into repeated and random
-repeated <- subset(all_data_p, figure_type == "fig3")
-random <- subset(all_data_p, figure_type == "random")
-# sort data by participant, then session, then block, then trial.
-repeated <- repeated[with(repeated, order(participant_id, session_num, block_num, trial_num)), ]
-random <- random[with(random, order(participant_id, session_num, block_num, trial_num)), ]
-
-##### SAME, BUT MEDIAN SPEED ONLY #####
-
-# subset data into repeated and random, but only at median speed
-repeated_med <- subset(all_data_p, figure_type == "fig2" & stimulus_gt == 1500)
-random_med <- subset(all_data_p, figure_type == "random" & stimulus_gt == 1500)
-# sort data by participant, then session, then block, then trial.
-repeated_med <- repeated_med[with(repeated_med, order(participant_id, session_num, block_num, trial_num)), ]
-random_med <- random_med[with(random_med, order(participant_id, session_num, block_num, trial_num)), ]
-
-# RAW med
-
-plot(random_med$raw_error_mean, col = "black")
-plot(repeated_med$raw_error_mean, col = "blue")
-
-plot(random_med$raw_error_SD, col = "black")
-plot(repeated_med$raw_error_SD, col = "blue")
-
-plot(random_med$raw_procSD, col = "black")
-plot(repeated_med$raw_procSD, col = "blue")
-
-# SHAPE med
-
-plot(random_med$shape_error_mean, col = "black")
-plot(repeated_med$shape_error_mean, col = "blue")
-
-plot(random_med$shape_error_SD, col = "black")
-plot(repeated_med$shape_error_SD, col = "blue")
-
-plot(random_med$shape_procSD, col = "black")
-plot(repeated_med$shape_procSD, col = "blue")
-
-# SCALE med
-
-plot(random_med$scale, col = "black")
-plot(repeated_med$scale, col = "blue")
-
-# ROTATION med
-
-plot(random_med$rotation, col = "black")
-plot(repeated_med$rotation, col = "blue")
-
-# TRANSLATION med
-
-plot(random_med$translation, col = "black")
-plot(repeated_med$translation, col = "blue")
+##### SAME, BUT MEDIAN SPEED ONLY? #####
 
 
 
