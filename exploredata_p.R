@@ -5,16 +5,21 @@
 # 1. look through and find out what loops can actually be functions!
 # 2. for MT check, find out how to color plots by day
 
-#graphics.off() # clear figures
+graphics.off() # clear figures
 
 library(ggplot2)
 
 ## SINGLE PARTICIPANT ##
 
-all_data_p <- subset(all_data, participant_id == 11)
+all_data_p <- subset(all_data, participant_id == 17)
 
 # how much data per speed made it in? 
+# PP:
 aggregate(!is.na(PLresp) ~ stimulus_gt, all_data_p, sum)
+# MI:
+aggregate(!is.na(mt) ~ stimulus_gt, all_data_p, sum)
+# CC:
+aggregate(!is.na(control_response) ~ stimulus_gt, all_data_p, sum)
 
 ## in general was there a decrease in error? ##
 
@@ -75,6 +80,13 @@ shape_LM <- lm(1:length(all_data_p$shape_error_mean) ~ all_data_p$shape_error_me
 summary(shape_LM)
 
 # SCALE:
+ggplot(data = all_data_p, mapping = aes(
+        x = seq(length=nrow(all_data_p))
+        , y = scale
+        , color = figure_type
+)) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal()
 
 plot(all_data_p$scale, ylim = c(0,2))
 
@@ -178,7 +190,7 @@ mt_compare_CC <- subset(all_data_p, condition == "CC-00-5", select = c(stimulus_
 # COLOR BY DAY USING GGPLOT
 plot(mt_compare_PP[,2],mt_compare_PP[,4])
 plot(mt_compare_MI[,2],mt_compare_MI[,3]) # MI never has clipped mt... except day 5!
-plot(mt_compare_CC[,2],mt_compare_CC[,3]) # CC never has clipped mt... except day 5! 
+plot(mt_compare_CC[,2],mt_compare_CC[,3], ylim=c(0,5)) # CC never has clipped mt... except day 5! 
 
 # run regressions of same for additional confirmation:
 mt_compare_PP_LM <- lm(mt_compare_PP[,2] ~ mt_compare_PP[,4])
