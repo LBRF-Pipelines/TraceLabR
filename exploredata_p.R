@@ -5,40 +5,76 @@
 # 1. look through and find out what loops can actually be functions!
 # 2. for MT check, find out how to color plots by day
 
+#graphics.off() # clear figures
+
 library(ggplot2)
 
 ## SINGLE PARTICIPANT ##
 
-all_data_p <- subset(all_data, participant_id == 8)
+all_data_p <- subset(all_data, participant_id == 11)
 
 # how much data per speed made it in? 
 aggregate(!is.na(PLresp) ~ stimulus_gt, all_data_p, sum)
 
-# in general (without seperating repeated and random) was there a decrease in error?
+## in general was there a decrease in error? ##
 
+# RAW:
 ggplot(data = all_data_p, mapping = aes(
-        x = seq(length=nrow(all_data_p)), y = raw_error_mean
+        x = seq(length=nrow(all_data_p))
+        , y = raw_error_mean
         , color = figure_type
-)) + geom_point(na.rm = TRUE) + geom_smooth(na.rm = TRUE) + theme_minimal()
+)) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal()
+        
+ggplot(data = all_data_p, mapping = aes(
+        x = seq(length=nrow(all_data_p))
+        , y = raw_error_SD
+        , color = figure_type
+)) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal()
 
 ggplot(data = all_data_p, mapping = aes(
-        x = seq(length=nrow(all_data_p)), y = raw_error_SD
-)) + geom_point(na.rm = TRUE) + geom_smooth(na.rm = TRUE) + theme_minimal()
-
-ggplot(data = all_data_p, mapping = aes(
-        x = seq(length=nrow(all_data_p)), y = raw_procSD
-)) + geom_point(na.rm = TRUE) + geom_smooth(na.rm = TRUE) + theme_minimal()
-
+        x = seq(length=nrow(all_data_p))
+        , y = raw_procSD
+        , color = figure_type
+)) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal()
 
 raw_LM <- lm(1:length(all_data_p$raw_error_mean) ~ all_data_p$raw_error_mean)
 summary(raw_LM)
 
-plot(all_data_p$shape_error_mean)
-plot(all_data_p$shape_error_SD)
-plot(all_data_p$shape_procSD)
+# SHAPE:
+ggplot(data = all_data_p, mapping = aes(
+        x = seq(length=nrow(all_data_p))
+        , y = shape_error_mean
+        , color = figure_type
+)) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal()
+
+ggplot(data = all_data_p, mapping = aes(
+        x = seq(length=nrow(all_data_p))
+        , y = shape_error_SD
+        , color = figure_type
+)) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal()
+
+ggplot(data = all_data_p, mapping = aes(
+        x = seq(length=nrow(all_data_p))
+        , y = shape_procSD
+        , color = figure_type
+)) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal()
 
 shape_LM <- lm(1:length(all_data_p$shape_error_mean) ~ all_data_p$shape_error_mean)
 summary(shape_LM)
+
+# SCALE:
 
 plot(all_data_p$scale, ylim = c(0,2))
 
@@ -56,78 +92,16 @@ translation_LM <- lm(1:length(all_data_p$translation) ~ all_data_p$translation)
 summary(translation_LM)
 
 
+
+
+
+
 # subset data into repeated and random
-repeated <- subset(all_data_p, figure_type == "fig2")
+repeated <- subset(all_data_p, figure_type == "fig3")
 random <- subset(all_data_p, figure_type == "random")
 # sort data by participant, then session, then block, then trial.
 repeated <- repeated[with(repeated, order(participant_id, session_num, block_num, trial_num)), ]
 random <- random[with(random, order(participant_id, session_num, block_num, trial_num)), ]
-
-#### FIRST ROUGH LOOK AT DATA #### 
-
-# getting better across session? note: this isn't a good way to look because there's many speeds!
-
-# plot RAW repeated (blue) and random (black) on same figure:
-
-plot(random$raw_error_mean, col = "black")
-plot(repeated$raw_error_mean, col = "blue")
-
-plot(random$raw_error_SD, col = "black")
-plot(repeated$raw_error_SD, col = "blue")
-
-plot(random$raw_procSD, col = "black")
-plot(repeated$raw_procSD, col = "blue")
-
-# plot a moving average lines:
-# f21 <- rep(1/21,21) # avg of current, prev 10 and next 10
-# rep_sym <- filter(repeated$raw_error_mean, f21, sides=2)
-# lines(1:250, rep_sym, col="blue", lwd=2)
-# ran_sym <- filter(random$raw_error_mean, f21, sides=2)
-# lines(1:250, ran_sym, col="black", lwd=2)
-
-Ran_Raw_LM <- lm(1:length(random$raw_error_mean) ~ random$raw_error_mean)
-summary(Ran_Raw_LM)
-Rep_Raw_LM <- lm(1:length(repeated$raw_error_mean) ~ repeated$raw_error_mean)
-summary(Rep_Raw_LM)
-
-# plot SHAPE (proc) repeated (blue) and random (black) on same figure:
-
-plot(random$shape_error_mean, col = "black")
-plot(repeated$shape_error_mean, col = "blue")
-
-plot(random$shape_error_SD, col = "black")
-plot(repeated$shape_error_SD, col = "blue")
-
-plot(random$shape_procSD, col = "black")
-plot(repeated$shape_procSD, col = "blue")
-
-# plot a moving average lines:
-# f21 <- rep(1/21,21) # avg of current, prev 10 and next 10
-# rep_sym <- filter(repeated$shape_error_mean, f21, sides=2)
-# lines(1:250, rep_sym, col="blue", lwd=2)
-# ran_sym <- filter(random$shape_error_mean, f21, sides=2)
-# lines(1:250, ran_sym, col="black", lwd=2)
-
-Ran_Proc_LM <- lm(1:length(random$shape_error_mean) ~ random$shape_error_mean)
-summary(Ran_Proc_LM)
-Rep_Proc_LM <- lm(1:length(repeated$shape_error_mean) ~ repeated$shape_error_mean)
-summary(Rep_Proc_LM)
-
-# SCALE
-
-plot(random$scale, col = "black", ylim = c(0,2))
-plot(repeated$scale, col = "blue", ylim = c(0,2))
-
-# ROTATION
-
-plot(random$rotation, col = "black")
-plot(repeated$rotation, col = "blue")
-
-# TRANSLATION
-
-plot(random$translation, col = "black")
-plot(repeated$translation, col = "blue")
-
 
 ##### SAME, BUT MEDIAN SPEED ONLY #####
 
