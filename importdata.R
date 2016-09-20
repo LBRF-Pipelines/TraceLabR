@@ -3,7 +3,8 @@
 
 ## TO DO ##
 # 1. go through and change loop inits that are = "" to something else... like = matrix()
-# 2. add removal of "technical error" type extreme values... 
+# 2. add removal of "technical error" type extreme values, or do that later in analysis?
+# 3. get write.table working so can use other scripts without having to re-run this...
 
 rm(list = ls()) # clear work space
 #graphics.off() # clear figures
@@ -298,6 +299,6 @@ all_data$correct_response <- as.integer(all_data$correct_response)
 all_data <- all_data[with(all_data, order(participant_id, session_num, block_num, trial_num)), ]
 
 #save .txt file with all_data
-write.table(all_data,"~/RStudio/TraceLabDB/all_data.txt", sep="\t")
+write.table(all_data,"~/RStudio/TraceLabDB/all_data.txt", sep="\t") #note: this doesn't work... can't import it later usefully... 
 
 ##### FIN #####
