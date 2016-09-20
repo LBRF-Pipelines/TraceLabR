@@ -3,7 +3,7 @@
 
 rm(list = ls()) # clear work space
 graphics.off() # clear figures
-cat("\014") # clear console
+#cat("\014") # clear console
 
 library(Morpho)
 library(plyr)
@@ -19,7 +19,7 @@ trials <- read.csv("~/RStudio/TraceLabDB/trials.csv", stringsAsFactors = FALSE)
 #file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p4_2016-08-26 11:06:02/testing/session_1/p4_s1_b1_t10_2016-08-26.zip"
 #file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p5_2016-08-26 11:56:53/testing/session_1/p5_s1_b3_t10_2016-08-26.zip"
 #file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p4_2016-08-26 11:06:02/testing/session_1/p4_s1_b5_t15_2016-08-26.zip"
-file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p8_2016-08-30 13:59:06/testing/session_1/p8_s1_b4_t5_2016-08-30.zip"
+file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p14_2016-09-16 13:38:13/testing/session_1/p14_s1_b1_t18_2016-09-16.zip"
 
 out.file <- ""
 # Apply the function to all files.
