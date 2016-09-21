@@ -140,16 +140,25 @@ fluctile(table(CC$control_response, CC$correct_response), shape="c")
 ## MOVEMENT TIME ##
 # are participants actually matching the stimulus MT?
 
+all_data_p <- dplyr::mutate(
+        .data = all_data_p,
+        vresp = PLresp / mt_clip #calculate average response velocity per trial
+)
+
 # subset all data by condition (repeat vs random don't matter here):
-mt_compare_PP <- subset(all_data_p, condition == "PP-00-1" | condition == "PP-00-5" | condition == "PP-VV-5" | condition == "PP-RR-5" | condition == "PP-VR-5", select = c(stimulus_gt, stimulus_mt, mt, mt_clip))
-mt_compare_MI <- subset(all_data_p, condition == "MI-00-5", select = c(stimulus_gt, stimulus_mt, mt, mt_clip))
-mt_compare_CC <- subset(all_data_p, condition == "CC-00-5", select = c(stimulus_gt, stimulus_mt, mt, mt_clip))
+mt_compare_PP <- subset(all_data_p, condition == "PP-00-1" | condition == "PP-00-5" | condition == "PP-VV-5" | condition == "PP-RR-5" | condition == "PP-VR-5", select = c(stimulus_gt, stimulus_mt, mt, mt_clip, avg_velocity, vresp))
+mt_compare_MI <- subset(all_data_p, condition == "MI-00-5", select = c(stimulus_gt, stimulus_mt, mt, mt_clip, avg_velocity, vresp))
+mt_compare_CC <- subset(all_data_p, condition == "CC-00-5", select = c(stimulus_gt, stimulus_mt, mt, mt_clip, avg_velocity, vresp))
 
 # plot to see if response MT's are related to stimulus MT's:
 # COLOR BY DAY USING GGPLOT
-plot(mt_compare_PP[,2],mt_compare_PP[,4])
+plot(mt_compare_PP[,2],mt_compare_PP[,4], ylim=c(0,4))
 plot(mt_compare_MI[,2],mt_compare_MI[,3]) # MI never has clipped mt... except day 5!
 plot(mt_compare_CC[,2],mt_compare_CC[,3], ylim=c(0,5)) # CC never has clipped mt... except day 5! 
+
+# what about speed (avg velocity per trial)?
+
+plot(mt_compare_PP[,5],mt_compare_PP[,6])
 
 # run regressions of same for additional confirmation:
 mt_compare_PP_LM <- lm(mt_compare_PP[,2] ~ mt_compare_PP[,4])
