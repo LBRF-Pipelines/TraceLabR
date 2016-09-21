@@ -3,8 +3,8 @@
 
 ## TO DO ##
 # 1. go through and change loop inits that are = "" to something else... like = matrix()
-# 2. add removal of "technical error" type extreme values, or do that later in analysis?
-# 3. get write.table working so can use other scripts without having to re-run this...
+# 2. get write.table working so can use other scripts without having to re-run this...
+# 3. use ggplot2 to make better plots
 
 rm(list = ls()) # clear work space
 #graphics.off() # clear figures
@@ -12,8 +12,8 @@ rm(list = ls()) # clear work space
 
 library(Morpho)
 library(plyr) # remember to use plyr::count()
-library(dplyr) # remember to use :: format to call functions
-library(ggplot2)
+library(dplyr) # not used until end
+library(ggplot2) # not used yet...
 
 # Read in .db information
 participants <- read.csv("~/RStudio/TraceLabDB/participants.csv")
@@ -264,17 +264,17 @@ for(i in 1:length(file.names)) {
         out.file <- rbind(out.file, datarow)
 }
 
-#change output to df
+# change output to df
 df.out.file <- data.frame(out.file[-1,],stringsAsFactors = FALSE)
 colnames(df.out.file) <- c("figure_file","PLstim","complexity","mt_clip","PLresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSS","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSS","shape_procSD","correct_response")
 
-#combine proc_df with db
+# combine proc_df with db
 all_data <- merge(trials,df.out.file,by="figure_file")
 colnames(participants)[1] <- paste("participant_id")
 all_data <- merge(participants[,c(1,4:6)],all_data,by="participant_id")
 all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","complexity","trace_file","rt","it","mt","mt_clip","PLresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSS","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSS","shape_procSD","control_question","control_response","correct_response")]
 
-#change data to numeric where appropriate
+# change data to numeric where appropriate
 all_data$condition <- as.factor(all_data$condition)
 all_data$figure_type <- as.factor(all_data$figure_type)
 all_data$PLstim <- as.numeric(all_data$PLstim)
@@ -296,11 +296,18 @@ all_data$shape_procSS <- as.numeric(all_data$shape_procSS)
 all_data$shape_procSD <- as.numeric(all_data$shape_procSD)
 all_data$correct_response <- as.integer(all_data$correct_response)
 
-all_data <- all_data[with(all_data, order(participant_id, session_num, block_num, trial_num)), ]
+# arrange trials in chronological order
+all_data <- dplyr::arrange(all_data, participant_id, session_num, block_num, trial_num)
 
-#all_data <- as.data.frame(all_data, stringsAsFactors = FALSE) # it was a list, we want dataframe
+# calculate average response velocity per trial
+all_data <- dplyr::mutate(
+        .data = all_data,
+        vresp = PLresp / mt_clip 
+) # and reorder one last time:
+all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","complexity","trace_file","rt","it","mt","mt_clip","PLresp","vresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSS","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSS","shape_procSD","control_question","control_response","correct_response")]
 
-#save .txt file with all_data
+
+# save .txt file with all_data
 write.table(all_data,"~/RStudio/TraceLabDB/all_data.txt", sep="\t") #note: this doesn't work... can't import it later usefully... 
 
 ##### FIN #####
