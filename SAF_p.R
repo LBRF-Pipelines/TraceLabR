@@ -31,12 +31,18 @@ aggregate(!is.na(PLresp) ~ stimulus_gt, all_data, sum)
 aggregate(!is.na(PLresp) ~ stimulus_gt, all_data_sub, sum)
 
 
+## SET UP PARTICIPANT ##
+# what participant?
+p <- 8
+fig <- filter(all_data, participant_id == p, figure_type != "random")$figure_type[1]
+
+
 ##### SESSION TO SESSION CHANGES #####
 
         ## RAW error against speed ##
 
 # RANDOM:
-ggplot(subset(all_data_sub, (participant_id == 8) & 
+ggplot(subset(all_data_sub, (participant_id == p) & 
                       (figure_type == "random"))
        , mapping = aes(
         x = vresp, y = raw_error_mean
@@ -50,8 +56,8 @@ ggplot(subset(all_data_sub, (participant_id == 8) &
              , color = "Session")
 
 # REPEAT:
-ggplot(subset(all_data_sub, (participant_id == 8) & 
-                      (figure_type == "fig3"))
+ggplot(subset(all_data_sub, (participant_id == p) & 
+                      (figure_type == fig))
        , mapping = aes(
                x = vresp, y = raw_error_mean
                , color = factor(session_num)
@@ -67,7 +73,7 @@ ggplot(subset(all_data_sub, (participant_id == 8) &
         ## SHAPE (proc) error against speed ##
 
 # RANDOM:
-ggplot(subset(all_data_sub, (participant_id == 8) & 
+ggplot(subset(all_data_sub, (participant_id == p) & 
                       (figure_type == "random"))
        , mapping = aes(
                x = vresp, y = shape_error_mean
@@ -81,8 +87,8 @@ ggplot(subset(all_data_sub, (participant_id == 8) &
              , color = "Session")
 
 # REPEAT:
-ggplot(subset(all_data_sub, (participant_id == 8) & 
-                      (figure_type == "fig3"))
+ggplot(subset(all_data_sub, (participant_id == p) & 
+                      (figure_type == fig))
        , mapping = aes(
                x = vresp, y = shape_error_mean
                , color = factor(session_num)
@@ -98,7 +104,7 @@ ggplot(subset(all_data_sub, (participant_id == 8) &
         ## SCALE error against speed ##
 
 # RANDOM:
-ggplot(subset(all_data_sub, (participant_id == 8) & 
+ggplot(subset(all_data_sub, (participant_id == p) & 
                       (figure_type == "random"))
        , mapping = aes(
                x = vresp, y = scale
@@ -112,8 +118,8 @@ ggplot(subset(all_data_sub, (participant_id == 8) &
              , color = "Session")
 
 # REPEAT:
-ggplot(subset(all_data_sub, (participant_id == 8) & 
-                      (figure_type == "fig3"))
+ggplot(subset(all_data_sub, (participant_id == p) & 
+                      (figure_type == fig))
        , mapping = aes(
                x = vresp, y = scale
                , color = factor(session_num)
@@ -131,7 +137,7 @@ ggplot(subset(all_data_sub, (participant_id == 8) &
         ## TRANSLATION error against speed ##
 
 # RANDOM:
-ggplot(subset(all_data_sub, (participant_id == 8) & 
+ggplot(subset(all_data_sub, (participant_id == p) & 
                       (figure_type == "random"))
        , mapping = aes(
                x = vresp, y = translation
@@ -145,8 +151,8 @@ ggplot(subset(all_data_sub, (participant_id == 8) &
              , color = "Session")
 
 # REPEAT:
-ggplot(subset(all_data_sub, (participant_id == 8) & 
-                      (figure_type == "fig3"))
+ggplot(subset(all_data_sub, (participant_id == p) & 
+                      (figure_type == fig))
        , mapping = aes(
                x = vresp, y = translation
                , color = factor(session_num)
@@ -162,7 +168,7 @@ ggplot(subset(all_data_sub, (participant_id == 8) &
         ## ROTATION error against speed ##
 
 # RANDOM:
-ggplot(subset(all_data_sub, (participant_id == 8) & 
+ggplot(subset(all_data_sub, (participant_id == p) & 
                       (figure_type == "random"))
        , mapping = aes(
                x = vresp, y = rotation
@@ -176,8 +182,8 @@ ggplot(subset(all_data_sub, (participant_id == 8) &
              , color = "Session")
 
 # REPEAT:
-ggplot(subset(all_data_sub, (participant_id == 8) & 
-                      (figure_type == "fig3"))
+ggplot(subset(all_data_sub, (participant_id == p) & 
+                      (figure_type == fig))
        , mapping = aes(
                x = vresp, y = rotation
                , color = factor(session_num)
