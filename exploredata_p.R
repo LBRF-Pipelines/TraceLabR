@@ -177,15 +177,53 @@ summary(mt_compare_CC_LM)
 boxplot(PLstim ~ figure_type, data = all_data, main="PLstim", xlab="figure_type", ylab="pixels") # what participant saw
 boxplot(PLresp ~ figure_type, data = all_data, main="PLresp", xlab="figure_type", ylab="pixels") # what participant did
 
+medianPL <- median(subset(all_data, figure_type == "random")$PLstim, na.rm = TRUE)
+
+# looks close: fig 1, 5, 14, 15
+
 ## COMPLEXITY ##
 
 # boxlots - does repeated fig complexity fall within range of randoms?
 boxplot(complexity ~ figure_type, data = all_data, main="complexity", xlab="figure_type", ylab="complexity")
 
+medianComplexity <- median(subset(all_data, figure_type == "random")$complexity, na.rm = TRUE)
+
+# looks close: fig 3, 7, 11, 12
+
+##### is ERROR affected by pathlength or complexity? #####
+
+ggplot(subset(all_data, (participant_id == 11) & 
+                      (figure_type == "random"))
+       , mapping = aes(
+               x = complexity, y = raw_error_mean
+               , color = factor(session_num)
+       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        labs(title = "Random: Raw Error"
+             , x = "Complexity"
+             , y = "Raw Error"
+             , color = "Session")
+
+ggplot(subset(all_data, (participant_id == 11) & 
+                      (figure_type == "random"))
+       , mapping = aes(
+               x = PLstim, y = raw_error_mean
+               , color = factor(session_num)
+       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        labs(title = "Random: Raw Error"
+             , x = "Stimulus Pathlength"
+             , y = "Raw Error"
+             , color = "Session")
+
+
 ##### interactions #####
+# this is really just to look at function of program
 
 # subset all data
-Arepeat <- subset(all_data, figure_type == "fig3")
+Arepeat <- subset(all_data, figure_type != "random")
 Arandom <- subset(all_data, figure_type == "random")
 
 # does stim MT affect pathlength?
@@ -199,7 +237,6 @@ plot(Arepeat$stimulus_mt, Arepeat$complexity) # looks like the lowest MT underes
 # does pathlength affect complexity? vice versa?
 plot(Arandom$PLstim, Arandom$complexity) # YES... makes sense... more curvy shapes tend to be longer — but curviness is divided by length... 
 plot(Arepeat$PLstim, Arepeat$complexity) # if you zoom in enough, you see that it's basically a straight line... first order ODE?
-
 
 ##### NOTE: should be looking at each day seperately, and comparing!
 
