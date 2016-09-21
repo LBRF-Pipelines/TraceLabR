@@ -298,6 +298,8 @@ all_data$correct_response <- as.integer(all_data$correct_response)
 
 all_data <- all_data[with(all_data, order(participant_id, session_num, block_num, trial_num)), ]
 
+#all_data <- as.data.frame(all_data, stringsAsFactors = FALSE) # it was a list, we want dataframe
+
 #save .txt file with all_data
 write.table(all_data,"~/RStudio/TraceLabDB/all_data.txt", sep="\t") #note: this doesn't work... can't import it later usefully... 
 
