@@ -140,11 +140,6 @@ fluctile(table(CC$control_response, CC$correct_response), shape="c")
 ## MOVEMENT TIME ##
 # are participants actually matching the stimulus MT?
 
-all_data_p <- dplyr::mutate(
-        .data = all_data_p,
-        vresp = PLresp / mt_clip #calculate average response velocity per trial
-)
-
 # subset all data by condition (repeat vs random don't matter here):
 mt_compare_PP <- subset(all_data_p, condition == "PP-00-1" | condition == "PP-00-5" | condition == "PP-VV-5" | condition == "PP-RR-5" | condition == "PP-VR-5", select = c(stimulus_gt, stimulus_mt, mt, mt_clip, avg_velocity, vresp))
 mt_compare_MI <- subset(all_data_p, condition == "MI-00-5", select = c(stimulus_gt, stimulus_mt, mt, mt_clip, avg_velocity, vresp))

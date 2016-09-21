@@ -12,15 +12,9 @@ library(tibble)
 library(dplyr)
 library(ggplot2)
 
-# if not already done:
-all_data <- dplyr::mutate(
-         .data = all_data,
-         vresp = PLresp / mt_clip #calculate average response velocity per trial
-)
-
 # REMOVE EXREME VALUES DUE TO TECHNICAL ERRORS:
 
-all_data_sub <- filter(
+all_data_sub <- dplyr::filter(
         .data = all_data
         , vresp > 200
         , scale < 2
@@ -34,7 +28,7 @@ aggregate(!is.na(PLresp) ~ stimulus_gt, all_data_sub, sum)
 ## SET UP PARTICIPANT ##
 # what participant?
 p <- 8
-fig <- filter(all_data, participant_id == p, figure_type != "random")$figure_type[1]
+fig <- dplyr::filter(all_data, participant_id == p, figure_type != "random")$figure_type[1]
 
 
 ##### SESSION TO SESSION CHANGES #####
