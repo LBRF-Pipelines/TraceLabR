@@ -2,11 +2,12 @@
 ##### authored by Tony Ingram #####
 
 ## TO DO ##
-# 1. look through and find out what loops can actually be functions!
-# 2. for MT check, find out how to color plots by day
+# 1. for MT check, find out how to color plots by day
+# 2. add mutate() to add 'p' trial number and 's' trial number as columns so I don't need to use x = seq(length=nrow(all_data_p)
 
 graphics.off() # clear figures
 
+library(dplyr) 
 library(ggplot2)
 
 ## SINGLE PARTICIPANT ##
