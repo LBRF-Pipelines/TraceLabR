@@ -8,93 +8,187 @@
 
 graphics.off() # clear figures
 
-library(dplyr) 
+library(tibble)
+library(dplyr)
 library(ggplot2)
 
-#test this:
-#all_data_df <- data.frame(all_data, stringsAsFactors = FALSE)
-mutate(
-        .data = all_data,
-        vresp = PLresp / mt_clip #calculate average response velocity per trial
+# if not already done:
+all_data <- dplyr::mutate(
+         .data = all_data,
+         vresp = PLresp / mt_clip #calculate average response velocity per trial
 )
 
-# subset data — only need to look at physical groups, first and last sessions:
-# *** note: have to look at final day of MI and CC groups similarly...
-PP_random_1 <- subset(all_data, (participant_id == "11") & (figure_type == "random") & (session_num == "1"))
-PP_random_2 <- subset(all_data, (participant_id == "11") & (figure_type == "random") & (session_num == "2"))
-PP_random_3 <- subset(all_data, (participant_id == "11") & (figure_type == "random") & (session_num == "3"))
-PP_random_4 <- subset(all_data, (participant_id == "11") & (figure_type == "random") & (session_num == "4"))
-PP_random_5 <- subset(all_data, (participant_id == "11") & (figure_type == "random") & (session_num == "5"))
-PP_repeat_1 <- subset(all_data, (participant_id == "11") & (figure_type == "fig3") & (session_num == "1"))
-PP_repeat_2 <- subset(all_data, (participant_id == "11") & (figure_type == "fig3") & (session_num == "2"))
-PP_repeat_3 <- subset(all_data, (participant_id == "11") & (figure_type == "fig3") & (session_num == "3"))
-PP_repeat_4 <- subset(all_data, (participant_id == "11") & (figure_type == "fig3") & (session_num == "4"))
-PP_repeat_5 <- subset(all_data, (participant_id == "11") & (figure_type == "fig3") & (session_num == "5"))
+# REMOVE EXREME VALUES DUE TO TECHNICAL ERRORS:
 
-# sort by p, s, b, t:
-PP_random_1 <- PP_random_1[with(PP_random_1, order(participant_id, session_num, block_num, trial_num)), ]
-PP_random_2 <- PP_random_2[with(PP_random_2, order(participant_id, session_num, block_num, trial_num)), ]
-PP_random_3 <- PP_random_3[with(PP_random_3, order(participant_id, session_num, block_num, trial_num)), ]
-PP_random_4 <- PP_random_4[with(PP_random_4, order(participant_id, session_num, block_num, trial_num)), ]
-PP_random_5 <- PP_random_5[with(PP_random_5, order(participant_id, session_num, block_num, trial_num)), ]
-PP_repeat_1 <- PP_repeat_1[with(PP_repeat_1, order(participant_id, session_num, block_num, trial_num)), ]
-PP_repeat_2 <- PP_repeat_2[with(PP_repeat_2, order(participant_id, session_num, block_num, trial_num)), ]
-PP_repeat_3 <- PP_repeat_3[with(PP_repeat_3, order(participant_id, session_num, block_num, trial_num)), ]
-PP_repeat_4 <- PP_repeat_4[with(PP_repeat_4, order(participant_id, session_num, block_num, trial_num)), ]
-PP_repeat_5 <- PP_repeat_5[with(PP_repeat_5, order(participant_id, session_num, block_num, trial_num)), ]
-
-# mean velocity of participant response per trial (total trajectory length / total movement time)
-V_ran_1 <- PP_random_1$PLresp / PP_random_1$mt_clip # pixels per second
-V_ran_2 <- PP_random_2$PLresp / PP_random_2$mt_clip # pixels per second
-V_ran_3 <- PP_random_3$PLresp / PP_random_3$mt_clip # pixels per second
-V_ran_4 <- PP_random_4$PLresp / PP_random_4$mt_clip # pixels per second
-V_ran_5 <- PP_random_5$PLresp / PP_random_5$mt_clip # pixels per second
-V_rep_1 <- PP_repeat_1$PLresp / PP_repeat_1$mt_clip # pixels per second
-V_rep_2 <- PP_repeat_2$PLresp / PP_repeat_2$mt_clip # pixels per second
-V_rep_3 <- PP_repeat_3$PLresp / PP_repeat_3$mt_clip # pixels per second
-V_rep_4 <- PP_repeat_4$PLresp / PP_repeat_4$mt_clip # pixels per second
-V_rep_5 <- PP_repeat_5$PLresp / PP_repeat_5$mt_clip # pixels per second
+all_data_sub <- filter(
+        .data = all_data
+        , vresp > 200
+        , scale < 2
+        , rotation < 1
+        , translation < 400
+) # note: this removes all MI and CC trials, so do next two lines to see how many dropped:
+aggregate(!is.na(PLresp) ~ stimulus_gt, all_data, sum)
+aggregate(!is.na(PLresp) ~ stimulus_gt, all_data_sub, sum)
 
 
 ##### SESSION TO SESSION CHANGES #####
 
-## ERROR raw and shape (proc):
+        ## RAW error against speed ##
 
-# RAW error against speed:
-plot(V_ran_1, PP_random_1$raw_error_mean, col = "black")
-plot(V_ran_5, PP_random_5$raw_error_mean, col = "blue")
+# RANDOM:
+ggplot(subset(all_data_sub, (participant_id == 8) & 
+                      (figure_type == "random"))
+       , mapping = aes(
+        x = vresp, y = raw_error_mean
+        , color = factor(session_num)
+)) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        labs(title = "Random: Raw Error"
+             , x = "Velocity"
+             , y = "Raw Error"
+             , color = "Session")
 
-plot(V_rep_1, PP_repeat_1$raw_error_mean, col = "black")
-plot(V_rep_5, PP_repeat_5$raw_error_mean, col = "blue")
+# REPEAT:
+ggplot(subset(all_data_sub, (participant_id == 8) & 
+                      (figure_type == "fig3"))
+       , mapping = aes(
+               x = vresp, y = raw_error_mean
+               , color = factor(session_num)
+       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        labs(title = "Repeat: Raw Error"
+             , x = "Velocity"
+             , y = "Raw Error"
+             , color = "Session")
 
-# SHAPE (proc) error against speed:
-plot(V_ran_1, PP_random_1$shape_error_mean, col = "black")
-plot(V_ran_5, PP_random_5$shape_error_mean, col = "blue")
 
-plot(V_rep_1, PP_repeat_1$shape_error_mean, col = "black")
-plot(V_rep_5, PP_repeat_5$shape_error_mean, col = "blue")
+        ## SHAPE (proc) error against speed ##
 
-# SCALE error against speed:
-plot(V_ran_1, PP_random_1$scale, col = "black")
-plot(V_ran_5, PP_random_5$scale, col = "blue") # as speed increases, people shrink!
+# RANDOM:
+ggplot(subset(all_data_sub, (participant_id == 8) & 
+                      (figure_type == "random"))
+       , mapping = aes(
+               x = vresp, y = shape_error_mean
+               , color = factor(session_num)
+       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        labs(title = "Random: Shape Error"
+             , x = "Velocity"
+             , y = "Shape Error"
+             , color = "Session")
 
-plot(V_rep_1, PP_repeat_1$scale, col = "black")
-plot(V_rep_5, PP_repeat_5$scale, col = "blue") # as speed increases, people shrink!
+# REPEAT:
+ggplot(subset(all_data_sub, (participant_id == 8) & 
+                      (figure_type == "fig3"))
+       , mapping = aes(
+               x = vresp, y = shape_error_mean
+               , color = factor(session_num)
+       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        labs(title = "Repeat: Shape Error"
+             , x = "Velocity"
+             , y = "Shape Error"
+             , color = "Session")
+
+
+        ## SCALE error against speed ##
+
+# RANDOM:
+ggplot(subset(all_data_sub, (participant_id == 8) & 
+                      (figure_type == "random"))
+       , mapping = aes(
+               x = vresp, y = scale
+               , color = factor(session_num)
+       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        labs(title = "Random: Scale Error"
+             , x = "Velocity"
+             , y = "Scale Error"
+             , color = "Session")
+
+# REPEAT:
+ggplot(subset(all_data_sub, (participant_id == 8) & 
+                      (figure_type == "fig3"))
+       , mapping = aes(
+               x = vresp, y = scale
+               , color = factor(session_num)
+       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        labs(title = "Repeat: Scale Error"
+             , x = "Velocity"
+             , y = "Scale Error"
+             , color = "Session")
+
 # maybe, to make "error" the y-axis, take absolute value away from 1? direction matters though... 
 
-# TRANSLATION error against speed:
-plot(V_ran_1, PP_random_1$translation, col = "black")
-plot(V_ran_5, PP_random_5$translation, col = "blue")
 
-plot(V_rep_1, PP_repeat_1$translation, col = "black")
-plot(V_rep_5, PP_repeat_5$translation, col = "blue")
+        ## TRANSLATION error against speed ##
 
-# ROTATION error against speed:
-plot(V_ran_1, PP_random_1$rotation, col = "black")
-plot(V_ran_5, PP_random_5$rotation, col = "blue")
+# RANDOM:
+ggplot(subset(all_data_sub, (participant_id == 8) & 
+                      (figure_type == "random"))
+       , mapping = aes(
+               x = vresp, y = translation
+               , color = factor(session_num)
+       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        labs(title = "Random: Translation Error"
+             , x = "Velocity"
+             , y = "Translation Error"
+             , color = "Session")
 
-plot(V_rep_1, PP_repeat_1$rotation, col = "black")
-plot(V_rep_5, PP_repeat_5$rotation, col = "blue")
+# REPEAT:
+ggplot(subset(all_data_sub, (participant_id == 8) & 
+                      (figure_type == "fig3"))
+       , mapping = aes(
+               x = vresp, y = translation
+               , color = factor(session_num)
+       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        labs(title = "Repeat: Translation Error"
+             , x = "Velocity"
+             , y = "Translation Error"
+             , color = "Session")
+
+
+        ## ROTATION error against speed ##
+
+# RANDOM:
+ggplot(subset(all_data_sub, (participant_id == 8) & 
+                      (figure_type == "random"))
+       , mapping = aes(
+               x = vresp, y = rotation
+               , color = factor(session_num)
+       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        labs(title = "Random: Rotation Error"
+             , x = "Velocity"
+             , y = "Rotation Error"
+             , color = "Session")
+
+# REPEAT:
+ggplot(subset(all_data_sub, (participant_id == 8) & 
+                      (figure_type == "fig3"))
+       , mapping = aes(
+               x = vresp, y = rotation
+               , color = factor(session_num)
+       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        labs(title = "Repeat: Rotation Error"
+             , x = "Velocity"
+             , y = "Rotation Error"
+             , color = "Session")
+
 
 
 ## ERROR vs COMPLEXITY ##
