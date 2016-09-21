@@ -6,7 +6,17 @@
 # 2. add "lower bound" to fitting function
 # 3. create matrix of fit parameters
 
+graphics.off() # clear figures
+
+library(dplyr) 
 library(ggplot2)
+
+#test this:
+#all_data_df <- data.frame(all_data, stringsAsFactors = FALSE)
+mutate(
+        .data = all_data,
+        vresp = PLresp / mt_clip #calculate average response velocity per trial
+)
 
 # subset data — only need to look at physical groups, first and last sessions:
 # *** note: have to look at final day of MI and CC groups similarly...
