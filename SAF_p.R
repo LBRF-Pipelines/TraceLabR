@@ -5,6 +5,8 @@
 # 1. look at looping fitting, so I can do other error outcomes (raw, shape, scale, rot, trans)
 # 2. add "lower bound" to fitting function
 # 3. create matrix of fit parameters
+# 4. maybe, to make "shape error" the y-axis, take absolute value away from 1? direction matters though... 
+
 
 graphics.off() # clear figures
 
@@ -27,7 +29,7 @@ aggregate(!is.na(PLresp) ~ stimulus_gt, all_data_sub, sum)
 
 ## SET UP PARTICIPANT ##
 # what participant?
-p <- 8
+p <- 13
 fig <- dplyr::filter(all_data, participant_id == p, figure_type != "random")$figure_type[1]
 
 
@@ -37,8 +39,8 @@ fig <- dplyr::filter(all_data, participant_id == p, figure_type != "random")$fig
 
 ggplot(subset(all_data_sub, participant_id == p)
        , mapping = aes(
-        x = vresp, y = raw_error_mean
-        , color = factor(session_num)
+                x = vresp, y = raw_error_mean
+                , color = factor(session_num)
 )) + geom_point(na.rm = TRUE, alpha = .5) + 
         geom_smooth(na.rm = TRUE) + 
         theme_minimal() +
@@ -50,128 +52,64 @@ ggplot(subset(all_data_sub, participant_id == p)
 
 ## SHAPE (proc) error against speed ##
 
-# RANDOM:
-ggplot(subset(all_data_sub, (participant_id == p) & 
-                      (figure_type == "random"))
+ggplot(subset(all_data_sub, participant_id == p)
        , mapping = aes(
                x = vresp, y = shape_error_mean
                , color = factor(session_num)
-       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+)) + geom_point(na.rm = TRUE, alpha = .5) + 
         geom_smooth(na.rm = TRUE) + 
         theme_minimal() +
-        labs(title = "Random: Shape Error"
+        facet_grid(. ~ figure_type) +
+        labs(title = "Shape Error"
              , x = "Velocity"
              , y = "Shape Error"
              , color = "Session")
 
-# REPEAT:
-ggplot(subset(all_data_sub, (participant_id == p) & 
-                      (figure_type == fig))
-       , mapping = aes(
-               x = vresp, y = shape_error_mean
-               , color = factor(session_num)
-       )) + geom_point(na.rm = TRUE, alpha = .5) + 
-        geom_smooth(na.rm = TRUE) + 
-        theme_minimal() +
-        labs(title = "Repeat: Shape Error"
-             , x = "Velocity"
-             , y = "Shape Error"
-             , color = "Session")
+## SCALE error against speed ##
 
-
-        ## SCALE error against speed ##
-
-# RANDOM:
-ggplot(subset(all_data_sub, (participant_id == p) & 
-                      (figure_type == "random"))
+ggplot(subset(all_data_sub, participant_id == p)
        , mapping = aes(
                x = vresp, y = scale
                , color = factor(session_num)
        )) + geom_point(na.rm = TRUE, alpha = .5) + 
         geom_smooth(na.rm = TRUE) + 
         theme_minimal() +
-        labs(title = "Random: Scale Error"
+        facet_grid(. ~ figure_type) +
+        labs(title = "Scale Error"
              , x = "Velocity"
              , y = "Scale Error"
              , color = "Session")
 
-# REPEAT:
-ggplot(subset(all_data_sub, (participant_id == p) & 
-                      (figure_type == fig))
-       , mapping = aes(
-               x = vresp, y = scale
-               , color = factor(session_num)
-       )) + geom_point(na.rm = TRUE, alpha = .5) + 
-        geom_smooth(na.rm = TRUE) + 
-        theme_minimal() +
-        labs(title = "Repeat: Scale Error"
-             , x = "Velocity"
-             , y = "Scale Error"
-             , color = "Session")
+## ROTATION error against speed ##
 
-# maybe, to make "error" the y-axis, take absolute value away from 1? direction matters though... 
-
-
-        ## TRANSLATION error against speed ##
-
-# RANDOM:
-ggplot(subset(all_data_sub, (participant_id == p) & 
-                      (figure_type == "random"))
-       , mapping = aes(
-               x = vresp, y = translation
-               , color = factor(session_num)
-       )) + geom_point(na.rm = TRUE, alpha = .5) + 
-        geom_smooth(na.rm = TRUE) + 
-        theme_minimal() +
-        labs(title = "Random: Translation Error"
-             , x = "Velocity"
-             , y = "Translation Error"
-             , color = "Session")
-
-# REPEAT:
-ggplot(subset(all_data_sub, (participant_id == p) & 
-                      (figure_type == fig))
-       , mapping = aes(
-               x = vresp, y = translation
-               , color = factor(session_num)
-       )) + geom_point(na.rm = TRUE, alpha = .5) + 
-        geom_smooth(na.rm = TRUE) + 
-        theme_minimal() +
-        labs(title = "Repeat: Translation Error"
-             , x = "Velocity"
-             , y = "Translation Error"
-             , color = "Session")
-
-
-        ## ROTATION error against speed ##
-
-# RANDOM:
-ggplot(subset(all_data_sub, (participant_id == p) & 
-                      (figure_type == "random"))
+ggplot(subset(all_data_sub, participant_id == p)
        , mapping = aes(
                x = vresp, y = rotation
                , color = factor(session_num)
        )) + geom_point(na.rm = TRUE, alpha = .5) + 
         geom_smooth(na.rm = TRUE) + 
         theme_minimal() +
-        labs(title = "Random: Rotation Error"
+        facet_grid(. ~ figure_type) +
+        labs(title = "Rotation Error"
              , x = "Velocity"
              , y = "Rotation Error"
              , color = "Session")
 
-# REPEAT:
-ggplot(subset(all_data_sub, (participant_id == p) & 
-                      (figure_type == fig))
+## TRANSLATION error against speed ##
+
+ggplot(subset(all_data_sub, participant_id == p)
        , mapping = aes(
-               x = vresp, y = rotation
+               x = vresp, y = translation
                , color = factor(session_num)
        )) + geom_point(na.rm = TRUE, alpha = .5) + 
         geom_smooth(na.rm = TRUE) + 
         theme_minimal() +
-        labs(title = "Repeat: Rotation Error"
+        facet_grid(. ~ figure_type) +
+        labs(title = "Translation Error"
              , x = "Velocity"
-             , y = "Rotation Error"
+             , y = "Translation Error"
              , color = "Session")
+
 
 
 
