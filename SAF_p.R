@@ -33,38 +33,22 @@ fig <- dplyr::filter(all_data, participant_id == p, figure_type != "random")$fig
 
 ##### SESSION TO SESSION CHANGES #####
 
-        ## RAW error against speed ##
+## RAW error against speed ##
 
-# RANDOM:
-ggplot(subset(all_data_sub, (participant_id == p) & 
-                      (figure_type == "random"))
+ggplot(subset(all_data_sub, participant_id == p)
        , mapping = aes(
         x = vresp, y = raw_error_mean
         , color = factor(session_num)
 )) + geom_point(na.rm = TRUE, alpha = .5) + 
         geom_smooth(na.rm = TRUE) + 
         theme_minimal() +
-        labs(title = "Random: Raw Error"
+        facet_grid(. ~ figure_type) +
+        labs(title = "Raw Error"
              , x = "Velocity"
              , y = "Raw Error"
              , color = "Session")
 
-# REPEAT:
-ggplot(subset(all_data_sub, (participant_id == p) & 
-                      (figure_type == fig))
-       , mapping = aes(
-               x = vresp, y = raw_error_mean
-               , color = factor(session_num)
-       )) + geom_point(na.rm = TRUE, alpha = .5) + 
-        geom_smooth(na.rm = TRUE) + 
-        theme_minimal() +
-        labs(title = "Repeat: Raw Error"
-             , x = "Velocity"
-             , y = "Raw Error"
-             , color = "Session")
-
-
-        ## SHAPE (proc) error against speed ##
+## SHAPE (proc) error against speed ##
 
 # RANDOM:
 ggplot(subset(all_data_sub, (participant_id == p) & 
