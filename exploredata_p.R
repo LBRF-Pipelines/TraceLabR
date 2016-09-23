@@ -42,7 +42,7 @@ ggplot(data = all_data_p, mapping = aes(
         facet_grid(. ~ session_num) +
         labs(title = "Raw Error Mean Across Time"
              , x = "Trial Number"
-             , y = "Raw Error (mean / trial)"
+             , y = "Raw Error: mean (pixels)"
              , color = "Condition")
         
 ggplot(data = all_data_p, mapping = aes(
@@ -55,7 +55,7 @@ ggplot(data = all_data_p, mapping = aes(
         facet_grid(. ~ session_num) +
         labs(title = "Raw Error SD Across Time"
              , x = "Trial Number"
-             , y = "Raw Error (SD / trial)"
+             , y = "Raw Error: SD (pixels)"
              , color = "Condition")
 
 ggplot(data = all_data_p, mapping = aes(
@@ -68,34 +68,49 @@ ggplot(data = all_data_p, mapping = aes(
         facet_grid(. ~ session_num) +
         labs(title = "Raw Error ProcSD Across Time"
              , x = "Trial Number"
-             , y = "Raw Error (ProcSD / trial)"
+             , y = "Raw Error: ProcSD (pixels)"
              , color = "Condition")
 
 # SHAPE:
 
 ggplot(data = all_data_p, mapping = aes(
-        x = seq(length=nrow(all_data_p))
+        x = s_trial
         , y = shape_error_mean
         , color = figure_type
 )) + geom_point(na.rm = TRUE, alpha = .5) + 
         geom_smooth(na.rm = TRUE) + 
-        theme_minimal()
+        theme_minimal() +
+        facet_grid(. ~ session_num) +
+        labs(title = "Shape Error Mean Across Time"
+             , x = "Trial Number"
+             , y = "Shape Error: mean (pixels)"
+             , color = "Condition")
 
 ggplot(data = all_data_p, mapping = aes(
-        x = seq(length=nrow(all_data_p))
+        x = s_trial
         , y = shape_error_SD
         , color = figure_type
 )) + geom_point(na.rm = TRUE, alpha = .5) + 
         geom_smooth(na.rm = TRUE) + 
-        theme_minimal()
+        theme_minimal() +
+        facet_grid(. ~ session_num) +
+        labs(title = "Shape Error SD Across Time"
+             , x = "Trial Number"
+             , y = "Shape Error: SD (pixels)"
+             , color = "Condition")
 
 ggplot(data = all_data_p, mapping = aes(
-        x = seq(length=nrow(all_data_p))
+        x = s_trial
         , y = shape_procSD
         , color = figure_type
 )) + geom_point(na.rm = TRUE, alpha = .5) + 
         geom_smooth(na.rm = TRUE) + 
-        theme_minimal()
+        theme_minimal() +
+        facet_grid(. ~ session_num) +
+        labs(title = "Shape Error ProcSD Across Time"
+             , x = "Trial Number"
+             , y = "Shape Error: ProcSD (pixels)"
+             , color = "Condition")
 
 # SCALE:
 
@@ -104,12 +119,17 @@ all_data_p1 <- filter(
         , scale < 2
 )
 ggplot(data = all_data_p1, mapping = aes(
-        x = seq(length=nrow(all_data_p1))
+        x = s_trial
         , y = scale
         , color = figure_type
 )) + geom_point(na.rm = TRUE, alpha = .5) + 
         geom_smooth(na.rm = TRUE) + 
-        theme_minimal()
+        theme_minimal() +
+        facet_grid(. ~ session_num) +
+        labs(title = "Scale Error Across Time"
+             , x = "Trial Number"
+             , y = "Scale Factor"
+             , color = "Condition")
 
 # ROTATION:
 
@@ -118,12 +138,16 @@ all_data_p2 <- filter(
         , rotation < 1
 )
 ggplot(data = all_data_p2, mapping = aes(
-        x = seq(length=nrow(all_data_p2))
+        x = s_trial
         , y = rotation
         , color = figure_type
 )) + geom_point(na.rm = TRUE, alpha = .5) + 
         geom_smooth(na.rm = TRUE) + 
-        theme_minimal()
+        theme_minimal() +
+        labs(title = "Rotation Error Across Time"
+             , x = "Trial Number"
+             , y = "Rotation (radians)"
+             , color = "Condition")
 
 # TRANSLATION: 
 
@@ -132,12 +156,16 @@ all_data_p3 <- filter(
         , translation < 300
 )
 ggplot(data = all_data_p3, mapping = aes(
-        x = seq(length=nrow(all_data_p3))
+        x = s_trial
         , y = translation
         , color = figure_type
 )) + geom_point(na.rm = TRUE, alpha = .5) + 
         geom_smooth(na.rm = TRUE) + 
-        theme_minimal()
+        theme_minimal() +
+        labs(title = "Translation Error Across Time"
+             , x = "Trial Number"
+             , y = "Translation (pixels)"
+             , color = "Condition")
 
 
 ##### SAME, BUT MEDIAN SPEED ONLY? #####
