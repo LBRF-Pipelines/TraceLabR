@@ -11,7 +11,14 @@ library(dplyr)
 library(ggplot2)
 
 ## SINGLE PARTICIPANT ##
-all_data_p <- subset(all_data, participant_id == 8)
+all_data_p <- subset(all_data, participant_id == 13)
+
+all_data_p <- dplyr::mutate(
+        .data = all_data_p
+        , p_trial = c(1:nrow(all_data_p)) # number trials per participant 
+        , s_trial = rep(seq(100), max(all_data_p$session_num)) # number trials per session
+)
+
 
 # how much data per speed made it in? 
 # PP:
@@ -19,35 +26,50 @@ aggregate(!is.na(PLresp) ~ stimulus_gt, all_data_p, sum)
 # MI:
 aggregate(!is.na(mt) ~ stimulus_gt, all_data_p, sum)
 # CC:
-aggregate(!is.na(control_response) ~ stimulus_gt, all_data_p, sum)
+aggregate(!is.na(correct_response) ~ stimulus_gt, all_data_p, sum)
 
 ## in general was there a decrease in error? ##
 
 # RAW:
 
 ggplot(data = all_data_p, mapping = aes(
-        x = seq(length=nrow(all_data_p))
+        x = s_trial
         , y = raw_error_mean
         , color = figure_type
-)) + geom_point(na.rm = TRUE, alpha = .5) + 
+)) + geom_point(na.rm = TRUE, alpha = .5) +
         geom_smooth(na.rm = TRUE) + 
-        theme_minimal()
+        theme_minimal() +
+        facet_grid(. ~ session_num) +
+        labs(title = "Raw Error Mean Across Time"
+             , x = "Trial Number"
+             , y = "Raw Error (mean / trial)"
+             , color = "Condition")
         
 ggplot(data = all_data_p, mapping = aes(
-        x = seq(length=nrow(all_data_p))
+        x = s_trial
         , y = raw_error_SD
         , color = figure_type
 )) + geom_point(na.rm = TRUE, alpha = .5) + 
         geom_smooth(na.rm = TRUE) + 
-        theme_minimal()
+        theme_minimal() +
+        facet_grid(. ~ session_num) +
+        labs(title = "Raw Error SD Across Time"
+             , x = "Trial Number"
+             , y = "Raw Error (SD / trial)"
+             , color = "Condition")
 
 ggplot(data = all_data_p, mapping = aes(
-        x = seq(length=nrow(all_data_p))
+        x = s_trial
         , y = raw_procSD
         , color = figure_type
 )) + geom_point(na.rm = TRUE, alpha = .5) + 
         geom_smooth(na.rm = TRUE) + 
-        theme_minimal()
+        theme_minimal() +
+        facet_grid(. ~ session_num) +
+        labs(title = "Raw Error ProcSD Across Time"
+             , x = "Trial Number"
+             , y = "Raw Error (ProcSD / trial)"
+             , color = "Condition")
 
 # SHAPE:
 
