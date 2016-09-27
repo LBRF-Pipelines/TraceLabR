@@ -11,7 +11,7 @@ library(dplyr)
 library(ggplot2)
 
 ## SINGLE PARTICIPANT ##
-all_data_p <- subset(all_data, participant_id == 13)
+all_data_p <- subset(all_data, participant_id == 19)
 
 all_data_p <- dplyr::mutate(
         .data = all_data_p
@@ -192,13 +192,13 @@ fluctile(table(CC$control_response, CC$correct_response), shape="c")
 ## MOVEMENT TIME ##
 # are participants actually matching the stimulus MT?
 
-#PP groups:
-ggplot(data = subset(all_data, participant_id == 13)
+ggplot(data = subset(all_data, participant_id == 20)
        , mapping = aes(
         x = stimulus_mt
         , y = mt # use mt_clip for PP groups, mt for MI and CC groups
         , color = factor(session_num)
 )) + geom_point(na.rm = TRUE, alpha = .5) +
+        geom_smooth(na.rm = TRUE) + 
         theme_minimal() +
         lims(y=c(0,5))
 
