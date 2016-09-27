@@ -221,16 +221,18 @@ boxplot(PLresp ~ figure_type, data = all_data, main="PLresp", xlab="figure_type"
 
 medianPL <- median(subset(all_data, figure_type == "random")$PLstim, na.rm = TRUE)
 
-# looks close: fig 1, 5, 14, 15
+# looks close: fig 1, 4, 6, 9, 13, 14, 15
+medianFigPL <- median(subset(all_data, figure_type == "fig6")$PLstim, na.rm = TRUE)
 
 ## COMPLEXITY ##
 
 # boxlots - does repeated fig complexity fall within range of randoms?
 boxplot(complexity ~ figure_type, data = all_data, main="complexity", xlab="figure_type", ylab="complexity")
 
-medianComplexity <- median(subset(all_data, figure_type == "random")$complexity, na.rm = TRUE)
+medianComp <- median(subset(all_data, figure_type == "random")$complexity, na.rm = TRUE)
 
-# looks close: fig 3, 7, 11, 12
+# looks close: fig 3, 4, 7, 11
+medianFigComp <- median(subset(all_data, figure_type == "fig6")$complexity, na.rm = TRUE)
 
 ##### is ERROR affected by pathlength or complexity? #####
 
