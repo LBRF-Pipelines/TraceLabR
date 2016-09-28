@@ -11,7 +11,7 @@ library(dplyr)
 library(ggplot2)
 
 ## SINGLE PARTICIPANT ##
-all_data_p <- subset(all_data, participant_id == 19)
+all_data_p <- subset(all_data, participant_id == 14)
 
 all_data_p <- dplyr::mutate(
         .data = all_data_p
@@ -170,17 +170,32 @@ ggplot(data = all_data_p3, mapping = aes(
              , color = "Condition")
 
 
+### REACTION TIME ###
+
+ggplot(data = subset(all_data_p)
+       , mapping = aes(
+               x = s_trial
+               , y = rt
+               , color = factor(figure_type)
+       )) + geom_point(na.rm = TRUE, alpha = .5) +
+        geom_smooth(na.rm = TRUE) + 
+        facet_grid(. ~ session_num) +
+        theme_minimal() +
+        lims(y=c(0,5))
+
+
+
 ##### SAME, BUT MEDIAN SPEED ONLY? #####
 
 
 
 #### DATA CHECKING #####
 
-## CONTROL TASK ##
+### CONTROL TASK ###
 # are participants actually repsonding somewhat accurately?
 
 # subset data:
-CC <- subset(all_data, condition == "CC-00-5", select = c(participant_id, session_num, block_num, trial_num, figure_type, stimulus_gt, stimulus_mt, avg_velocity, path_length, control_response, correct_response))
+CC <- subset(all_data, (condition == "CC-00-5") & (session_num != "5"), select = c(participant_id, session_num, block_num, trial_num, figure_type, stimulus_gt, stimulus_mt, avg_velocity, path_length, control_response, correct_response))
 CC <- CC[with(CC, order(participant_id, session_num, block_num, trial_num)), ]
 
 # fluctuation plot — participant response (vertical axis), correct response (horizontal axis):
@@ -189,7 +204,7 @@ fluctile(table(CC$control_response, CC$correct_response), shape="c")
 # how to do statistics on this?
 
 
-## MOVEMENT TIME ##
+### MOVEMENT TIME ###
 # are participants actually matching the stimulus MT?
 
 ggplot(data = subset(all_data, participant_id == 20)
@@ -205,6 +220,8 @@ ggplot(data = subset(all_data, participant_id == 20)
 # what about speed (avg velocity per trial)?
 
 plot(mt_compare_PP[,5],mt_compare_PP[,6])
+
+
 
 # consider doing the above comparing repeated vs random... 
 
