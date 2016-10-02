@@ -11,7 +11,13 @@ library(dplyr)
 library(ggplot2)
 
 ## SINGLE PARTICIPANT ##
-all_data_p <- subset(all_data, participant_id == 14)
+all_data_p <- subset(all_data, participant_id == 21)
+
+#this is just for Sarah K's data... and anyone with an incomplete session
+#all_data_p <- dplyr::filter(
+#        .data = all_data_p
+#        , session_num != 3 
+#)
 
 all_data_p <- dplyr::mutate(
         .data = all_data_p
@@ -19,6 +25,10 @@ all_data_p <- dplyr::mutate(
         , s_trial = rep(seq(100), max(all_data_p$session_num)) # number trials per session
 )
 
+# for Sarah K's data:
+#s_trial = c(1:sum(all_data_p$session_num=="1")
+#, 1:sum(all_data_p$session_num=="2")
+#, 1:sum(all_data_p$session_num=="5"))
 
 # how much data per speed made it in? 
 # PP:
@@ -116,9 +126,9 @@ ggplot(data = all_data_p, mapping = aes(
 
 all_data_p1 <- filter(
         .data = all_data_p
-        , scale < 2
+        , scale < 2 # note that this filter gets rid of other days so plot will not facet sessions
 )
-ggplot(data = all_data_p1, mapping = aes(
+ggplot(data = all_data_p, mapping = aes(
         x = s_trial
         , y = scale
         , color = figure_type
@@ -137,7 +147,7 @@ all_data_p2 <- filter(
         .data = all_data_p
         , rotation < 1
 )
-ggplot(data = all_data_p2, mapping = aes(
+ggplot(data = all_data_p, mapping = aes(
         x = s_trial
         , y = rotation
         , color = figure_type
@@ -156,7 +166,7 @@ all_data_p3 <- filter(
         .data = all_data_p
         , translation < 300
 )
-ggplot(data = all_data_p3, mapping = aes(
+ggplot(data = all_data_p, mapping = aes(
         x = s_trial
         , y = translation
         , color = figure_type
@@ -207,7 +217,7 @@ fluctile(table(CC$control_response, CC$correct_response), shape="c")
 ### MOVEMENT TIME ###
 # are participants actually matching the stimulus MT?
 
-ggplot(data = subset(all_data, participant_id == 20)
+ggplot(data = subset(all_data, participant_id == 21)
        , mapping = aes(
         x = stimulus_mt
         , y = mt # use mt_clip for PP groups, mt for MI and CC groups

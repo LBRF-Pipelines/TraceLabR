@@ -29,7 +29,7 @@ aggregate(!is.na(PLresp) ~ stimulus_gt, all_data_sub, sum)
 
 ## SET UP PARTICIPANT ##
 # what participant?
-p <- 16
+p <- 21
 fig <- dplyr::filter(all_data, participant_id == p, figure_type != "random")$figure_type[1]
 
 
@@ -52,7 +52,7 @@ ggplot(subset(all_data_sub, participant_id == p)
 
 ## SHAPE (proc) error against speed ##
 
-ggplot(subset(all_data_sub, participant_id == 17)
+ggplot(subset(all_data_sub, participant_id == p)
        , mapping = aes(
                x = vresp, y = shape_error_mean
                , color = factor(session_num)
