@@ -1,7 +1,20 @@
 # complexity workspace 
 
-xy <- matrix(c(data_stim$X1,data_stim$X2),ncol=2)
-path.spl <- smooth.spline(xy, y = NULL, df = 30)
+graphics.off() # clear figures
+#cat("\014") # clear console
+
+### create parametric equation for figure ###
+
+# make two functions x(t) and y(t):
+
+plot(data_stim$X3,data_stim$X1) #x(t)
+xt.spl <- smooth.spline(x = data_stim$X3, y = data_stim$X1, df = (.5*nrow(data_stim)))
+lines(xt.spl)
+
+plot(data_stim$X3,data_stim$X2) #y(t)
+yt.spl <- smooth.spline(x = data_stim$X3, y = data_stim$X2, df = (.5*nrow(data_stim)))
+lines(yt.spl)
+
 plot(data_stim$X1,data_stim$X2, xlim=c(0,1920), ylim=c(1080,0))
 lines(path.spl)
 
