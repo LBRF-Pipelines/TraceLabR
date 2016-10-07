@@ -36,7 +36,7 @@ d2ydt2 <- predict(yt.spl, x = time, deriv = 2) # second derivative of y
 # calculate curvature:
 
 curvature = (dxdt$y*d2ydt2$y - dydt$y*d2xdt2$y)/((dxdt$y^2 + dydt$y^2)^(3/2))
-plot(time, curvature, ylim = c(-.01,.01))
+#plot(time, curvature, ylim = c(-.01,.01))
 
 # calculate total curvature:
 
@@ -46,6 +46,8 @@ totcurv <- integrate(curvature.spl, lower = min(time), upper = max(time))
 
 complexity2 <- totcurv$value
 
+#### VALIDATION TESTING ####
+
 # note: using this method, the magnitude of peaks and valleys in curvature 
 # are a function of how smooth you make the splines, such that better fitting
 # leads to bigger spikes in curvature at the vertices of the figure.
@@ -54,3 +56,22 @@ complexity2 <- totcurv$value
 # INDEED: once you get beyond a couple thousand points, the curvature doesn't change much, 
 # and once you get to < 20 df, the curvature score doesn't change much.
 
+
+# create a scaled figure to test whether the method below is independent of pathlength:
+
+# data_stim2 <- matrix(c(data_stim$X1, data_stim$X2, data_stim$X3*1.2), ncol=3)
+
+# time <- seq(min(data_stim2$X3), max(data_stim2$X3), length.out = 5000) 
+# xt.spl <- smooth.spline(x = data_stim2$X3, y = data_stim2$X1, df = (.5*nrow(data_stim2)))
+# dxdt <- predict(xt.spl, x = time, deriv = 1) # first derivative of x
+# d2xdt2 <- predict(xt.spl, x = time, deriv = 2) # second derivative of x
+# yt.spl <- smooth.spline(x = data_stim2$X3, y = data_stim2$X2, df = (.5*nrow(data_stim2)))
+# dydt <- predict(yt.spl, x = time, deriv = 1) # first derivative of y
+# d2ydt2 <- predict(yt.spl, x = time, deriv = 2) # second derivative of y
+# curvature = (dxdt$y*d2ydt2$y - dydt$y*d2xdt2$y)/((dxdt$y^2 + dydt$y^2)^(3/2))
+# curvature.spl <- splinefun(time, curvature)
+# totcurv <- integrate(curvature.spl, lower = min(time), upper = max(time))
+# complexity4 <- totcurv$value
+
+# yes, scaling the whole figure and time keeps complexity same 
+# yes, same with changing speed only, or size only
