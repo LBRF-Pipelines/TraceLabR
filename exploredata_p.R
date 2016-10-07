@@ -11,7 +11,7 @@ library(dplyr)
 library(ggplot2)
 
 ## SINGLE PARTICIPANT ##
-all_data_p <- subset(all_data, participant_id == 21)
+all_data_p <- subset(all_data, participant_id == 8)
 
 #this is just for Sarah K's data... and anyone with an incomplete session
 #all_data_p <- dplyr::filter(
@@ -255,6 +255,9 @@ medianFigPL <- median(subset(all_data, figure_type == "fig6")$PLstim, na.rm = TR
 
 # boxlots - does repeated fig complexity fall within range of randoms?
 boxplot(complexity ~ figure_type, data = all_data, main="complexity", xlab="figure_type", ylab="complexity")
+
+boxplot(complexity2 ~ figure_type, data = all_data, main="complexity2", xlab="figure_type", ylab="complexity2")
+
 
 medianComp <- median(subset(all_data, figure_type == "random")$complexity, na.rm = TRUE)
 
