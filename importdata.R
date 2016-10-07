@@ -7,8 +7,8 @@
 # 3. use ggplot2 to make better plots
 
 rm(list = ls()) # clear work space
-#graphics.off() # clear figures
-#cat("\014") # clear console
+graphics.off() # clear figures
+cat("\014") # clear console
 
 library(Morpho)
 library(plyr) # remember to use plyr::count()
@@ -36,7 +36,7 @@ for(i in 1:length(file.names)) {
         # separate PP data from MI and CC data (remember, final session of MI and CC are also PP sessions)
         if (length(tlt)<15){
                 # disclude all groups except CC
-                if(trials[trials$figure_file==name.tlf,5]!='CC-00-5'){datarow=c(name.tlf,rep(NA,times=18))}
+                if(trials[trials$figure_file==name.tlf,5]!='CC-00-5'){datarow=c(name.tlf,rep(NA,times=19))}
                 # if in CC group, runs control task
                 else{
                         #loads stimulus data
@@ -89,7 +89,7 @@ for(i in 1:length(file.names)) {
                                 out <- plyr::count(dir_sign[,2])
                                 corr.resp <- as.numeric(out[out$x==-1,2])
                         }
-                        datarow =c(name.tlf,rep(NA,times=17),corr.resp)
+                        datarow =c(name.tlf,rep(NA,times=18),corr.resp)
                 }
         }
         else{
@@ -115,7 +115,7 @@ for(i in 1:length(file.names)) {
                 }
                 #decide minimum response length — if not reached, report NA's for trial
                 if(sum(clip_index)<10){
-                        datarow=c(name.tlf,rep(NA,times=18))
+                        datarow=c(name.tlf,rep(NA,times=19))
                 }
                 else{
                         #remove all repeated response points (when person not moving)
@@ -226,6 +226,29 @@ for(i in 1:length(file.names)) {
                         sinuosity <- pathlength/perimeter
                         complexity <- sinuosity
                         
+                        ## as measured by TOTAL CURVATURE: https://en.wikipedia.org/wiki/Total_curvature
+                        
+                        # first normalize to 5000 points (normalized to pathlength and speed): 
+                        # (and because I don't know how to just get derivatives of splines themselves...)
+                        time <- seq(min(data_stim$X3), max(data_stim$X3), length.out = 5000)
+                        
+                        # make functions x(t) and y(t) and get vectors of derivatives:
+                        xt.spl <- smooth.spline(x = data_stim$X3, y = data_stim$X1, df = (.5*nrow(data_stim)))
+                        dxdt <- predict(xt.spl, x = time, deriv = 1) # first derivative of x
+                        d2xdt2 <- predict(xt.spl, x = time, deriv = 2) # second derivative of x
+                        
+                        yt.spl <- smooth.spline(x = data_stim$X3, y = data_stim$X2, df = (.5*nrow(data_stim)))
+                        dydt <- predict(yt.spl, x = time, deriv = 1) # first derivative of y
+                        d2ydt2 <- predict(yt.spl, x = time, deriv = 2) # second derivative of y
+                        
+                        # calculate curvature and total curvature:
+                        curvature = (dxdt$y*d2ydt2$y - dydt$y*d2xdt2$y)/((dxdt$y^2 + dydt$y^2)^(3/2)) #signed curvature
+                        abscurv <- abs(curvature) #unsigned curvature
+                        sumcurv <- sum(abscurv)
+                        #curvature.spl <- splinefun(time, curvature)
+                        #totcurv <- integrate(curvature.spl, lower = min(time), upper = max(time), subdivisions=1000, rel.tol=.Machine$double.eps^.05)
+                        complexity2 <- sumcurv #totcurv$value
+                        
                         ##### PLOTS #####
                         
                         #plot shapes pre transforms:
@@ -258,7 +281,7 @@ for(i in 1:length(file.names)) {
                         
                         ##### save variables to a row & subsequently a file #####
                         
-                        datarow <- c(name.tlf,PLstim,complexity,mt_clip,PLresp,raw_error_tot,raw_error_mean,raw_error_SD,raw_procSS,raw_procSD,translation,scale,rotation,shape_error_tot,shape_error_mean,shape_error_SD,shape_procSS,shape_procSD,rep(NA,times=1))
+                        datarow <- c(name.tlf,PLstim,complexity,complexity2,mt_clip,PLresp,raw_error_tot,raw_error_mean,raw_error_SD,raw_procSS,raw_procSD,translation,scale,rotation,shape_error_tot,shape_error_mean,shape_error_SD,shape_procSS,shape_procSD,rep(NA,times=1))
                 }
         }
         out.file <- rbind(out.file, datarow)
@@ -266,19 +289,20 @@ for(i in 1:length(file.names)) {
 
 # change output to df
 df.out.file <- data.frame(out.file[-1,],stringsAsFactors = FALSE)
-colnames(df.out.file) <- c("figure_file","PLstim","complexity","mt_clip","PLresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSS","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSS","shape_procSD","correct_response")
+colnames(df.out.file) <- c("figure_file","PLstim","complexity","complexity2","mt_clip","PLresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSS","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSS","shape_procSD","correct_response")
 
 # combine proc_df with db
 all_data <- merge(trials,df.out.file,by="figure_file")
 colnames(participants)[1] <- paste("participant_id")
 all_data <- merge(participants[,c(1,4:6)],all_data,by="participant_id")
-all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","complexity","trace_file","rt","it","mt","mt_clip","PLresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSS","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSS","shape_procSD","control_question","control_response","correct_response")]
+all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","complexity","complexity2","trace_file","rt","it","mt","mt_clip","PLresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSS","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSS","shape_procSD","control_question","control_response","correct_response")]
 
 # change data to numeric where appropriate
 all_data$condition <- as.factor(all_data$condition)
 all_data$figure_type <- as.factor(all_data$figure_type)
 all_data$PLstim <- as.numeric(all_data$PLstim)
 all_data$complexity <- as.numeric(all_data$complexity)
+all_data$complexity2 <- as.numeric(all_data$complexity2)
 all_data$mt_clip <- as.numeric(all_data$mt_clip)
 all_data$PLresp <- as.numeric(all_data$PLresp)
 all_data$raw_error_tot <- as.numeric(all_data$raw_error_tot)
@@ -304,7 +328,7 @@ all_data <- dplyr::mutate(
         .data = all_data,
         vresp = PLresp / mt_clip 
 ) # and reorder one last time:
-all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","complexity","trace_file","rt","it","mt","mt_clip","PLresp","vresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSS","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSS","shape_procSD","control_question","control_response","correct_response")]
+all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","complexity","complexity2","trace_file","rt","it","mt","mt_clip","PLresp","vresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSS","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSS","shape_procSD","control_question","control_response","correct_response")]
 
 
 # save .txt file with all_data
