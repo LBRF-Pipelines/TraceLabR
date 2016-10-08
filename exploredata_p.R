@@ -253,20 +253,33 @@ medianFigPL <- median(subset(all_data, figure_type == "fig6")$PLstim, na.rm = TR
 
 ## COMPLEXITY ##
 
-# boxlots - does repeated fig complexity fall within range of randoms?
-boxplot(complexity ~ figure_type, data = all_data, main="sinuosity", xlab="figure_type", ylab="complexity")
-boxplot(complexity2 ~ figure_type, data = all_data, main="total curvature", xlab="figure_type", ylab="complexity2", ylim = c(-.1,.1))
-boxplot(complexity3 ~ figure_type, data = all_data, main="total absolute curvature", xlab="figure_type", ylab="complexity3", ylim = c(0,.15))
-boxplot(complexity4 ~ figure_type, data = all_data, main="sum curvature", xlab="figure_type", ylab="complexity4", ylim = c(0,200))
-boxplot(complexity5 ~ figure_type, data = all_data, main="mean curvature", xlab="figure_type", ylab="complexity5", ylim = c(0,.05))
-boxplot(complexity6 ~ figure_type, data = all_data, main="SD curvature", xlab="figure_type", ylab="complexity6", ylim = c(0,.25))
+all_data_filter <- dplyr::filter(
+        .data = all_data
+        , complexity4 < 15
+) # note: this removes all MI and CC trials, so do next two lines to see how many dropped:
+aggregate(!is.na(PLresp) ~ stimulus_gt, all_data, sum)
+aggregate(!is.na(PLresp) ~ stimulus_gt, all_data_filter, sum)
+# it's not actually that much
 
-plot(all_data$figlength, all_data$complexity)
-plot(all_data$figlength, all_data$complexity2, ylim = c(-.25,.25))
-plot(all_data$figlength, all_data$complexity3, ylim = c(0,.25))
-plot(all_data$figlength, all_data$complexity4, ylim = c(0,200))
-plot(all_data$figlength, all_data$complexity5, ylim = c(0,.05))
-plot(all_data$figlength, all_data$complexity6, ylim = c(0,.25))
+# boxlots - does repeated fig complexity fall within range of randoms?
+boxplot(complexity ~ figure_type, data = all_data_filter, main="sinuosity", xlab="figure_type", ylab="complexity")
+boxplot(complexity2 ~ figure_type, data = all_data_filter, main="total curvature", xlab="figure_type", ylab="complexity2", ylim = c(-.1,.1))
+boxplot(complexity3 ~ figure_type, data = all_data_filter, main="total absolute curvature", xlab="figure_type", ylab="complexity3", ylim = c(0,.15))
+boxplot(complexity4 ~ figure_type, data = all_data_filter, main="tortuosity", xlab="figure_type", ylab="complexity4", ylim= c(0,11))
+boxplot(complexity5 ~ figure_type, data = all_data_filter, main="sum curvature", xlab="figure_type", ylab="complexity5", ylim = c(0,200))
+boxplot(complexity6 ~ figure_type, data = all_data_filter, main="mean curvature", xlab="figure_type", ylab="complexity6", ylim = c(0,.05))
+boxplot(complexity7 ~ figure_type, data = all_data_filter, main="SD curvature", xlab="figure_type", ylab="complexity7", ylim = c(0,.25))
+
+hist(all_data$complexity4, breaks=1000000, xlim = c(0,10)) #unfiltered data
+hist(all_data_filter$complexity4, breaks=200, xlim = c(0,10)) #unfiltered data
+
+plot(all_data_filter$figlength, all_data_filter$complexity)
+plot(all_data_filter$figlength, all_data_filter$complexity2, ylim = c(-.25,.25))
+plot(all_data_filter$figlength, all_data_filter$complexity3, ylim = c(0,.25))
+plot(all_data_filter$figlength, all_data_filter$complexity4)
+plot(all_data_filter$figlength, all_data_filter$complexity5, ylim = c(0,200))
+plot(all_data_filter$figlength, all_data_filter$complexity6, ylim = c(0,.05))
+plot(all_data_filter$figlength, all_data_filter$complexity7, ylim = c(0,.25))
 # it appears that the variability in the data is not a function of data collection resolution... probably the integrate and derivative functions themselves...
 
 medianComp <- median(subset(all_data, figure_type == "random")$complexity, na.rm = TRUE)
