@@ -245,19 +245,26 @@ for(i in 1:length(file.names)) {
                         # calculate curvature and total curvature:
                         curvature = (dxdt$y*d2ydt2$y - dydt$y*d2xdt2$y)/((dxdt$y^2 + dydt$y^2)^(3/2)) #signed curvature
                         curvature.spl <- splinefun(time, curvature)
-                        totcurv <- integrate(curvature.spl, lower = min(time), upper = max(time))
+                        totcurv <- integrate(Vectorize(curvature.spl), lower = min(time), upper = max(time), stop.on.error = FALSE)
                         complexity2 <- totcurv$value
                         
                         abscurv <- abs(curvature) # unsigned curvature
                         abscurv.spl <- splinefun(time, abscurv)
-                        totabscurv <- integrate(abscurv.spl, lower = min(time), upper = max(time), stop.on.error = FALSE)
+                        totabscurv <- integrate(Vectorize(abscurv.spl), lower = min(time), upper = max(time), stop.on.error = FALSE)
                         complexity3 <- totabscurv$value
                         
-                        complexity4 <- sum(abscurv) # sum of absolute curvature values for 5000 points
+                        # tortuosity: the integral of the change on curvature
+                        dcurvedt <- curvature.spl(time, deriv=1)
+                        abs.dcurvdt <- abs(dcurvedt)
+                        abs.dcurvedt.spl <- splinefun(time, abs.dcurvdt)
+                        tortuosity <- integrate(abs.dcurvedt.spl, lower = min(time), upper = max(time), subdivisions=1000)
+                        complexity4 <- tortuosity
                         
-                        complexity5 <- mean(abscurv) # mean of absolute curvature
+                        complexity5 <- sum(abscurv) # sum of absolute curvature values for 5000 points
                         
-                        complexity6 <- sd(abscurv) # SD of absolute curvature
+                        complexity6 <- mean(abscurv) # mean of absolute curvature
+                        
+                        #complexity7 <- sd(abscurv) # SD of absolute curvature
                         
                         
                         ##### PLOTS #####
