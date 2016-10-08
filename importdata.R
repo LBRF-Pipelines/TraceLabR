@@ -231,23 +231,34 @@ for(i in 1:length(file.names)) {
                         # first normalize to 5000 points (normalized to pathlength and speed): 
                         # (and because I don't know how to just get derivatives of splines themselves...)
                         time <- seq(min(data_stim$X3), max(data_stim$X3), length.out = 5000)
+                        figlength <- nrow(data_stim)
                         
                         # make functions x(t) and y(t) and get vectors of derivatives:
-                        xt.spl <- smooth.spline(x = data_stim$X3, y = data_stim$X1, df = (.5*nrow(data_stim)))
+                        xt.spl <- smooth.spline(x = data_stim$X3, y = data_stim$X1, df = 10)
                         dxdt <- predict(xt.spl, x = time, deriv = 1) # first derivative of x
                         d2xdt2 <- predict(xt.spl, x = time, deriv = 2) # second derivative of x
                         
-                        yt.spl <- smooth.spline(x = data_stim$X3, y = data_stim$X2, df = (.5*nrow(data_stim)))
+                        yt.spl <- smooth.spline(x = data_stim$X3, y = data_stim$X2, df = 10)
                         dydt <- predict(yt.spl, x = time, deriv = 1) # first derivative of y
                         d2ydt2 <- predict(yt.spl, x = time, deriv = 2) # second derivative of y
                         
                         # calculate curvature and total curvature:
                         curvature = (dxdt$y*d2ydt2$y - dydt$y*d2xdt2$y)/((dxdt$y^2 + dydt$y^2)^(3/2)) #signed curvature
-                        abscurv <- abs(curvature) #unsigned curvature
-                        sumcurv <- sum(abscurv)
-                        #curvature.spl <- splinefun(time, curvature)
-                        #totcurv <- integrate(curvature.spl, lower = min(time), upper = max(time), subdivisions=1000, rel.tol=.Machine$double.eps^.05)
-                        complexity2 <- sumcurv #totcurv$value
+                        curvature.spl <- splinefun(time, curvature)
+                        totcurv <- integrate(curvature.spl, lower = min(time), upper = max(time))
+                        complexity2 <- totcurv$value
+                        
+                        abscurv <- abs(curvature) # unsigned curvature
+                        abscurv.spl <- splinefun(time, abscurv)
+                        totabscurv <- integrate(abscurv.spl, lower = min(time), upper = max(time))
+                        complexity3 <- totabscurv$value
+                        
+                        complexity4 <- sum(abscurv) # sum of absolute curvature values for 5000 points
+                        
+                        complexity5 <- mean(abscurv) # mean of absolute curvature
+                        
+                        complexity6 <- sd(abscurv) # SD of absolute curvature
+                        
                         
                         ##### PLOTS #####
                         
