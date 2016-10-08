@@ -33,6 +33,11 @@ dydt <- predict(yt.spl, x = time, deriv = 1) # first derivative of y
 d2ydt2 <- predict(yt.spl, x = time, deriv = 2) # second derivative of y
 #plot(d2ydt2)
 
+#xt.spl <- splinefun(x = data_stim$X3, y = data_stim$X1) 
+#yt.spl <- splinefun(x = data_stim$X3, y = data_stim$X2)
+#curvature = ((xt.spl(time, deriv=1) * yt.spl(time, deriv=2)) - (yt.spl(time, deriv=1) * xt.spl(time, deriv=2)))/((xt.spl(time, deriv=1)^2 + yt.spl(time, deriv=1)^2)^(3/2)) #signed curvature
+#plot(time, curvature, ylim = c(-.01,.01))
+
 # calculate curvature:
 
 curvature = (dxdt$y*d2ydt2$y - dydt$y*d2xdt2$y)/((dxdt$y^2 + dydt$y^2)^(3/2)) #signed curvature
@@ -43,7 +48,7 @@ plot(time, curvature, ylim = c(-.01,.01))
 curvature.spl <- splinefun(time, curvature)
 plot(curvature.spl)
 
-totcurv <- integrate(curvature.spl, lower = min(time), upper = max(time), subdivisions=1000, rel.tol=.Machine$double.eps^.05)
+totcurv <- integrate(curvature.spl, lower = min(time), upper = max(time))
 complexity2 <- totcurv$value
 
 # calculate total absolute curvature:
