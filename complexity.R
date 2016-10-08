@@ -18,7 +18,7 @@ time <- seq(min(data_stim$X3), max(data_stim$X3), length.out = 5000) #but this t
 # make two functions x(t) and y(t):
 
 #plot(data_stim$X3,data_stim$X1) #x(t)
-xt.spl <- smooth.spline(x = data_stim$X3, y = data_stim$X1, df = (.5*nrow(data_stim)))
+xt.spl <- smooth.spline(x = data_stim$X3, y = data_stim$X1, df = (.5*nrow(data_stim))) # here's the problem: the df is based on sampling rate! and there are fives speeds! also splines will be fit with a lot of variability because of the number of points varying, even in same figure, but especially random where sometimes there's only 10 points... this means the fit is gonna be really poor, which probably means the derivatives and integrals are bad! 
 #lines(xt.spl)
 dxdt <- predict(xt.spl, x = time, deriv = 1) # first derivative of x
 #plot(dxdt)
@@ -35,16 +35,45 @@ d2ydt2 <- predict(yt.spl, x = time, deriv = 2) # second derivative of y
 
 # calculate curvature:
 
-curvature = abs((dxdt$y*d2ydt2$y - dydt$y*d2xdt2$y))/((dxdt$y^2 + dydt$y^2)^(3/2)) #unsigned curvature
+curvature = (dxdt$y*d2ydt2$y - dydt$y*d2xdt2$y)/((dxdt$y^2 + dydt$y^2)^(3/2)) #signed curvature
 plot(time, curvature, ylim = c(-.01,.01))
 
 # calculate total curvature:
 
 curvature.spl <- splinefun(time, curvature)
+plot(curvature.spl)
 
-totcurv <- integrate(curvature.spl, lower = min(time), upper = max(time))
-
+totcurv <- integrate(curvature.spl, lower = min(time), upper = max(time), subdivisions=1000, rel.tol=.Machine$double.eps^.05)
 complexity2 <- totcurv$value
+
+# calculate total absolute curvature:
+
+abscurv <- abs(curvature) #unsigned curvature
+plot(time, abscurv)
+abscurv.spl <- splinefun(time, abscurv)
+plot(abscurv.spl)
+totabscurv <- integrate(abscurv.spl, lower = min(time), upper = max(time), subdivisions=1000, rel.tol=.Machine$double.eps^.05)
+complexity3 <- totabscurv$value
+
+# should also try the derivative of curvature (how much is curvature changing?)
+
+dcurvedt <- curvature.spl(time, deriv=1)
+plot(time, dcurvedt)
+abs.dcurvedt <- abs(dcurvedt)
+plot(time, abs.dcurvedt)
+
+dcurvedt.spl <- splinefun(time, abs.dcurvedt)
+plot(dcurvedt.spl)
+tortuosity <- integrate(dcurvedt.spl, lower = min(time), upper = max(time), subdivisions=1000, rel.tol=.Machine$double.eps^.05)
+# IT WON'T CALCULATE... 
+
+# more ideas:
+
+sum(abscurv) # also consider using MEAN! that's what Krakauer seems to have done... or SD? 
+mean(abscurv)
+sd(abscurv) 
+
+
 
 #### VALIDATION TESTING ####
 
