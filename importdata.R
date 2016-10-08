@@ -36,7 +36,7 @@ for(i in 1:length(file.names)) {
         # separate PP data from MI and CC data (remember, final session of MI and CC are also PP sessions)
         if (length(tlt)<15){
                 # disclude all groups except CC
-                if(trials[trials$figure_file==name.tlf,5]!='CC-00-5'){datarow=c(name.tlf,rep(NA,times=19))}
+                if(trials[trials$figure_file==name.tlf,5]!='CC-00-5'){datarow=c(name.tlf,rep(NA,times=24))}
                 # if in CC group, runs control task
                 else{
                         #loads stimulus data
@@ -89,7 +89,7 @@ for(i in 1:length(file.names)) {
                                 out <- plyr::count(dir_sign[,2])
                                 corr.resp <- as.numeric(out[out$x==-1,2])
                         }
-                        datarow =c(name.tlf,rep(NA,times=18),corr.resp)
+                        datarow =c(name.tlf,rep(NA,times=23),corr.resp)
                 }
         }
         else{
@@ -115,7 +115,7 @@ for(i in 1:length(file.names)) {
                 }
                 #decide minimum response length — if not reached, report NA's for trial
                 if(sum(clip_index)<10){
-                        datarow=c(name.tlf,rep(NA,times=19))
+                        datarow=c(name.tlf,rep(NA,times=24))
                 }
                 else{
                         #remove all repeated response points (when person not moving)
@@ -250,7 +250,7 @@ for(i in 1:length(file.names)) {
                         
                         abscurv <- abs(curvature) # unsigned curvature
                         abscurv.spl <- splinefun(time, abscurv)
-                        totabscurv <- integrate(abscurv.spl, lower = min(time), upper = max(time))
+                        totabscurv <- integrate(abscurv.spl, lower = min(time), upper = max(time), stop.on.error = FALSE)
                         complexity3 <- totabscurv$value
                         
                         complexity4 <- sum(abscurv) # sum of absolute curvature values for 5000 points
@@ -292,7 +292,7 @@ for(i in 1:length(file.names)) {
                         
                         ##### save variables to a row & subsequently a file #####
                         
-                        datarow <- c(name.tlf,PLstim,complexity,complexity2,mt_clip,PLresp,raw_error_tot,raw_error_mean,raw_error_SD,raw_procSS,raw_procSD,translation,scale,rotation,shape_error_tot,shape_error_mean,shape_error_SD,shape_procSS,shape_procSD,rep(NA,times=1))
+                        datarow <- c(name.tlf,PLstim,figlength,complexity,complexity2,complexity3,complexity4,complexity5,complexity6,mt_clip,PLresp,raw_error_tot,raw_error_mean,raw_error_SD,raw_procSS,raw_procSD,translation,scale,rotation,shape_error_tot,shape_error_mean,shape_error_SD,shape_procSS,shape_procSD,rep(NA,times=1))
                 }
         }
         out.file <- rbind(out.file, datarow)
@@ -300,20 +300,25 @@ for(i in 1:length(file.names)) {
 
 # change output to df
 df.out.file <- data.frame(out.file[-1,],stringsAsFactors = FALSE)
-colnames(df.out.file) <- c("figure_file","PLstim","complexity","complexity2","mt_clip","PLresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSS","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSS","shape_procSD","correct_response")
+colnames(df.out.file) <- c("figure_file","PLstim","figlength","complexity","complexity2","complexity3","complexity4","complexity5","complexity6","mt_clip","PLresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSS","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSS","shape_procSD","correct_response")
 
 # combine proc_df with db
 all_data <- merge(trials,df.out.file,by="figure_file")
 colnames(participants)[1] <- paste("participant_id")
 all_data <- merge(participants[,c(1,4:6)],all_data,by="participant_id")
-all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","complexity","complexity2","trace_file","rt","it","mt","mt_clip","PLresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSS","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSS","shape_procSD","control_question","control_response","correct_response")]
+all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","figlength","complexity","complexity2","complexity3","complexity4","complexity5","complexity6","trace_file","rt","it","mt","mt_clip","PLresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSS","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSS","shape_procSD","control_question","control_response","correct_response")]
 
 # change data to numeric where appropriate
 all_data$condition <- as.factor(all_data$condition)
 all_data$figure_type <- as.factor(all_data$figure_type)
 all_data$PLstim <- as.numeric(all_data$PLstim)
+all_data$figlength <- as.numeric(all_data$figlength)
 all_data$complexity <- as.numeric(all_data$complexity)
 all_data$complexity2 <- as.numeric(all_data$complexity2)
+all_data$complexity3 <- as.numeric(all_data$complexity3)
+all_data$complexity4 <- as.numeric(all_data$complexity4)
+all_data$complexity5 <- as.numeric(all_data$complexity5)
+all_data$complexity6 <- as.numeric(all_data$complexity6)
 all_data$mt_clip <- as.numeric(all_data$mt_clip)
 all_data$PLresp <- as.numeric(all_data$PLresp)
 all_data$raw_error_tot <- as.numeric(all_data$raw_error_tot)
@@ -339,7 +344,7 @@ all_data <- dplyr::mutate(
         .data = all_data,
         vresp = PLresp / mt_clip 
 ) # and reorder one last time:
-all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","complexity","complexity2","trace_file","rt","it","mt","mt_clip","PLresp","vresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSS","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSS","shape_procSD","control_question","control_response","correct_response")]
+all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","figlength","complexity","complexity2","complexity3","complexity4","complexity5","complexity6","trace_file","rt","it","mt","mt_clip","PLresp","vresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSS","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSS","shape_procSD","control_question","control_response","correct_response")]
 
 
 # save .txt file with all_data
