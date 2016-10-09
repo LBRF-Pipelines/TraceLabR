@@ -228,40 +228,50 @@ for(i in 1:length(file.names)) {
                         
                         ## as measured by TOTAL CURVATURE: https://en.wikipedia.org/wiki/Total_curvature
                         
-                        # first normalize to 5000 points (normalized to pathlength and speed): 
-                        # (and because I don't know how to just get derivatives of splines themselves...)
-                        time <- seq(min(data_stim$X3), max(data_stim$X3), length.out = 5000)
-                        figlength <- nrow(data_stim)
+                        # first normalize "time" to 10000 interpolated points (normalizing to pathlength since speed is constant):
+                        time <- seq(min(data_stim$X3), max(data_stim$X3), length.out = 10000)
+                        figlength <- nrow(data_stim) # just to see if values change for same shape at diff sampling rates
                         
-                        # make functions x(t) and y(t) and get vectors of derivatives:
-                        xt.spl <- smooth.spline(x = data_stim$X3, y = data_stim$X1, df = 10)
-                        dxdt <- predict(xt.spl, x = time, deriv = 1) # first derivative of x
-                        d2xdt2 <- predict(xt.spl, x = time, deriv = 2) # second derivative of x
+                        # make functions x(t) and y(t) from which you can take derivatives:
+                        xt.spl <- splinefun(x = data_stim$X3, y = data_stim$X1) 
+                        yt.spl <- splinefun(x = data_stim$X3, y = data_stim$X2)
                         
-                        yt.spl <- smooth.spline(x = data_stim$X3, y = data_stim$X2, df = 10)
-                        dydt <- predict(yt.spl, x = time, deriv = 1) # first derivative of y
-                        d2ydt2 <- predict(yt.spl, x = time, deriv = 2) # second derivative of y
+                        # calculate curvature and remove extreme values due to differentiation:
+                        curvature = (
+                                (xt.spl(time, deriv=1) * yt.spl(time, deriv=2)) - (yt.spl(time, deriv=1) * xt.spl(time, deriv=2)))/
+                                ((xt.spl(time, deriv=1)^2 + yt.spl(time, deriv=1)^2)^(3/2)) #signed curvature
                         
-                        # calculate curvature and total curvature:
-                        curvature = (dxdt$y*d2ydt2$y - dydt$y*d2xdt2$y)/((dxdt$y^2 + dydt$y^2)^(3/2)) #signed curvature
+                        remove_outliers <- function(curv_in, na.rm = TRUE, ...) {
+                                x <- curv_in
+                                qnt <- quantile(x, probs=c(.25, .75), na.rm = na.rm, ...)
+                                H <- 3 * IQR(x, na.rm = na.rm)
+                                y <- x
+                                y[x < (qnt[1] - H)] <- NA
+                                y[x > (qnt[2] + H)] <- NA
+                                y
+                        }
+                        curv_in <- curvature
+                        curvature <- remove_outliers(curv_in)
+                        
+                        # calculate total curvature and total absolute curvature:
                         curvature.spl <- splinefun(time, curvature)
-                        totcurv <- integrate(Vectorize(curvature.spl), lower = min(time), upper = max(time), stop.on.error = FALSE)
-                        complexity2 <- totcurv$value
+                        totcurv <- integrate(Vectorize(curvature.spl), lower = min(time), upper = max(time), abs.tol = 0, subdivisions=2000, stop.on.error = FALSE)
+                        complexity2 <- totcurv$value # total curvature
                         
                         abscurv <- abs(curvature) # unsigned curvature
                         abscurv.spl <- splinefun(time, abscurv)
-                        totabscurv <- integrate(Vectorize(abscurv.spl), lower = min(time), upper = max(time), stop.on.error = FALSE)
-                        complexity3 <- totabscurv$value
+                        totabscurv <- integrate(Vectorize(abscurv.spl), lower = min(time), upper = max(time), abs.tol = 0, subdivisions=2000, stop.on.error = FALSE)
+                        complexity3 <- totabscurv$value # total absolute curvature
                         
                         # tortuosity: the integral of the change on curvature
                         dcurvedt <- curvature.spl(time, deriv=1)
                         abs.dcurvdt <- abs(dcurvedt)
                         abs.dcurvedt.spl <- splinefun(time, abs.dcurvdt)
-                        tortuosity <- integrate(abs.dcurvedt.spl, lower = min(time), upper = max(time), subdivisions=1000, stop.on.error = FALSE)
+                        tortuosity <- integrate(abs.dcurvedt.spl, lower = min(time), upper = max(time), abs.tol = 0, subdivisions=2000, stop.on.error = FALSE)
                         complexity4 <- tortuosity$value
                         
                         # other meausres based on curvature
-                        complexity5 <- sum(abscurv) # sum of absolute curvature values for 5000 points
+                        complexity5 <- sum(abscurv) # sum of absolute curvature values for 10000 points
                         complexity6 <- mean(abscurv) # mean of absolute curvature
                         complexity7 <- sd(abscurv) # SD of absolute curvature
                         
