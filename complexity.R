@@ -3,52 +3,101 @@
 graphics.off() # clear figures
 #cat("\014") # clear console
 
+fig2lowestval <- min(dplyr::filter(all_data, figure_type == "fig2", stimulus_mt > 1.4, stimulus_mt < 1.6, complexity4 != "NA")$complexity4)
+fig2highestval <- max(dplyr::filter(all_data, figure_type == "fig2", stimulus_mt > 1.4, stimulus_mt < 1.6, complexity4 != "NA")$complexity4)
+fig2lowest <- subset(all_data, complexity4 == fig2lowestval)
+fig2highest <- subset(all_data, complexity4 == fig2highestval)
+
+# lowest = p16_s4_b1_t10_2016-09-28.tlf 
+# highest = p15_s1_b1_t18_2016-09-19.tlf 
+
+#file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p16_2016-09-19 13:23:10/training/session_4/p16_s4_b1_t10_2016-09-28.zip"
+file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p15_2016-09-19 12:33:09/testing/session_1/p15_s1_b1_t18_2016-09-19.zip"
+
+name.tlf <- gsub(".zip",".tlf",basename(file.name))
+# read in data 
+tlf <- read.table(unz(file.name, name.tlf),stringsAsFactors=FALSE, sep=",")
+#create data frames
+data_stim <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlf)), ", "))),ncol=3,nrow=length(tlf)/3, byrow=TRUE))
+
+
 #plot figure:
-plot(data_stim$X1,data_stim$X2, xlim=c(0,1920), ylim=c(1080,0)) 
+#plot(data_stim$X1,data_stim$X2, xlim=c(0,1920), ylim=c(1080,0)) 
 
 ### using parametric equation method ###
 
-# first normalize to 5000 time points: 
+# first normalize to 10000 time points: 
 # (because I don't know how to just get derivatives of splines themselves...)
-time <- seq(min(data_stim$X3), max(data_stim$X3), length.out = 5000) #but this takes a long time
+time <- seq(min(data_stim$X3), max(data_stim$X3), length.out = 10000) #but this takes a long time
 #arclength <- seq(0, pathlength, length.out = 5000)
 # NOTE: normalizing time points to a particular number (e.g. 100) should be equivalent
 # to normalizing by arclength, because the animation moves at a constant velocity. RIGHT?
 
 # make two functions x(t) and y(t):
 
-plot(data_stim$X3,data_stim$X1) #x(t)
-xt.spl <- smooth.spline(x = data_stim$X3, y = data_stim$X1, df = 10) 
-lines(xt.spl)
-dxdt <- predict(xt.spl, x = time, deriv = 1) # first derivative of x
-plot(dxdt)
-d2xdt2 <- predict(xt.spl, x = time, deriv = 2) # second derivative of x
-plot(d2xdt2)
-
-plot(data_stim$X3,data_stim$X2) #y(t)
-yt.spl <- smooth.spline(x = data_stim$X3, y = data_stim$X2, df = 10) #(.5*nrow(data_stim))
-lines(yt.spl)
-dydt <- predict(yt.spl, x = time, deriv = 1) # first derivative of y
-plot(dydt)
-d2ydt2 <- predict(yt.spl, x = time, deriv = 2) # second derivative of y
-plot(d2ydt2)
-
-#xt.spl <- splinefun(x = data_stim$X3, y = data_stim$X1) 
-#yt.spl <- splinefun(x = data_stim$X3, y = data_stim$X2)
-#curvature = ((xt.spl(time, deriv=1) * yt.spl(time, deriv=2)) - (yt.spl(time, deriv=1) * xt.spl(time, deriv=2)))/((xt.spl(time, deriv=1)^2 + yt.spl(time, deriv=1)^2)^(3/2)) #signed curvature
-#plot(time, curvature, ylim = c(-.01,.01))
+# plot(data_stim$X3,data_stim$X1) #x(t)
+# xt.spl <- smooth.spline(x = data_stim$X3, y = data_stim$X1, df = 30) 
+# lines(xt.spl)
+# dxdt <- predict(xt.spl, x = time, deriv = 1) # first derivative of x
+# plot(dxdt)
+# d2xdt2 <- predict(xt.spl, x = time, deriv = 2) # second derivative of x
+# plot(d2xdt2)
+# 
+# plot(data_stim$X3,data_stim$X2) #y(t)
+# yt.spl <- smooth.spline(x = data_stim$X3, y = data_stim$X2, df = 30) #(.5*nrow(data_stim))
+# lines(yt.spl)
+# dydt <- predict(yt.spl, x = time, deriv = 1) # first derivative of y
+# plot(dydt)
+# d2ydt2 <- predict(yt.spl, x = time, deriv = 2) # second derivative of y
+# plot(d2ydt2)
 
 # calculate curvature:
 
-curvature = (dxdt$y*d2ydt2$y - dydt$y*d2xdt2$y)/((dxdt$y^2 + dydt$y^2)^(3/2)) #signed curvature
+# curvature = (dxdt$y*d2ydt2$y - dydt$y*d2xdt2$y)/((dxdt$y^2 + dydt$y^2)^(3/2)) #signed curvature
+# plot(time, curvature, ylim = c(-.01,.01))
+
+# confirm that you made a function that recreates figure:
+# xnew <- predict(xt.spl, x = time, deriv = 0)
+# ynew <- predict(yt.spl, x = time, deriv = 0)
+# #NOTE: wow it's bad!
+
+# xnew <- splinefun(data_stim$X3, data_stim$X1)
+# ynew <- splinefun(data_stim$X3, data_stim$X2)
+# plot(xnew(time), -ynew(time))
+# points(data_stim$X1,-data_stim$X2, col="cyan")
+# #NOTE: this is much better! change from smoothspline with predicts to splinefun(time, deriv=?) for above... see if thath helps...
+
+xt.spl <- splinefun(x = data_stim$X3, y = data_stim$X1) 
+yt.spl <- splinefun(x = data_stim$X3, y = data_stim$X2)
+curvature = (
+        (xt.spl(time, deriv=1) * yt.spl(time, deriv=2)) - (yt.spl(time, deriv=1) * xt.spl(time, deriv=2)))/
+        ((xt.spl(time, deriv=1)^2 + yt.spl(time, deriv=1)^2)^(3/2)) #signed curvature
+plot(time, curvature)
 plot(time, curvature, ylim = c(-.01,.01))
+
+#curvature <- curvature[!curvature %in% boxplot.stats(curvature, coef = 3)$out] #doesn't replace with NA's
+
+remove_outliers <- function(curv_in, na.rm = TRUE, ...) {
+        x <- curv_in
+        qnt <- quantile(x, probs=c(.25, .75), na.rm = na.rm, ...)
+        H <- 3 * IQR(x, na.rm = na.rm)
+        y <- x
+        y[x < (qnt[1] - H)] <- NA
+        y[x > (qnt[2] + H)] <- NA
+        y
+}
+curv_in <- curvature
+curvature <- remove_outliers(curv_in)
+
+plot(time, curvature, na.rm=TRUE)
+plot(time, curvature, na.rm=TRUE, ylim = c(-.01,.01))
 
 # calculate total curvature:
 
 curvature.spl <- splinefun(time, curvature)
 plot(curvature.spl)
 
-totcurv <- integrate(Vectorize(curvature.spl), lower = min(time), upper = max(time)) # , stop.on.error = FALSE
+totcurv <- integrate(Vectorize(curvature.spl), lower = min(time), upper = max(time), abs.tol = 0, subdivisions=1000) # , stop.on.error = FALSE
 complexity2 <- totcurv$value
 
 # calculate total absolute curvature:
