@@ -112,8 +112,11 @@ plot(time, curvature, ylim = c(-.01,.01))
 curvature.spl <- splinefun(time, curvature)
 plot(curvature.spl, xlim=c(min(s),max(s)))
 
-totcurv <- integrate(Vectorize(curvature.spl), lower = min(time), upper = max(time), abs.tol = 0, subdivisions=1000) # , stop.on.error = FALSE
-complexity2 <- totcurv$value
+totcurv <- tryCatch(
+        integrate(Vectorize(curvature.spl), lower = min(time), upper = max(time), subdivisions = 2000, abs.tol = 0)$value
+        , error=function(err) NA
+        )
+complexity2 <- totcurv
 
 # calculate total absolute curvature:
 
