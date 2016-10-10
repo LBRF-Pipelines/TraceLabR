@@ -240,11 +240,12 @@ for(i in 1:length(file.names)) {
                         #time <- seq(min(data_stim$X3), max(data_stim$X3), length.out = 10000)
                         time <- seq(min(s), max(s), length.out = 10000)
                         
-                        # calculate curvature and remove extreme values due to differentiation:
+                        # calculate curvature:
                         curvature = (
                                 (xt.spl(time, deriv=1) * yt.spl(time, deriv=2)) - (yt.spl(time, deriv=1) * xt.spl(time, deriv=2)))/
                                 ((xt.spl(time, deriv=1)^2 + yt.spl(time, deriv=1)^2)^(3/2)) #signed curvature
                         
+                        # remove extreme values due to differentiation, particularly at figure vertices:
                         remove_outliers <- function(curv_in, na.rm = TRUE, ...) {
                                 x <- curv_in
                                 qnt <- quantile(x, probs=c(.25, .75), na.rm = na.rm, ...)
@@ -259,20 +260,29 @@ for(i in 1:length(file.names)) {
                         
                         # calculate total curvature and total absolute curvature:
                         curvature.spl <- splinefun(time, curvature)
-                        totcurv <- integrate(Vectorize(curvature.spl), lower = min(time), upper = max(time), abs.tol = 0, subdivisions=2000, stop.on.error = FALSE)
-                        complexity2 <- totcurv$value # total curvature
+                        totcurv <- tryCatch(
+                                integrate(Vectorize(curvature.spl), lower = min(time), upper = max(time), abs.tol = 0, subdivisions=1000)$value
+                                , error=function(err) NA
+                        ) # tryCatch does a great job of preventing extreme values 
+                        complexity2 <- totcurv # total curvature
                         
                         abscurv <- abs(curvature) # unsigned curvature
                         abscurv.spl <- splinefun(time, abscurv)
-                        totabscurv <- integrate(Vectorize(abscurv.spl), lower = min(time), upper = max(time), abs.tol = 0, subdivisions=2000, stop.on.error = FALSE)
-                        complexity3 <- totabscurv$value # total absolute curvature
+                        totabscurv <- tryCatch(
+                                integrate(Vectorize(abscurv.spl), lower = min(time), upper = max(time), abs.tol = 0, subdivisions=1000)$value
+                                , error=function(err) NA
+                        )
+                        complexity3 <- totabscurv # total absolute curvature
                         
                         # tortuosity: the integral of the change on curvature
-                        dcurvedt <- curvature.spl(time, deriv=1)
+                        dcurvedt <- curvature.spl(time, deriv=1) # note this introduces more variabilty in data, again.
                         abs.dcurvdt <- abs(dcurvedt)
                         abs.dcurvedt.spl <- splinefun(time, abs.dcurvdt)
-                        tortuosity <- integrate(abs.dcurvedt.spl, lower = min(time), upper = max(time), abs.tol = 0, subdivisions=2000, stop.on.error = FALSE)
-                        complexity4 <- tortuosity$value
+                        tortuosity <- tryCatch(
+                                integrate(abs.dcurvedt.spl, lower = min(time), upper = max(time), abs.tol = 0, subdivisions=1000)$value
+                                , error=function(err) NA
+                        )
+                        complexity4 <- tortuosity
                         
                         # other meausres based on curvature
                         complexity5 <- sum(abscurv, na.rm = TRUE) # sum of absolute curvature values for 10000 points
