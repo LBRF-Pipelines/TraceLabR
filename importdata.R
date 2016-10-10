@@ -227,14 +227,18 @@ for(i in 1:length(file.names)) {
                         complexity <- sinuosity
                         
                         ## as measured by TOTAL CURVATURE: https://en.wikipedia.org/wiki/Total_curvature
-                        
-                        # first normalize "time" to 10000 interpolated points (normalizing to pathlength since speed is constant):
-                        time <- seq(min(data_stim$X3), max(data_stim$X3), length.out = 10000)
                         figlength <- nrow(data_stim) # just to see if values change for same shape at diff sampling rates
                         
+                        # create vector from 1 to 100, with length based on amount of points captured: 
+                        s <- seq(from = 1, to = 100, length.out = nrow(data_stim))
+                        
                         # make functions x(t) and y(t) from which you can take derivatives:
-                        xt.spl <- splinefun(x = data_stim$X3, y = data_stim$X1) 
-                        yt.spl <- splinefun(x = data_stim$X3, y = data_stim$X2)
+                        xt.spl <- splinefun(x = s, y = data_stim$X1) 
+                        yt.spl <- splinefun(x = s, y = data_stim$X2)
+                        
+                        # create vector from 1 to 100, "time" with 10000 interpolated points:
+                        #time <- seq(min(data_stim$X3), max(data_stim$X3), length.out = 10000)
+                        time <- seq(min(s), max(s), length.out = 10000)
                         
                         # calculate curvature and remove extreme values due to differentiation:
                         curvature = (
@@ -244,7 +248,7 @@ for(i in 1:length(file.names)) {
                         remove_outliers <- function(curv_in, na.rm = TRUE, ...) {
                                 x <- curv_in
                                 qnt <- quantile(x, probs=c(.25, .75), na.rm = na.rm, ...)
-                                H <- 3 * IQR(x, na.rm = na.rm)
+                                H <- 6 * IQR(x, na.rm = na.rm)
                                 y <- x
                                 y[x < (qnt[1] - H)] <- NA
                                 y[x > (qnt[2] + H)] <- NA
@@ -271,9 +275,9 @@ for(i in 1:length(file.names)) {
                         complexity4 <- tortuosity$value
                         
                         # other meausres based on curvature
-                        complexity5 <- sum(abscurv) # sum of absolute curvature values for 10000 points
-                        complexity6 <- mean(abscurv) # mean of absolute curvature
-                        complexity7 <- sd(abscurv) # SD of absolute curvature
+                        complexity5 <- sum(abscurv, na.rm = TRUE) # sum of absolute curvature values for 10000 points
+                        complexity6 <- mean(abscurv, na.rm = TRUE) # mean of absolute curvature
+                        complexity7 <- sd(abscurv, na.rm = TRUE) # SD of absolute curvature
                         
                         
                         ##### PLOTS #####
