@@ -8,11 +8,14 @@ fig2highestval <- max(dplyr::filter(all_data, figure_type == "fig2", stimulus_mt
 fig2lowest <- subset(all_data, complexity4 == fig2lowestval)
 fig2highest <- subset(all_data, complexity4 == fig2highestval)
 
-# lowest = p16_s4_b1_t10_2016-09-28.tlf 
-# highest = p15_s1_b1_t18_2016-09-19.tlf 
+# lowest tortuosity score for 1500ms gt = p16_s4_b1_t10_2016-09-28.tlf 
+# highest tortuosity score for 1500ms gt = p15_s1_b1_t18_2016-09-19.tlf 
+# arbitrary score but same fig at different animation time (500 ms): p13_s2_b4_t20_2016-09-16.tlf
 
 #file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p16_2016-09-19 13:23:10/training/session_4/p16_s4_b1_t10_2016-09-28.zip"
-file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p15_2016-09-19 12:33:09/testing/session_1/p15_s1_b1_t18_2016-09-19.zip"
+#file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p15_2016-09-19 12:33:09/testing/session_1/p15_s1_b1_t18_2016-09-19.zip"
+file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p13_2016-09-14 10:15:00/training/session_2/p13_s2_b4_t20_2016-09-16.zip"
+
 
 name.tlf <- gsub(".zip",".tlf",basename(file.name))
 # read in data 
@@ -20,6 +23,8 @@ tlf <- read.table(unz(file.name, name.tlf),stringsAsFactors=FALSE, sep=",")
 #create data frames
 data_stim <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlf)), ", "))),ncol=3,nrow=length(tlf)/3, byrow=TRUE))
 
+#data_stim2 <- data_stim
+# YEAH, a repeated figure captures literally the same points!
 
 #plot figure:
 #plot(data_stim$X1,data_stim$X2, xlim=c(0,1920), ylim=c(1080,0)) 
@@ -28,10 +33,19 @@ data_stim <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)"
 
 # first normalize to 10000 time points: 
 # (because I don't know how to just get derivatives of splines themselves...)
-time <- seq(min(data_stim$X3), max(data_stim$X3), length.out = 10000) #but this takes a long time
+figlength <- nrow(data_stim)
+
+s <- seq(from = 1, to = 100, length.out = nrow(data_stim)) # ends at 99.888889
+
+time <- seq(min(s), max(s), length.out = 10000) # ends at 99.888889
 #arclength <- seq(0, pathlength, length.out = 5000)
 # NOTE: normalizing time points to a particular number (e.g. 100) should be equivalent
 # to normalizing by arclength, because the animation moves at a constant velocity. RIGHT?
+
+# maybe need to interpolate the data points and always have same x values? because 
+# finally I can get same values for same figure using a same time series... BUT it's still probably
+# not very fucking accurate. Anyway, the randoms will have even more variability in their time series. 
+
 
 # make two functions x(t) and y(t):
 
@@ -63,12 +77,13 @@ time <- seq(min(data_stim$X3), max(data_stim$X3), length.out = 10000) #but this 
 
 # xnew <- splinefun(data_stim$X3, data_stim$X1)
 # ynew <- splinefun(data_stim$X3, data_stim$X2)
+# time <- seq(min(data_stim$X3), max(data_stim$X3), length.out = 10000)
 # plot(xnew(time), -ynew(time))
 # points(data_stim$X1,-data_stim$X2, col="cyan")
-# #NOTE: this is much better! change from smoothspline with predicts to splinefun(time, deriv=?) for above... see if thath helps...
+#NOTE: this is much better! change from smoothspline with predicts to splinefun(time, deriv=?) for above... see if thath helps...
 
-xt.spl <- splinefun(x = data_stim$X3, y = data_stim$X1) 
-yt.spl <- splinefun(x = data_stim$X3, y = data_stim$X2)
+xt.spl <- splinefun(x = s, y = data_stim$X1) 
+yt.spl <- splinefun(x = s, y = data_stim$X2)
 curvature = (
         (xt.spl(time, deriv=1) * yt.spl(time, deriv=2)) - (yt.spl(time, deriv=1) * xt.spl(time, deriv=2)))/
         ((xt.spl(time, deriv=1)^2 + yt.spl(time, deriv=1)^2)^(3/2)) #signed curvature
@@ -80,7 +95,7 @@ plot(time, curvature, ylim = c(-.01,.01))
 remove_outliers <- function(curv_in, na.rm = TRUE, ...) {
         x <- curv_in
         qnt <- quantile(x, probs=c(.25, .75), na.rm = na.rm, ...)
-        H <- 3 * IQR(x, na.rm = na.rm)
+        H <- 1.5 * IQR(x, na.rm = na.rm)
         y <- x
         y[x < (qnt[1] - H)] <- NA
         y[x > (qnt[2] + H)] <- NA
@@ -89,13 +104,13 @@ remove_outliers <- function(curv_in, na.rm = TRUE, ...) {
 curv_in <- curvature
 curvature <- remove_outliers(curv_in)
 
-plot(time, curvature, na.rm=TRUE)
-plot(time, curvature, na.rm=TRUE, ylim = c(-.01,.01))
+plot(time, curvature)
+plot(time, curvature, ylim = c(-.01,.01))
 
 # calculate total curvature:
 
 curvature.spl <- splinefun(time, curvature)
-plot(curvature.spl)
+plot(curvature.spl, xlim=c(min(s),max(s)))
 
 totcurv <- integrate(Vectorize(curvature.spl), lower = min(time), upper = max(time), abs.tol = 0, subdivisions=1000) # , stop.on.error = FALSE
 complexity2 <- totcurv$value
@@ -122,9 +137,9 @@ tortuosity <- integrate(abs.dcurvedt.spl, lower = min(time), upper = max(time), 
 
 # more ideas:
 
-sum(abscurv) # also consider using MEAN! that's what Krakauer seems to have done... or SD? 
-mean(abscurv)
-sd(abscurv) 
+sum(abscurv, na.rm = TRUE) # also consider using MEAN! that's what Krakauer seems to have done... or SD? 
+mean(abscurv, na.rm = TRUE)
+sd(abscurv, na.rm = TRUE) 
 
 
 
