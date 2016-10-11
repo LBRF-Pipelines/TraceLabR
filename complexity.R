@@ -13,8 +13,8 @@ fig2highest <- subset(all_data, complexity4 == fig2highestval)
 # arbitrary score but same fig at different animation time (500 ms): p13_s2_b4_t20_2016-09-16.tlf
 
 #file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p16_2016-09-19 13:23:10/training/session_4/p16_s4_b1_t10_2016-09-28.zip"
-#file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p15_2016-09-19 12:33:09/testing/session_1/p15_s1_b1_t18_2016-09-19.zip"
-file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p13_2016-09-14 10:15:00/training/session_2/p13_s2_b4_t20_2016-09-16.zip"
+file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p15_2016-09-19 12:33:09/testing/session_1/p15_s1_b1_t18_2016-09-19.zip"
+#file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p13_2016-09-14 10:15:00/training/session_2/p13_s2_b4_t20_2016-09-16.zip"
 
 
 name.tlf <- gsub(".zip",".tlf",basename(file.name))
@@ -175,3 +175,44 @@ sd(abscurv, na.rm = TRUE)
 
 # yes, scaling the whole figure and time keeps complexity same 
 # yes, same with changing speed only, or size only
+
+###### APPROXIMATE ENTROPY ######
+
+plot(data_stim$X1,data_stim$X2, xlim=c(0,1920), ylim=c(1080,0))
+
+library(pracma)
+
+approx_entropy(data_stim$X1)
+plot(data_stim$X1)
+approx_entropy(data_stim$X2)
+plot(data_stim$X2)
+
+s2 <- seq(min(s), max(s), length.out = 1000)
+curv <- curvature.spl(s2, deriv=0)
+plot(curv)
+approx_entropy(curv)
+
+datastim <- matrix(c(as.vector(data_stim$X1),as.vector(data_stim$X2)),ncol=2)
+datastim2 <- matrix(c(as.vector(data_stim$X1),as.vector(data_stim$X2)),ncol=1)
+# neato but not necessary yet: convert cartesian to polar:
+# datastim.pol <- cart2pol(datastim)
+
+approx_entropy(datastim)
+approx_entropy(datastim2)
+approx_entropy(c(data_stim$X1,data_stim$X2)) 
+# this means it just sticks them together into a long sequence... gotta convert to planar coordinates... 
+
+s2 <- seq(min(s), max(s), length.out = 100)
+data_stim_x <- xt.spl(s2)
+data_stim_y <- yt.spl(s2)
+plot(data_stim_x,data_stim_y)
+approx_entropy(c(data_stim_x,data_stim_y))
+sample_entropy(c(data_stim_x,data_stim_y))
+
+# works great! but treats x and y as one long vector
+# so, next need to do with turning angle!
+
+
+
+
+

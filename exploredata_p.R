@@ -259,8 +259,8 @@ boxplot(complexity2 ~ figure_type, data = all_data, main="total curvature", xlab
 boxplot(complexity3 ~ figure_type, data = all_data, main="total absolute curvature", xlab="figure_type", ylab="complexity3", ylim = c(.1,.8))
 boxplot(complexity4 ~ figure_type, data = all_data, main="tortuosity", xlab="figure_type", ylab="complexity4", ylim = c(0,2.5))
 boxplot(complexity5 ~ figure_type, data = all_data, main="sum curvature", xlab="figure_type", ylab="complexity5", ylim = c(0,50))
-boxplot(complexity6 ~ figure_type, data = all_data, main="mean curvature", xlab="figure_type", ylab="complexity6", ylim = c(0,.005))
-boxplot(complexity7 ~ figure_type, data = all_data, main="SD curvature", xlab="figure_type", ylab="complexity7", ylim = c(0,.006))
+boxplot(complexity6 ~ figure_type, data = all_data, main="approx entropy", xlab="figure_type", ylab="complexity6")
+boxplot(complexity7 ~ figure_type, data = all_data, main="sample entropy", xlab="figure_type", ylab="complexity7")
 
 hist(all_data$complexity, breaks=200) 
 hist(all_data$complexity2, breaks=200)

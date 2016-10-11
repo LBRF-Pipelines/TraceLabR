@@ -14,6 +14,7 @@ library(Morpho)
 library(plyr) # remember to use plyr::count()
 library(dplyr) # not used until end
 library(ggplot2) # not used yet...
+library(pracma) # for approx entropy
 
 # Read in .db information
 participants <- read.csv("~/RStudio/TraceLabDB/participants.csv")
@@ -286,9 +287,19 @@ for(i in 1:length(file.names)) {
                         
                         # other meausres based on curvature
                         complexity5 <- sum(abscurv, na.rm = TRUE) # sum of absolute curvature values for 10000 points
-                        complexity6 <- mean(abscurv, na.rm = TRUE) # mean of absolute curvature
-                        complexity7 <- sd(abscurv, na.rm = TRUE) # SD of absolute curvature
+                        #complexity6 <- mean(abscurv, na.rm = TRUE) # mean of absolute curvature
+                        #complexity7 <- sd(abscurv, na.rm = TRUE) # SD of absolute curvature
                         
+                        ## approximate entropy based measures
+                        
+                        s2 <- seq(min(s), max(s), length.out = 100)
+                        data_stim_x <- xt.spl(s2)
+                        data_stim_y <- yt.spl(s2)
+                        
+                        complexity6 <- approx_entropy(c(data_stim_x,data_stim_y))
+                        complexity7 <- sample_entropy(c(data_stim_x,data_stim_y))
+                        # works great! but treats x and y as one long vector
+                        # so, next need to do with turning angle! 
                         
                         ##### PLOTS #####
                         
