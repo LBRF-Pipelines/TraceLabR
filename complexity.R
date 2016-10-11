@@ -206,13 +206,75 @@ s2 <- seq(min(s), max(s), length.out = 100)
 data_stim_x <- xt.spl(s2)
 data_stim_y <- yt.spl(s2)
 plot(data_stim_x,data_stim_y)
-approx_entropy(c(data_stim_x,data_stim_y))
-sample_entropy(c(data_stim_x,data_stim_y))
+approx_entropy(data_stim_x)
+sample_entropy(data_stim_x)
+
+approx_entropy(data_stim_y)
+sample_entropy(data_stim_y)
 
 # works great! but treats x and y as one long vector
 # so, next need to do with turning angle!
 
+#turning angle
+
+V1 <- c(1,0)
+V2 <- c(0,1)
+
+angle <- function(x,y){
+        dot.prod <- x%*%y 
+        norm.x <- norm(x,type="2")
+        norm.y <- norm(y,type="2")
+        theta <- acos(dot.prod / (norm.x * norm.y))
+        as.numeric(theta)
+}
+V1 <- c(1,0)
+V2 <- c(0,1)
+angle(V1,V2)
+angle(V2,V1)
+
+angle2 <- function(M,N){
+        atan2(N[2],N[1]) - atan2(M[2],M[1]) 
+}
+V1 <- c(1,0)
+V2 <- c(0,1)
+angle2(V1,V2)
+angle2(V2,V1)
+
+V1 <- c(1,1)
+V2 <- c(2,2)
+V3 = V2-V1
+V3
+
+V1 <- c(2,2)
+V2 <- c(3,2)
+V3 = V2-V1
+V3
 
 
+angle2 <- function(V1,V2){
+        atan2(V2[2],V2[1]) - atan2(V1[2],V1[1]) 
+}
 
+# turning angle sequence:
+stim_theta <- rep(0, length(data_stim[,1])-2) # note you always lose two points
+for (a in 1:length(stim_theta)){
+        V1 = c(data_stim[a+1,1],data_stim[a+1,2]) - c(data_stim[a,1],data_stim[a,2])
+        V2 = c(data_stim[a+2,1],data_stim[a+2,2]) - c(data_stim[a+1,1],data_stim[a+1,2])
+        stim_theta[a] = atan2(V2[2],V2[1]) - atan2(V1[2],V1[1])
+        if (abs(stim_theta[a]) > pi){
+                stim_theta[a] = stim_theta[a] - ((2*pi)*sign(stim_theta[a]))
+                }
+}
+plot(stim_theta)
+
+stim_theta_deg <- stim_theta * (180/pi)
+plot(stim_theta_deg)
+
+approx_entropy(stim_theta)
+sample_entropy(stim_theta)
+
+approx_entropy(stim_theta_deg)
+sample_entropy(stim_theta_deg)
+
+plot(data_stim$X1[1:5],data_stim$X2[1:5])
 
