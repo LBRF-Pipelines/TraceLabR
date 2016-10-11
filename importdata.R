@@ -13,7 +13,7 @@ cat("\014") # clear console
 library(Morpho)
 library(plyr) # remember to use plyr::count()
 library(dplyr) # not used until end
-library(ggplot2) # not used yet...
+library(ggplot2) # not used yet... in this script I mean.
 library(pracma) # for approx entropy
 
 # Read in .db information

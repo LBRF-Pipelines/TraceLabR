@@ -270,13 +270,13 @@ hist(all_data$complexity5, breaks=200)
 hist(all_data$complexity6, breaks=200)
 hist(all_data$complexity7, breaks=200)
 
-plot(all_data_filter$figlength, all_data$complexity)
-plot(all_data_filter$figlength, all_data$complexity2, ylim = c(-.5,.5))
-plot(all_data_filter$figlength, all_data$complexity3, ylim = c(.1,.8))
-plot(all_data_filter$figlength, all_data$complexity4, ylim = c(0,2.5)) # for now, seems tortuosity is affected by figlength
-plot(all_data_filter$figlength, all_data$complexity5, ylim = c(0,50))
-plot(all_data_filter$figlength, all_data$complexity6, ylim = c(0,.005))
-plot(all_data_filter$figlength, all_data$complexity7, ylim = c(0,.006))
+plot(all_data$figlength, all_data$complexity)
+plot(all_data$figlength, all_data$complexity2, ylim = c(-.5,.5))
+plot(all_data$figlength, all_data$complexity3, ylim = c(.1,.8))
+plot(all_data$figlength, all_data$complexity4, ylim = c(0,2.5)) # for now, seems tortuosity is affected by figlength
+plot(all_data$figlength, all_data$complexity5, ylim = c(0,50))
+plot(all_data$figlength, all_data$complexity6)
+plot(all_data$figlength, all_data$complexity7)
 # it appears that the variability in the data is not a function of data collection resolution... probably the integrate and derivative functions themselves...
 
 medianComp <- median(subset(all_data, figure_type == "random")$complexity, na.rm = TRUE)
