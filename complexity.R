@@ -217,55 +217,26 @@ sample_entropy(data_stim_y)
 
 #turning angle
 
-V1 <- c(1,0)
-V2 <- c(0,1)
+data_stim2 <- data_stim
+data_stim <- data_stim2
 
-angle <- function(x,y){
-        dot.prod <- x%*%y 
-        norm.x <- norm(x,type="2")
-        norm.y <- norm(y,type="2")
-        theta <- acos(dot.prod / (norm.x * norm.y))
-        as.numeric(theta)
-}
-V1 <- c(1,0)
-V2 <- c(0,1)
-angle(V1,V2)
-angle(V2,V1)
-
-angle2 <- function(M,N){
-        atan2(N[2],N[1]) - atan2(M[2],M[1]) 
-}
-V1 <- c(1,0)
-V2 <- c(0,1)
-angle2(V1,V2)
-angle2(V2,V1)
-
-V1 <- c(1,1)
-V2 <- c(2,2)
-V3 = V2-V1
-V3
-
-V1 <- c(2,2)
-V2 <- c(3,2)
-V3 = V2-V1
-V3
-
-
-angle2 <- function(V1,V2){
-        atan2(V2[2],V2[1]) - atan2(V1[2],V1[1]) 
-}
+s2 <- seq(min(s), max(s), length.out = 100)
+datastim <- matrix(c(as.vector(xt.spl(s2)),as.vector(yt.spl(s2))),ncol=2)
 
 # turning angle sequence:
-stim_theta <- rep(0, length(data_stim[,1])-2) # note you always lose two points
+s2 <- seq(min(s), max(s), length.out = 100) # interpolate to 100 points
+datastim <- matrix(c(as.vector(xt.spl(s2)),as.vector(yt.spl(s2))),ncol=2)
+stim_theta <- rep(0, length(datastim[,1])-2) # note you always lose two points
 for (a in 1:length(stim_theta)){
-        V1 = c(data_stim[a+1,1],data_stim[a+1,2]) - c(data_stim[a,1],data_stim[a,2])
-        V2 = c(data_stim[a+2,1],data_stim[a+2,2]) - c(data_stim[a+1,1],data_stim[a+1,2])
+        V1 = c(datastim[a+1,1],datastim[a+1,2]) - c(datastim[a,1],datastim[a,2])
+        V2 = c(datastim[a+2,1],datastim[a+2,2]) - c(datastim[a+1,1],datastim[a+1,2])
         stim_theta[a] = atan2(V2[2],V2[1]) - atan2(V1[2],V1[1])
         if (abs(stim_theta[a]) > pi){
                 stim_theta[a] = stim_theta[a] - ((2*pi)*sign(stim_theta[a]))
                 }
 }
-plot(stim_theta)
+approx_entropy(stim_theta)
+sample_entropy(stim_theta)
 
 stim_theta_deg <- stim_theta * (180/pi)
 plot(stim_theta_deg)
