@@ -292,14 +292,29 @@ for(i in 1:length(file.names)) {
                         
                         ## approximate entropy based measures
                         
-                        s2 <- seq(min(s), max(s), length.out = 100)
-                        data_stim_x <- xt.spl(s2)
-                        data_stim_y <- yt.spl(s2)
+                        # first normalize trajectory to 100 evenly spaced points using splines:
+                        # s <- seq(from = 1, to = 100, length.out = nrow(data_stim))
+                        # xt.spl <- splinefun(x = s, y = data_stim$X1)
+                        # yt.spl <- splinefun(x = s, y = data_stim$X2)
+                        s2 <- seq(min(s), max(s), length.out = 100) # interpolate to 100 points
+                        datastim <- matrix(c(as.vector(xt.spl(s2)),as.vector(yt.spl(s2))),ncol=2)
                         
-                        complexity6 <- approx_entropy(c(data_stim_x,data_stim_y))
-                        complexity7 <- sample_entropy(c(data_stim_x,data_stim_y))
-                        # works great! but treats x and y as one long vector
-                        # so, next need to do with turning angle! 
+                        # create "turning angle" sequence, reducing 2D (x,y) to 1D (relative angle):
+                        stim_theta <- rep(0, length(datastim[,1])-2) # note you always lose two points
+                        for (a in 1:length(stim_theta)){
+                                V1 = c(datastim[a+1,1],datastim[a+1,2]) - c(datastim[a,1],datastim[a,2])
+                                V2 = c(datastim[a+2,1],datastim[a+2,2]) - c(datastim[a+1,1],datastim[a+1,2])
+                                stim_theta[a] = atan2(V2[2],V2[1]) - atan2(V1[2],V1[1])
+                                if (abs(stim_theta[a]) > pi){
+                                        stim_theta[a] = stim_theta[a] - ((2*pi)*sign(stim_theta[a]))
+                                }
+                        }
+                        
+                        # approximate entropy and sample entropy: 
+                        complexity6 <- approx_entropy(stim_theta)
+                        complexity7 <- sample_entropy(stim_theta)
+                        # note that ApEn likely better since already standardized the sequence length.
+                        
                         
                         ##### PLOTS #####
                         
