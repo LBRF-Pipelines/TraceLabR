@@ -215,7 +215,7 @@ for(i in 1:length(file.names)) {
                         ##### COMPLEXITY MEASURES #####
                         
                         ## as measured by extent of curvature using a modified sinuosity calculation 
-                        ## complexity = (stimulus pathlength) / (perimeter of straight lines between segment points)
+                        ## sinuosity = (stimulus pathlength) / (perimeter of straight lines between segment points)
                         
                         segs <- matrix()
                         for (j in 1:NROW(points)) {
@@ -225,26 +225,25 @@ for(i in 1:length(file.names)) {
                         perimeter <- sum(segs, na.rm = TRUE)
                         pathlength <- trials[trials$figure_file==name.tlf,12]
                         sinuosity <- pathlength/perimeter
-                        complexity <- sinuosity
                         
                         ## as measured by TOTAL CURVATURE: https://en.wikipedia.org/wiki/Total_curvature
                         figlength <- nrow(data_stim) # just to see if values change for same shape at diff sampling rates
                         
                         # create vector from 1 to 100, with length based on amount of points captured: 
-                        s <- seq(from = 1, to = 100, length.out = nrow(data_stim))
+                        s1 <- seq(from = 1, to = 100, length.out = nrow(data_stim))
                         
                         # make functions x(t) and y(t) from which you can take derivatives:
-                        xt.spl <- splinefun(x = s, y = data_stim$X1) 
-                        yt.spl <- splinefun(x = s, y = data_stim$X2)
+                        xt.spl <- splinefun(x = s1, y = data_stim$X1) 
+                        yt.spl <- splinefun(x = s1, y = data_stim$X2)
                         
-                        # create vector from 1 to 100, "time" with 10000 interpolated points:
-                        #time <- seq(min(data_stim$X3), max(data_stim$X3), length.out = 10000)
-                        time <- seq(min(s), max(s), length.out = 10000)
+                        # create vector from 1 to 100, "s2" with 10000 interpolated points:
+                        #s2 <- seq(min(data_stim$X3), max(data_stim$X3), length.out = 10000)
+                        s2 <- seq(min(s1), max(s1), length.out = 10000)
                         
                         # calculate curvature:
                         curvature = (
-                                (xt.spl(time, deriv=1) * yt.spl(time, deriv=2)) - (yt.spl(time, deriv=1) * xt.spl(time, deriv=2)))/
-                                ((xt.spl(time, deriv=1)^2 + yt.spl(time, deriv=1)^2)^(3/2)) #signed curvature
+                                (xt.spl(s2, deriv=1) * yt.spl(s2, deriv=2)) - (yt.spl(s2, deriv=1) * xt.spl(s2, deriv=2)))/
+                                ((xt.spl(s2, deriv=1)^2 + yt.spl(s2, deriv=1)^2)^(3/2)) #signed curvature
                         
                         # remove extreme values due to differentiation, particularly at figure vertices:
                         remove_outliers <- function(curv_in, na.rm = TRUE, ...) {
@@ -259,51 +258,64 @@ for(i in 1:length(file.names)) {
                         curv_in <- curvature
                         curvature <- remove_outliers(curv_in)
                         
-                        # calculate total curvature and total absolute curvature:
-                        curvature.spl <- splinefun(time, curvature)
+                        # total curvature
+                        curvature.spl <- splinefun(s2, curvature)
                         totcurv <- tryCatch(
-                                integrate(Vectorize(curvature.spl), lower = min(time), upper = max(time), abs.tol = 0, subdivisions=1000)$value
+                                integrate(Vectorize(curvature.spl), lower = min(s2), upper = max(s2), abs.tol = 0, subdivisions=1000)$value
                                 , error=function(err) NA
-                        ) # tryCatch does a great job of preventing extreme values 
-                        complexity2 <- totcurv # total curvature
+                        ) # tryCatch does a great job of preventing extreme values
                         
+                        # total absolute curvature
                         abscurv <- abs(curvature) # unsigned curvature
-                        abscurv.spl <- splinefun(time, abscurv)
+                        abscurv.spl <- splinefun(s2, abscurv)
                         totabscurv <- tryCatch(
-                                integrate(Vectorize(abscurv.spl), lower = min(time), upper = max(time), abs.tol = 0, subdivisions=1000)$value
+                                integrate(Vectorize(abscurv.spl), lower = min(s2), upper = max(s2), abs.tol = 0, subdivisions=1000)$value
                                 , error=function(err) NA
                         )
-                        complexity3 <- totabscurv # total absolute curvature
                         
                         # tortuosity: the integral of the change on curvature
-                        dcurvedt <- curvature.spl(time, deriv=1) # note this introduces more variabilty in data, again.
+                        dcurvedt <- curvature.spl(s2, deriv=1) # note this introduces more variabilty in data, again.
                         abs.dcurvdt <- abs(dcurvedt)
-                        abs.dcurvedt.spl <- splinefun(time, abs.dcurvdt)
+                        abs.dcurvedt.spl <- splinefun(s2, abs.dcurvdt)
                         tortuosity <- tryCatch(
-                                integrate(abs.dcurvedt.spl, lower = min(time), upper = max(time), abs.tol = 0, subdivisions=1000)$value
+                                integrate(abs.dcurvedt.spl, lower = min(s2), upper = max(s2), abs.tol = 0, subdivisions=1000)$value
                                 , error=function(err) NA
                         )
-                        complexity4 <- tortuosity
                         
                         # other meausres based on curvature
-                        complexity5 <- sum(abscurv, na.rm = TRUE) # sum of absolute curvature values for 10000 points
-                        #complexity6 <- mean(abscurv, na.rm = TRUE) # mean of absolute curvature
-                        #complexity7 <- sd(abscurv, na.rm = TRUE) # SD of absolute curvature
+                        curvsum <- sum(abscurv, na.rm = TRUE) # sum of absolute curvature values for 10000 points
+                        #curvmean <- mean(abscurv, na.rm = TRUE) # mean of absolute curvature
+                        #curvSD <- sd(abscurv, na.rm = TRUE) # SD of absolute curvature
                         
                         ## approximate entropy based measures
                         
                         # first normalize trajectory to 100 evenly spaced points using splines:
-                        # s <- seq(from = 1, to = 100, length.out = nrow(data_stim))
-                        # xt.spl <- splinefun(x = s, y = data_stim$X1)
-                        # yt.spl <- splinefun(x = s, y = data_stim$X2)
-                        s2 <- seq(min(s), max(s), length.out = 100) # interpolate to 100 points
-                        datastim <- matrix(c(as.vector(xt.spl(s2)),as.vector(yt.spl(s2))),ncol=2)
+                        # s1 <- seq(from = 1, to = 100, length.out = nrow(data_stim)) # reparameterize to arbitrary points (1 to 100) preserving number of points captured
+                        # xt.spl <- splinefun(x = s1, y = data_stim$X1)
+                        # yt.spl <- splinefun(x = s1, y = data_stim$X2)
+                        s3 <- seq(min(s1), max(s1), length.out = 100) # interpolate to 100 points
+                        datastim <- matrix(c(as.vector(xt.spl(s3)),as.vector(yt.spl(s3))),ncol=2)
                         
                         # create "turning angle" sequence, reducing 2D (x,y) to 1D (relative angle):
-                        stim_theta <- rep(0, length(datastim[,1])-2) # note you always lose two points
+                        # stim_theta <- rep(0, length(datastim[,1])-2) # note you always lose two points
+                        # for (a in 1:length(stim_theta)){
+                        #         V1 = c(datastim[a+1,1],datastim[a+1,2]) - c(datastim[a,1],datastim[a,2])
+                        #         V2 = c(datastim[a+2,1],datastim[a+2,2]) - c(datastim[a+1,1],datastim[a+1,2])
+                        #         stim_theta[a] = atan2(V2[2],V2[1]) - atan2(V1[2],V1[1])
+                        #         if (abs(stim_theta[a]) > pi){
+                        #                 stim_theta[a] = stim_theta[a] - ((2*pi)*sign(stim_theta[a]))
+                        #         }
+                        # }
+                        
+                        # SMOOTH that sequence... 
+                        datastim_x_smooth <- smooth.spline(s3, datastim[,1], df = .5*length(datastim[,1]))
+                        datastim_y_smooth <- smooth.spline(s3, datastim[,2], df = .5*length(datastim[,2]))
+                        datasmooth <- matrix(c(as.vector(predict(datastim_x_smooth, x = s3, deriv = 0)$y), as.vector(predict(datastim_y_smooth, x = s3, deriv = 0)$y)), ncol=2)
+                        
+                        stim_theta <- rep(0, length(datasmooth[,1])-2) # note you always lose two points
                         for (a in 1:length(stim_theta)){
-                                V1 = c(datastim[a+1,1],datastim[a+1,2]) - c(datastim[a,1],datastim[a,2])
-                                V2 = c(datastim[a+2,1],datastim[a+2,2]) - c(datastim[a+1,1],datastim[a+1,2])
+                                V1 = c(datasmooth[a+1,1],datasmooth[a+1,2]) - c(datasmooth[a,1],datasmooth[a,2])
+                                V2 = c(datasmooth[a+2,1],datasmooth[a+2,2]) - c(datasmooth[a+1,1],datasmooth[a+1,2])
                                 stim_theta[a] = atan2(V2[2],V2[1]) - atan2(V1[2],V1[1])
                                 if (abs(stim_theta[a]) > pi){
                                         stim_theta[a] = stim_theta[a] - ((2*pi)*sign(stim_theta[a]))
@@ -311,15 +323,15 @@ for(i in 1:length(file.names)) {
                         }
                         
                         # approximate entropy and sample entropy: 
-                        complexity6 <- approx_entropy(stim_theta)
-                        complexity7 <- sample_entropy(stim_theta)
+                        ApEn_stim <- approx_entropy(stim_theta)
+                        SaEn_stim <- sample_entropy(stim_theta)
                         # note that ApEn likely better since already standardized the sequence length.
                         
-                        # old stuff that worked a lot better: s2 <- seq(min(s), max(s), length.out = 100)
-                        # data_stim_x <- xt.spl(s2) # used splines so that's not it... 
-                        # data_stim_y <- yt.spl(s2)
-                        # complexity6 <- approx_entropy(c(data_stim_x,data_stim_y))
-                        # complexity7 <- sample_entropy(c(data_stim_x,data_stim_y))
+                        # old stuff that worked a lot better: s3 <- seq(min(s1), max(s1), length.out = 100)
+                        # data_stim_x <- xt.spl(s3) # used splines so that's not it... 
+                        # data_stim_y <- yt.spl(s3)
+                        # ApEn_stim <- approx_entropy(c(data_stim_x,data_stim_y)) # it's that sampling rates affect angles a lot apparently... 
+                        # SaEn_stim <- sample_entropy(c(data_stim_x,data_stim_y)) # perhaps try smoothing?
                         # works great! but treats x and y as one long vector
                         
                         
@@ -355,7 +367,7 @@ for(i in 1:length(file.names)) {
                         
                         ##### save variables to a row & subsequently a file #####
                         
-                        datarow <- c(name.tlf,PLstim,figlength,complexity,complexity2,complexity3,complexity4,complexity5,complexity6,complexity7,mt_clip,PLresp,raw_error_tot,raw_error_mean,raw_error_SD,raw_procSS,raw_procSD,translation,scale,rotation,shape_error_tot,shape_error_mean,shape_error_SD,shape_procSS,shape_procSD,rep(NA,times=1))
+                        datarow <- c(name.tlf,PLstim,figlength,sinuosity,totcurv,totabscurv,tortuosity,curvsum,ApEn_stim,SaEn_stim,mt_clip,PLresp,raw_error_tot,raw_error_mean,raw_error_SD,raw_procSS,raw_procSD,translation,scale,rotation,shape_error_tot,shape_error_mean,shape_error_SD,shape_procSS,shape_procSD,rep(NA,times=1))
                 }
         }
         out.file <- rbind(out.file, datarow)
@@ -363,26 +375,26 @@ for(i in 1:length(file.names)) {
 
 # change output to df
 df.out.file <- data.frame(out.file[-1,],stringsAsFactors = FALSE)
-colnames(df.out.file) <- c("figure_file","PLstim","figlength","complexity","complexity2","complexity3","complexity4","complexity5","complexity6","complexity7","mt_clip","PLresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSS","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSS","shape_procSD","correct_response")
+colnames(df.out.file) <- c("figure_file","PLstim","figlength","sinuosity","totcurv","totabscurv","tortuosity","curvsum","ApEn_stim","SaEn_stim","mt_clip","PLresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSS","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSS","shape_procSD","correct_response")
 
 # combine proc_df with db
 all_data <- merge(trials,df.out.file,by="figure_file")
 colnames(participants)[1] <- paste("participant_id")
 all_data <- merge(participants[,c(1,4:6)],all_data,by="participant_id")
-all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","figlength","complexity","complexity2","complexity3","complexity4","complexity5","complexity6","complexity7","trace_file","rt","it","mt","mt_clip","PLresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSS","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSS","shape_procSD","control_question","control_response","correct_response")]
+all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","figlength","sinuosity","totcurv","totabscurv","tortuosity","curvsum","ApEn_stim","SaEn_stim","trace_file","rt","it","mt","mt_clip","PLresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSS","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSS","shape_procSD","control_question","control_response","correct_response")]
 
 # change data to numeric where appropriate
 all_data$condition <- as.factor(all_data$condition)
 all_data$figure_type <- as.factor(all_data$figure_type)
 all_data$PLstim <- as.numeric(all_data$PLstim)
 all_data$figlength <- as.numeric(all_data$figlength)
-all_data$complexity <- as.numeric(all_data$complexity)
-all_data$complexity2 <- as.numeric(all_data$complexity2)
-all_data$complexity3 <- as.numeric(all_data$complexity3)
-all_data$complexity4 <- as.numeric(all_data$complexity4)
-all_data$complexity5 <- as.numeric(all_data$complexity5)
-all_data$complexity6 <- as.numeric(all_data$complexity6)
-all_data$complexity7 <- as.numeric(all_data$complexity7)
+all_data$sinuosity <- as.numeric(all_data$sinuosity)
+all_data$totcurv <- as.numeric(all_data$totcurv)
+all_data$totabscurv <- as.numeric(all_data$totabscurv)
+all_data$tortuosity <- as.numeric(all_data$tortuosity)
+all_data$curvsum <- as.numeric(all_data$curvsum)
+all_data$ApEn_stim <- as.numeric(all_data$ApEn_stim)
+all_data$SaEn_stim <- as.numeric(all_data$SaEn_stim)
 all_data$mt_clip <- as.numeric(all_data$mt_clip)
 all_data$PLresp <- as.numeric(all_data$PLresp)
 all_data$raw_error_tot <- as.numeric(all_data$raw_error_tot)
@@ -408,7 +420,7 @@ all_data <- dplyr::mutate(
         .data = all_data,
         vresp = PLresp / mt_clip 
 ) # and reorder one last time:
-all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","figlength","complexity","complexity2","complexity3","complexity4","complexity5","complexity6","complexity7","trace_file","rt","it","mt","mt_clip","PLresp","vresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSS","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSS","shape_procSD","control_question","control_response","correct_response")]
+all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","figlength","sinuosity","totcurv","totabscurv","tortuosity","curvsum","ApEn_stim","SaEn_stim","trace_file","rt","it","mt","mt_clip","PLresp","vresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSS","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSS","shape_procSD","control_question","control_response","correct_response")]
 
 
 # save .txt file with all_data
