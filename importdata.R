@@ -315,6 +315,13 @@ for(i in 1:length(file.names)) {
                         complexity7 <- sample_entropy(stim_theta)
                         # note that ApEn likely better since already standardized the sequence length.
                         
+                        # old stuff that worked a lot better: s2 <- seq(min(s), max(s), length.out = 100)
+                        # data_stim_x <- xt.spl(s2) # used splines so that's not it... 
+                        # data_stim_y <- yt.spl(s2)
+                        # complexity6 <- approx_entropy(c(data_stim_x,data_stim_y))
+                        # complexity7 <- sample_entropy(c(data_stim_x,data_stim_y))
+                        # works great! but treats x and y as one long vector
+                        
                         
                         ##### PLOTS #####
                         
