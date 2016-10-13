@@ -251,38 +251,43 @@ medianPL <- median(subset(all_data, figure_type == "random")$PLstim, na.rm = TRU
 # looks close: fig 1, 4, 6, 9, 13, 14, 15
 medianFigPL <- median(subset(all_data, figure_type == "fig6")$PLstim, na.rm = TRUE)
 
+
 ## COMPLEXITY ##
 
 # boxlots - does repeated fig complexity fall within range of randoms?
-boxplot(complexity ~ figure_type, data = all_data, main="sinuosity", xlab="figure_type", ylab="complexity")
-boxplot(complexity2 ~ figure_type, data = all_data, main="total curvature", xlab="figure_type", ylab="complexity2", ylim = c(-.5,.5))
-boxplot(complexity3 ~ figure_type, data = all_data, main="total absolute curvature", xlab="figure_type", ylab="complexity3", ylim = c(.1,.8))
-boxplot(complexity4 ~ figure_type, data = all_data, main="tortuosity", xlab="figure_type", ylab="complexity4", ylim = c(0,2.5))
-boxplot(complexity5 ~ figure_type, data = all_data, main="sum curvature", xlab="figure_type", ylab="complexity5", ylim = c(0,50))
-boxplot(complexity6 ~ figure_type, data = all_data, main="approx entropy", xlab="figure_type", ylab="complexity6")
-boxplot(complexity7 ~ figure_type, data = all_data, main="sample entropy", xlab="figure_type", ylab="complexity7")
+boxplot(sinuosity ~ figure_type, data = all_data, main="sinuosity", xlab="figure_type", ylab="complexity")
+boxplot(totcurv ~ figure_type, data = all_data, main="total curvature", xlab="figure_type", ylab="complexity2", ylim = c(-.5,.5))
+boxplot(totabscurv ~ figure_type, data = all_data, main="total absolute curvature", xlab="figure_type", ylab="complexity3", ylim = c(.1,.8))
+boxplot(tortuosity ~ figure_type, data = all_data, main="tortuosity", xlab="figure_type", ylab="complexity4", ylim = c(0,2.5))
+boxplot(curvsum ~ figure_type, data = all_data, main="sum curvature", xlab="figure_type", ylab="complexity5", ylim = c(0,50))
+boxplot(ApEn_stim ~ figure_type, data = all_data, main="approx entropy", xlab="figure_type", ylab="complexity6")
+boxplot(SaEn_stim ~ figure_type, data = all_data, main="sample entropy", xlab="figure_type", ylab="complexity7")
 
-hist(all_data$complexity, breaks=200) 
-hist(all_data$complexity2, breaks=200)
-hist(all_data$complexity3, breaks=200)
-hist(all_data$complexity4, breaks=200)
-hist(all_data$complexity5, breaks=200)
-hist(all_data$complexity6, breaks=200)
-hist(all_data$complexity7, breaks=200)
+all_data_rand <- dplyr::filter(
+        .data = all_data
+        , figure_type == "random"
+)
+table(all_data_rand$ApEn_stim) # so there are always FIVE, because of the different sampling rates... 
+plot(all_data_rand$stimulus_mt,all_data_rand$ApEn_stim)
 
-plot(all_data$figlength, all_data$complexity)
-plot(all_data$figlength, all_data$complexity2, ylim = c(-.5,.5))
-plot(all_data$figlength, all_data$complexity3, ylim = c(.1,.8))
-plot(all_data$figlength, all_data$complexity4, ylim = c(0,2.5)) # for now, seems tortuosity is affected by figlength
-plot(all_data$figlength, all_data$complexity5, ylim = c(0,50))
-plot(all_data$figlength, all_data$complexity6)
-plot(all_data$figlength, all_data$complexity7)
+hist(all_data$sinuosity, breaks=200) 
+hist(all_data$totcurv, breaks=200)
+hist(all_data$totabscurv, breaks=200)
+hist(all_data$tortuosity, breaks=200)
+hist(all_data$curvsum, breaks=200)
+hist(all_data$ApEn_stim, breaks=200)
+hist(all_data$SaEn_stim, breaks=200)
+
+plot(all_data$figlength, all_data$sinuosity)
+plot(all_data$figlength, all_data$totcurv, ylim = c(-.5,.5))
+plot(all_data$figlength, all_data$totabscurv, ylim = c(.1,.8))
+plot(all_data$figlength, all_data$tortuosity, ylim = c(0,2.5)) # for now, seems tortuosity is affected by figlength
+plot(all_data$figlength, all_data$curvsum, ylim = c(0,50))
+plot(all_data$figlength, all_data$ApEn_stim)
+plot(all_data$figlength, all_data$SaEn_stim)
 # it appears that the variability in the data is not a function of data collection resolution... probably the integrate and derivative functions themselves...
 
-medianComp <- median(subset(all_data, figure_type == "random")$complexity, na.rm = TRUE)
 
-# looks close: fig 3, 4, 7, 11
-medianFigComp <- median(subset(all_data, figure_type == "fig6")$complexity, na.rm = TRUE)
 
 ##### is ERROR affected by pathlength or complexity? #####
 
