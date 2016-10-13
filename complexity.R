@@ -12,16 +12,26 @@ fig2highest <- subset(all_data, complexity4 == fig2highestval)
 # highest tortuosity score for 1500ms gt = p15_s1_b1_t18_2016-09-19.tlf 
 # arbitrary score but same fig at different animation time (500 ms): p13_s2_b4_t20_2016-09-16.tlf
 
+# fig2
 #file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p16_2016-09-19 13:23:10/training/session_4/p16_s4_b1_t10_2016-09-28.zip"
-file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p15_2016-09-19 12:33:09/testing/session_1/p15_s1_b1_t18_2016-09-19.zip"
-#file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p13_2016-09-14 10:15:00/training/session_2/p13_s2_b4_t20_2016-09-16.zip"
+#file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p15_2016-09-19 12:33:09/testing/session_1/p15_s1_b1_t18_2016-09-19.zip"
+file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p13_2016-09-14 10:15:00/training/session_2/p13_s2_b4_t20_2016-09-16.zip" # 500 ms
+
+#fig1
+#file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p20_2016-09-22 09:11:41/training/session_2/p20_s2_b3_t3_2016-09-27.zip" # 500 ms
+file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p20_2016-09-22 09:11:41/training/session_2/p20_s2_b3_t1_2016-09-27.zip" # 2000 ms
 
 
 name.tlf <- gsub(".zip",".tlf",basename(file.name))
+name.tlt <- gsub(".zip",".tlt",basename(file.name))
+name.pts <- gsub(".zip","_points.txt",basename(file.name))
 # read in data 
 tlf <- read.table(unz(file.name, name.tlf),stringsAsFactors=FALSE, sep=",")
+tlt <- read.table(unz(file.name, name.tlt),stringsAsFactors=FALSE, sep=",")
+pts <- read.table(unz(file.name, name.pts),stringsAsFactors=FALSE, sep=",")
 #create data frames
 data_stim <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlf)), ", "))),ncol=3,nrow=length(tlf)/3, byrow=TRUE))
+points <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(pts)), ", "))),ncol=2,nrow=length(pts)/2, byrow=TRUE))
 
 #data_stim2 <- data_stim
 # YEAH, a repeated figure captures literally the same points!
@@ -35,9 +45,6 @@ data_stim <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)"
 # (because I don't know how to just get derivatives of splines themselves...)
 figlength <- nrow(data_stim)
 
-s <- seq(from = 1, to = 100, length.out = nrow(data_stim)) # ends at 99.888889
-
-time <- seq(min(s), max(s), length.out = 10000) # ends at 99.888889
 #arclength <- seq(0, pathlength, length.out = 5000)
 # NOTE: normalizing time points to a particular number (e.g. 100) should be equivalent
 # to normalizing by arclength, because the animation moves at a constant velocity. RIGHT?
@@ -82,13 +89,26 @@ time <- seq(min(s), max(s), length.out = 10000) # ends at 99.888889
 # points(data_stim$X1,-data_stim$X2, col="cyan")
 #NOTE: this is much better! change from smoothspline with predicts to splinefun(time, deriv=?) for above... see if thath helps...
 
+s <- seq(from = 1, to = 100, length.out = nrow(data_stim)) # ends at 99.888889
+
+s2 <- seq(min(s), max(s), length.out = 10000) # ends at 99.888889
+
 xt.spl <- splinefun(x = s, y = data_stim$X1) 
 yt.spl <- splinefun(x = s, y = data_stim$X2)
 curvature = (
-        (xt.spl(time, deriv=1) * yt.spl(time, deriv=2)) - (yt.spl(time, deriv=1) * xt.spl(time, deriv=2)))/
-        ((xt.spl(time, deriv=1)^2 + yt.spl(time, deriv=1)^2)^(3/2)) #signed curvature
-plot(time, curvature)
-plot(time, curvature, ylim = c(-.01,.01))
+        (xt.spl(s2, deriv=1) * yt.spl(s2, deriv=2)) - (yt.spl(s2, deriv=1) * xt.spl(s2, deriv=2)))/
+        ((xt.spl(s2, deriv=1)^2 + yt.spl(s2, deriv=1)^2)^(3/2)) #signed curvature
+plot(s2, curvature)
+plot(s2, curvature, ylim = c(-.01,.01))
+
+# smooth that curvature! 
+# TRY THIS: 
+curv_smooth.spl <- smooth.spline(s2,curvature, df = 20)
+s3 <- seq(1, 100, length.out = 100) # interpolate to 100 points
+curv_smooth <- as.vector(predict(curv_smooth.spl, x = s3, deriv = 0)$y)
+# note still using 10000 points... 
+plot(s3, curv_smooth)
+
 
 #curvature <- curvature[!curvature %in% boxplot.stats(curvature, coef = 3)$out] #doesn't replace with NA's
 
@@ -224,8 +244,18 @@ s2 <- seq(min(s), max(s), length.out = 100)
 datastim <- matrix(c(as.vector(xt.spl(s2)),as.vector(yt.spl(s2))),ncol=2)
 
 # turning angle sequence:
-s2 <- seq(min(s), max(s), length.out = 100) # interpolate to 100 points
+
+# first normalize trajectory to 100 evenly spaced points using splines:
+s <- seq(from = 1, to = 100, length.out = nrow(data_stim))
+xt.spl <- splinefun(x = s, y = data_stim$X1)
+yt.spl <- splinefun(x = s, y = data_stim$X2)
+
+## NOTE IN THE IMPLIMENTATION IT'S ALL CHANGED FROM s2 to s3!!! 
+s2 <- seq(1, 100, length.out = 100) # interpolate to 100 points
+
 datastim <- matrix(c(as.vector(xt.spl(s2)),as.vector(yt.spl(s2))),ncol=2)
+
+# create "turning angle" sequence, reducing 2D (x,y) to 1D (relative angle):
 stim_theta <- rep(0, length(datastim[,1])-2) # note you always lose two points
 for (a in 1:length(stim_theta)){
         V1 = c(datastim[a+1,1],datastim[a+1,2]) - c(datastim[a,1],datastim[a,2])
@@ -233,10 +263,41 @@ for (a in 1:length(stim_theta)){
         stim_theta[a] = atan2(V2[2],V2[1]) - atan2(V1[2],V1[1])
         if (abs(stim_theta[a]) > pi){
                 stim_theta[a] = stim_theta[a] - ((2*pi)*sign(stim_theta[a]))
-                }
+        }
 }
 approx_entropy(stim_theta)
 sample_entropy(stim_theta)
+
+plot(datastim)
+plot(stim_theta)
+
+# try smoothing: 
+
+## NOTE IN THE IMPLIMENTATION IT'S ALL CHANGED FROM s2 to s3!!! 
+datastim_x_smooth <- smooth.spline(s2,datastim[,1], df = .5*length(datastim[,1]))
+datastim_y_smooth <- smooth.spline(s2,datastim[,2], df = .5*length(datastim[,2]))
+datasmooth <- matrix(c(as.vector(predict(datastim_x_smooth, x = s2, deriv = 0)$y), as.vector(predict(datastim_y_smooth, x = s2, deriv = 0)$y)), ncol=2)
+plot(datasmooth)
+stim_theta <- rep(0, length(datasmooth[,1])-2) # note you always lose two points
+for (a in 1:length(stim_theta)){
+        V1 = c(datasmooth[a+1,1],datasmooth[a+1,2]) - c(datasmooth[a,1],datasmooth[a,2])
+        V2 = c(datasmooth[a+2,1],datasmooth[a+2,2]) - c(datasmooth[a+1,1],datasmooth[a+1,2])
+        stim_theta[a] = atan2(V2[2],V2[1]) - atan2(V1[2],V1[1])
+        if (abs(stim_theta[a]) > pi){
+                stim_theta[a] = stim_theta[a] - ((2*pi)*sign(stim_theta[a]))
+        }
+}
+approx_entropy(stim_theta)
+plot(stim_theta)
+
+# yeah smoothing helps bring them closer together...
+
+# still, ultimately what I need is the "RAW" figure to really do a good job here... :(
+
+
+
+
+# see if it matters whether degrees or radians:
 
 stim_theta_deg <- stim_theta * (180/pi)
 plot(stim_theta_deg)
@@ -248,4 +309,17 @@ approx_entropy(stim_theta_deg)
 sample_entropy(stim_theta_deg)
 
 plot(data_stim$X1[1:5],data_stim$X2[1:5])
+
+# # curvfit 
+# 
+# figfit <- curvefit(u = data_stim$X3
+#          , x = data_stim$X1
+#          , y = data_stim$X2
+#          , n = 17
+#          , U = NULL
+#          , V = points
+# )
+# plot(data_stim$X1,data_stim$X2)
+# lines(figfit$xp,figfit$yp)
+
 
