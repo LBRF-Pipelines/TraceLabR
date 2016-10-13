@@ -252,16 +252,49 @@ medianPL <- median(subset(all_data, figure_type == "random")$PLstim, na.rm = TRU
 medianFigPL <- median(subset(all_data, figure_type == "fig6")$PLstim, na.rm = TRUE)
 
 
+
 ## COMPLEXITY ##
 
 # boxlots - does repeated fig complexity fall within range of randoms?
-boxplot(sinuosity ~ figure_type, data = all_data, main="sinuosity", xlab="figure_type", ylab="complexity")
-boxplot(totcurv ~ figure_type, data = all_data, main="total curvature", xlab="figure_type", ylab="complexity2", ylim = c(-.5,.5))
-boxplot(totabscurv ~ figure_type, data = all_data, main="total absolute curvature", xlab="figure_type", ylab="complexity3", ylim = c(.1,.8))
-boxplot(tortuosity ~ figure_type, data = all_data, main="tortuosity", xlab="figure_type", ylab="complexity4", ylim = c(0,2.5))
-boxplot(curvsum ~ figure_type, data = all_data, main="sum curvature", xlab="figure_type", ylab="complexity5", ylim = c(0,50))
-boxplot(ApEn_stim ~ figure_type, data = all_data, main="approx entropy", xlab="figure_type", ylab="complexity6")
-boxplot(SaEn_stim ~ figure_type, data = all_data, main="sample entropy", xlab="figure_type", ylab="complexity7")
+# all speeds:
+boxplot(sinuosity ~ figure_type, data = all_data, main="sinuosity", xlab="figure_type", ylab="sinuosity")
+boxplot(totcurv ~ figure_type, data = all_data, main="total curvature", xlab="figure_type", ylab="totcurv", ylim = c(-.5,.5))
+boxplot(totabscurv ~ figure_type, data = all_data, main="total absolute curvature", xlab="figure_type", ylab="totabscurv", ylim = c(.1,.8))
+boxplot(tortuosity ~ figure_type, data = all_data, main="tortuosity", xlab="figure_type", ylab="tortuosity", ylim = c(0,2.5))
+boxplot(curvsum ~ figure_type, data = all_data, main="sum curvature", xlab="figure_type", ylab="curvsum", ylim = c(0,50))
+boxplot(ApEn_stim ~ figure_type, data = all_data, main="approx entropy", xlab="figure_type", ylab="ApEn_stim")
+boxplot(SaEn_stim ~ figure_type, data = all_data, main="sample entropy", xlab="figure_type", ylab="SaEn_stim")
+
+# specific speeds:
+all_data_mt1 <- subset(all_data, stimulus_mt < .75)
+all_data_mt2 <- subset(all_data, (stimulus_mt > .75) & (stimulus_mt < 1.25))
+all_data_mt3 <- subset(all_data, (stimulus_mt > 1.25) & (stimulus_mt < 1.75))
+all_data_mt4 <- subset(all_data, (stimulus_mt > 1.75) & (stimulus_mt < 2.25))
+all_data_mt5 <- subset(all_data, stimulus_mt > 2.25)
+
+boxplot(sinuosity ~ figure_type, data = all_data_mt1, main="sinuosity", xlab="figure_type", ylab="sinuosity")
+boxplot(sinuosity ~ figure_type, data = all_data_mt2, main="sinuosity", xlab="figure_type", ylab="sinuosity")
+boxplot(sinuosity ~ figure_type, data = all_data_mt3, main="sinuosity", xlab="figure_type", ylab="sinuosity")
+boxplot(sinuosity ~ figure_type, data = all_data_mt4, main="sinuosity", xlab="figure_type", ylab="sinuosity")
+boxplot(sinuosity ~ figure_type, data = all_data_mt5, main="sinuosity", xlab="figure_type", ylab="sinuosity")
+
+boxplot(totabscurv ~ figure_type, data = all_data_mt1, main="total absolute curvature", xlab="figure_type", ylab="totabscurv", ylim = c(.1,.8))
+boxplot(totabscurv ~ figure_type, data = all_data_mt2, main="total absolute curvature", xlab="figure_type", ylab="totabscurv", ylim = c(.1,.8))
+boxplot(totabscurv ~ figure_type, data = all_data_mt3, main="total absolute curvature", xlab="figure_type", ylab="totabscurv", ylim = c(.1,.8))
+boxplot(totabscurv ~ figure_type, data = all_data_mt4, main="total absolute curvature", xlab="figure_type", ylab="totabscurv", ylim = c(.1,.8))
+boxplot(totabscurv ~ figure_type, data = all_data_mt5, main="total absolute curvature", xlab="figure_type", ylab="totabscurv", ylim = c(.1,.8))
+
+boxplot(ApEn_stim ~ figure_type, data = all_data_mt1, main="approx entropy", xlab="figure_type", ylab="ApEn_stim")
+boxplot(ApEn_stim ~ figure_type, data = all_data_mt2, main="approx entropy", xlab="figure_type", ylab="ApEn_stim")
+boxplot(ApEn_stim ~ figure_type, data = all_data_mt3, main="approx entropy", xlab="figure_type", ylab="ApEn_stim")
+boxplot(ApEn_stim ~ figure_type, data = all_data_mt4, main="approx entropy", xlab="figure_type", ylab="ApEn_stim")
+boxplot(ApEn_stim ~ figure_type, data = all_data_mt5, main="approx entropy", xlab="figure_type", ylab="ApEn_stim")
+
+
+
+
+
+
 
 all_data_rand <- dplyr::filter(
         .data = all_data
