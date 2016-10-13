@@ -310,16 +310,16 @@ sample_entropy(stim_theta_deg)
 
 plot(data_stim$X1[1:5],data_stim$X2[1:5])
 
-# # curvfit 
-# 
-# figfit <- curvefit(u = data_stim$X3
-#          , x = data_stim$X1
-#          , y = data_stim$X2
-#          , n = 17
-#          , U = NULL
-#          , V = points
-# )
-# plot(data_stim$X1,data_stim$X2)
-# lines(figfit$xp,figfit$yp)
+# curvfit
+
+figfit <- curvefit(u = data_stim$X3
+         , x = data_stim$X1
+         , y = data_stim$X2
+         , n = 19
+         , U = NULL
+         , V = points
+)
+plot(data_stim$X1,data_stim$X2)
+lines(figfit$xp,figfit$yp)
 
 
