@@ -296,31 +296,31 @@ for(i in 1:length(file.names)) {
                         s3 <- seq(min(s1), max(s1), length.out = 100) # interpolate to 100 points
                         datastim <- matrix(c(as.vector(xt.spl(s3)),as.vector(yt.spl(s3))),ncol=2)
                         
-                        # create "turning angle" sequence, reducing 2D (x,y) to 1D (relative angle):
-                        # stim_theta <- rep(0, length(datastim[,1])-2) # note you always lose two points
-                        # for (a in 1:length(stim_theta)){
-                        #         V1 = c(datastim[a+1,1],datastim[a+1,2]) - c(datastim[a,1],datastim[a,2])
-                        #         V2 = c(datastim[a+2,1],datastim[a+2,2]) - c(datastim[a+1,1],datastim[a+1,2])
-                        #         stim_theta[a] = atan2(V2[2],V2[1]) - atan2(V1[2],V1[1])
-                        #         if (abs(stim_theta[a]) > pi){
-                        #                 stim_theta[a] = stim_theta[a] - ((2*pi)*sign(stim_theta[a]))
-                        #         }
-                        # }
-                        
-                        # SMOOTH that sequence... 
-                        datastim_x_smooth <- smooth.spline(s3, datastim[,1], df = .5*length(datastim[,1]))
-                        datastim_y_smooth <- smooth.spline(s3, datastim[,2], df = .5*length(datastim[,2]))
-                        datasmooth <- matrix(c(as.vector(predict(datastim_x_smooth, x = s3, deriv = 0)$y), as.vector(predict(datastim_y_smooth, x = s3, deriv = 0)$y)), ncol=2)
-                        
-                        stim_theta <- rep(0, length(datasmooth[,1])-2) # note you always lose two points
+                        #create "turning angle" sequence, reducing 2D (x,y) to 1D (relative angle):
+                        stim_theta <- rep(0, length(datastim[,1])-2) # note you always lose two points
                         for (a in 1:length(stim_theta)){
-                                V1 = c(datasmooth[a+1,1],datasmooth[a+1,2]) - c(datasmooth[a,1],datasmooth[a,2])
-                                V2 = c(datasmooth[a+2,1],datasmooth[a+2,2]) - c(datasmooth[a+1,1],datasmooth[a+1,2])
+                                V1 = c(datastim[a+1,1],datastim[a+1,2]) - c(datastim[a,1],datastim[a,2])
+                                V2 = c(datastim[a+2,1],datastim[a+2,2]) - c(datastim[a+1,1],datastim[a+1,2])
                                 stim_theta[a] = atan2(V2[2],V2[1]) - atan2(V1[2],V1[1])
                                 if (abs(stim_theta[a]) > pi){
                                         stim_theta[a] = stim_theta[a] - ((2*pi)*sign(stim_theta[a]))
                                 }
                         }
+                        
+                        # # SMOOTH that sequence... 
+                        # datastim_x_smooth <- smooth.spline(s3, datastim[,1], df = .5*length(datastim[,1]))
+                        # datastim_y_smooth <- smooth.spline(s3, datastim[,2], df = .5*length(datastim[,2]))
+                        # datasmooth <- matrix(c(as.vector(predict(datastim_x_smooth, x = s3, deriv = 0)$y), as.vector(predict(datastim_y_smooth, x = s3, deriv = 0)$y)), ncol=2)
+                        # 
+                        # stim_theta <- rep(0, length(datasmooth[,1])-2) # note you always lose two points
+                        # for (a in 1:length(stim_theta)){
+                        #         V1 = c(datasmooth[a+1,1],datasmooth[a+1,2]) - c(datasmooth[a,1],datasmooth[a,2])
+                        #         V2 = c(datasmooth[a+2,1],datasmooth[a+2,2]) - c(datasmooth[a+1,1],datasmooth[a+1,2])
+                        #         stim_theta[a] = atan2(V2[2],V2[1]) - atan2(V1[2],V1[1])
+                        #         if (abs(stim_theta[a]) > pi){
+                        #                 stim_theta[a] = stim_theta[a] - ((2*pi)*sign(stim_theta[a]))
+                        #         }
+                        # }
                         
                         # approximate entropy and sample entropy: 
                         ApEn_stim <- approx_entropy(stim_theta)
