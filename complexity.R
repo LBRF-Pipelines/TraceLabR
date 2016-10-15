@@ -251,7 +251,7 @@ xt.spl <- splinefun(x = s, y = data_stim$X1)
 yt.spl <- splinefun(x = s, y = data_stim$X2)
 
 ## NOTE IN THE IMPLIMENTATION IT'S ALL CHANGED FROM s2 to s3!!! 
-s2 <- seq(1, 100, length.out = 100) # interpolate to 100 points
+s2 <- seq(min(s), max(s), length.out = 100) # interpolate to 100 points
 
 datastim <- matrix(c(as.vector(xt.spl(s2)),as.vector(yt.spl(s2))),ncol=2)
 
@@ -321,5 +321,39 @@ figfit <- curvefit(u = data_stim$X3
 )
 plot(data_stim$X1,data_stim$X2)
 lines(figfit$xp,figfit$yp)
+
+# bezier curve stuff... 
+
+## BEZIER CURVES ##
+## SPECIFY PARAMETRIC VALUES FROM 0 TO 1 FOR SAMLPING A BEZIER CURVE
+t <- seq(0, 1, length=100)
+## BEZIER CONTROL POINTS
+p <- matrix(c(0,0, 1,4, 2,2), nrow=3, ncol=2, byrow=TRUE)
+## CREATE A 1D, 3-POINT BEZIER CURVE
+bezier_points <- bezier(t=t, p=p)
+plot(bezier_points)
+bezier_points2 <- pointsOnBezier(p, n=100, method="evenly_spaced", print.progress=TRUE)
+plot(bezier_points2$points)
+
+bezierArcLength(p=p, t1=0, t2=1)
+
+bezier0 <- function(t, p){
+        b0x = (((1-t)^2)*p[1,1]) + (2*(1-t)*t*p[2,1]) + ((t^2)*p[3,1])
+        b0y = (((1-t)^2)*p[1,2]) + (2*(1-t)*t*p[2,2]) + ((t^2)*p[3,2])
+        b0 <- cbind(b0x,b0y)
+        return(b0)
+}
+bez_0 <- bezier0(t,p)
+plot(bez_0) # YES IT'S THE SAME AS THE BEZIER FUNCTION I FUCKING DID IT
+
+# first derivative:
+bezier1 <- function(t, p){
+        b1x = (2 * (1-t) * (p[2,1]-p[1,1])) + (2 * t * (p[3,1] - p[2,1]))
+        b1y = (2 * (1-t) * (p[2,2]-p[1,2])) + (2 * t * (p[3,2] - p[2,2]))
+        b1 <- cbind(b1x,b1y)
+        return(b1)
+}
+bez_1 <- bezier1(t,p)
+plot(bez_1) # note plot might not be very intuitive
 
 
