@@ -293,15 +293,12 @@ boxplot(ApEn_stim ~ figure_type, data = all_data_mt5, main="approx entropy", xla
 
 
 
-
-
-
-all_data_rand <- dplyr::filter(
+all_data_fig1 <- dplyr::filter(
         .data = all_data
-        , figure_type == "random"
+        , figure_type == "fig1"
 )
-table(all_data_rand$ApEn_stim) # so there are always FIVE, because of the different sampling rates... 
-plot(all_data_rand$stimulus_mt,all_data_rand$ApEn_stim)
+table(all_data_fig1$ApEn_stim) # so there are always FIVE, because of the different sampling rates... 
+plot(all_data_fig1$stimulus_mt,all_data_fig1$ApEn_stim)
 
 hist(all_data$sinuosity, breaks=200) 
 hist(all_data$totcurv, breaks=200)
