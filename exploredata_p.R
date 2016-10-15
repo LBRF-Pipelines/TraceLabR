@@ -313,10 +313,9 @@ plot(all_data$figlength, all_data$totcurv, ylim = c(-.5,.5))
 plot(all_data$figlength, all_data$totabscurv, ylim = c(.1,.8))
 plot(all_data$figlength, all_data$tortuosity, ylim = c(0,2.5)) # for now, seems tortuosity is affected by figlength
 plot(all_data$figlength, all_data$curvsum, ylim = c(0,50))
-plot(all_data$figlength, all_data$ApEn_stim)
-plot(all_data$figlength, all_data$SaEn_stim)
+plot(all_data$figlength, all_data$ApEn_stim) # might be a relationship, even after interpolating, but not a strong one
+plot(all_data$figlength, all_data$SaEn_stim) # same 
 # it appears that the variability in the data is not a function of data collection resolution... probably the integrate and derivative functions themselves...
-
 
 
 ##### is ERROR affected by pathlength or complexity? #####
@@ -324,7 +323,7 @@ plot(all_data$figlength, all_data$SaEn_stim)
 ggplot(subset(all_data, (participant_id == 11) & 
                       (figure_type == "random"))
        , mapping = aes(
-               x = complexity, y = raw_error_mean
+               x = SaEn_stim, y = raw_error_mean
                , color = factor(session_num)
        )) + geom_point(na.rm = TRUE, alpha = .5) + 
         geom_smooth(na.rm = TRUE) + 
@@ -333,6 +332,8 @@ ggplot(subset(all_data, (participant_id == 11) &
              , x = "Complexity"
              , y = "Raw Error"
              , color = "Session")
+
+# Note that using sinuosity as a measure of complexity seems to just reflect the effect of pathlength. Compare with below.
 
 ggplot(subset(all_data, (participant_id == 11) & 
                       (figure_type == "random"))
@@ -360,12 +361,20 @@ plot(Arandom$stimulus_mt, Arandom$PLstim)
 plot(Arepeat$stimulus_mt, Arepeat$PLstim) # you can see that there's smaller pathlength at fastest speed... but it didn' for random!
 
 # does stim MT affect complexity?
-plot(Arandom$stimulus_mt, Arandom$complexity) # looks like generally stim MT does not affect complexity measure — which is good
-plot(Arepeat$stimulus_mt, Arepeat$complexity) # looks like the lowest MT underestimates complexity on repeat... because less data?
+plot(Arandom$stimulus_mt, Arandom$ApEn_stim) # looks like generally stim MT does not affect complexity measure — which is good
+plot(Arepeat$stimulus_mt, Arepeat$ApEn_stim) # looks like the lowest MT underestimates complexity on repeat... because less data?
 
 # does pathlength affect complexity? vice versa?
-plot(Arandom$PLstim, Arandom$complexity) # YES... makes sense... more curvy shapes tend to be longer — but curviness is divided by length... 
-plot(Arepeat$PLstim, Arepeat$complexity) # if you zoom in enough, you see that it's basically a straight line... first order ODE?
+plot(Arandom$PLstim, Arandom$sinuosity) # YES... makes sense... more curvy shapes tend to be longer — but curviness is divided by length... 
+plot(Arepeat$PLstim, Arepeat$sinuosity) # if you zoom in enough, you see that it's basically a straight line... first order ODE?
+
+plot(Arandom$PLstim, Arandom$ApEn_stim) 
+plot(Arepeat$PLstim, Arepeat$ApEn_stim)
+# seems like longer path length is more predictable... :/ 
+# this is probably screwing up the relationship between complexity and error, 
+# as longer pathlengths (lower complexity) are animated more quickly (higher error)... 
+# perhaps normalizing things somehow... but how? 
+
 
 ##### NOTE: should be looking at each day seperately, and comparing!
 
