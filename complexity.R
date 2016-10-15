@@ -337,6 +337,7 @@ plot(bezier_points2$points)
 
 bezierArcLength(p=p, t1=0, t2=1)
 
+# bezier curve
 bezier0 <- function(t, p){
         b0x = (((1-t)^2)*p[1,1]) + (2*(1-t)*t*p[2,1]) + ((t^2)*p[3,1])
         b0y = (((1-t)^2)*p[1,2]) + (2*(1-t)*t*p[2,2]) + ((t^2)*p[3,2])
@@ -355,5 +356,32 @@ bezier1 <- function(t, p){
 }
 bez_1 <- bezier1(t,p)
 plot(bez_1) # note plot might not be very intuitive
+
+# second derivative:
+bezier2 <- function(t, p){
+        b2x = (2 * (p[3,1] - (2 * p[2,1]) + p[1,1]))
+        b2y = (2 * (p[3,2] - (2 * p[2,2]) + p[1,2]))
+        b2 <- cbind(b2x,b2y)
+        return(b2)
+}
+bez_2 <- bezier2(t,p)
+plot(bez_2)
+
+# curvature of bezier curve:
+bcurv = function(t, p){
+        b1x = (2 * (1-t) * (p[2,1]-p[1,1])) + (2 * t * (p[3,1] - p[2,1])) #first derivative of x
+        b1y = (2 * (1-t) * (p[2,2]-p[1,2])) + (2 * t * (p[3,2] - p[2,2])) #first derivative of y
+        b2x = (2 * (p[3,1] - (2 * p[2,1]) + p[1,1])) #second derivative of x
+        b2y = (2 * (p[3,2] - (2 * p[2,2]) + p[1,2])) #second derivative of y
+        bez_curv <- ((b1x * b2y) - (b1y * b2x))/(((b1x^2) + (b1y^2))^(3/2)) #signed curvature
+        return(bez_curv)
+} 
+bez_curvature <- bcurv(t,p)
+plot(t, bez_curvature)
+
+# integrate:
+bcuv.spl <- splinefun(x = t, y = abs(bez_curvature))
+integrate(bcuv.spl, min(t), max(t))
+pracma::integral(bcuv.spl, min(t), max(t), method = "Kron")
 
 
