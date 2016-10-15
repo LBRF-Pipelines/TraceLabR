@@ -6,15 +6,16 @@
 # 2. get write.table working so can use other scripts without having to re-run this...
 # 3. use ggplot2 to make better plots
 
-rm(list = ls()) # clear work space
-graphics.off() # clear figures
-cat("\014") # clear console
+# rm(list = ls()) # clear work space
+# graphics.off() # clear figures
+# cat("\014") # clear console
 
-library(Morpho)
-library(plyr) # remember to use plyr::count()
-library(dplyr) # not used until end
-library(ggplot2) # not used yet... in this script I mean.
-library(pracma) # for approx entropy
+library(Morpho) # for procrustes analysis
+library(plyr) # for control task analysis. *use plyr::count()
+library(dplyr) # arranging data at end
+library(ggplot2) # plotting
+library(pracma) # for ApEn and SampEn
+library(bezier) # for bezier curve analysis
 
 # Read in .db information
 participants <- read.csv("~/RStudio/TraceLabDB/participants.csv")
