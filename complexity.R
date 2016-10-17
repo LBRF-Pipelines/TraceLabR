@@ -1,5 +1,6 @@
 # complexity workspace 
 
+#rm(list=setdiff(ls(), "all_data")) # clear all but all_data
 graphics.off() # clear figures
 #cat("\014") # clear console
 
@@ -322,6 +323,11 @@ figfit <- curvefit(u = data_stim$X3
 plot(data_stim$X1,data_stim$X2)
 lines(figfit$xp,figfit$yp)
 
+
+
+
+
+
 # bezier curve stuff... 
 
 ## BEZIER CURVES ##
@@ -384,4 +390,6 @@ bcuv.spl <- splinefun(x = t, y = abs(bez_curvature))
 integrate(bcuv.spl, min(t), max(t))
 pracma::integral(bcuv.spl, min(t), max(t), method = "Kron")
 
+# now, think about how you will integrate 5 segments...
+# how to account for the corners? convert to polar coordinates somehow? 
 

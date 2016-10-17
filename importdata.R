@@ -7,6 +7,7 @@
 # 3. use ggplot2 to make better plots
 
 # rm(list = ls()) # clear work space
+# rm(list=setdiff(ls(), "all_data")) # clear all but all_data
 # graphics.off() # clear figures
 # cat("\014") # clear console
 

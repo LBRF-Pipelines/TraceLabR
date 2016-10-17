@@ -7,7 +7,7 @@
 # 3. create matrix of fit parameters
 # 4. maybe, to make "shape error" the y-axis, take absolute value away from 1? direction matters though... 
 
-
+#rm(list=setdiff(ls(), "all_data")) # clear all but all_data
 graphics.off() # clear figures
 
 library(tibble)
