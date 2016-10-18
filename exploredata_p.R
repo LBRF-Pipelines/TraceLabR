@@ -321,7 +321,7 @@ plot(all_data$figlength, all_data$SaEn_stim) # same
 
 ##### is ERROR affected by pathlength or complexity? #####
 
-ggplot(subset(all_data, (participant_id == 11) & 
+ggplot(subset(all_data, #(participant_id == 11) & 
                       (figure_type == "random"))
        , mapping = aes(
                x = SaEn_stim, y = raw_error_mean
@@ -330,13 +330,13 @@ ggplot(subset(all_data, (participant_id == 11) &
         geom_smooth(na.rm = TRUE) + 
         theme_minimal() +
         labs(title = "Random: Raw Error"
-             , x = "Complexity"
+             , x = "Sample Entropy"
              , y = "Raw Error"
              , color = "Session")
 
 # Note that using sinuosity as a measure of complexity seems to just reflect the effect of pathlength. Compare with below.
 
-ggplot(subset(all_data, (participant_id == 11) & 
+ggplot(subset(all_data, #(participant_id == 11) & 
                       (figure_type == "random"))
        , mapping = aes(
                x = PLstim, y = raw_error_mean
@@ -348,6 +348,36 @@ ggplot(subset(all_data, (participant_id == 11) &
              , x = "Stimulus Pathlength"
              , y = "Raw Error"
              , color = "Session")
+
+ggplot(subset(all_data, #(participant_id == 11) & 
+              (figure_type == "random"))
+       , mapping = aes(
+               x = sinuosity, y = raw_error_mean
+               , color = factor(session_num)
+       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        labs(title = "Random: Raw Error"
+             , x = "Sinuosity"
+             , y = "Raw Error"
+             , color = "Session")
+
+#finally, direct comparison of pathlength with sinuosity:
+ggplot(subset(all_data, #(participant_id == 11) & 
+              (figure_type == "random"))
+       , mapping = aes(
+               x = PLstim, y = sinuosity
+               , color = factor(session_num)
+       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        labs(title = "Random: Raw Error"
+             , x = "Pathlength"
+             , y = "Sinuosity"
+             , color = "Session")
+# yes, sort of, as pathlength increases, sinuosity does (of course, look how it is calculated).
+# this demonstrates why curvature is a better measure... it's independent of pathlength.
+
 
 
 ##### interactions #####
@@ -367,7 +397,7 @@ plot(Arepeat$stimulus_mt, Arepeat$ApEn_stim) # looks like the lowest MT underest
 
 # does pathlength affect complexity? vice versa?
 plot(Arandom$PLstim, Arandom$sinuosity) # YES... makes sense... more curvy shapes tend to be longer — but curviness is divided by length... 
-plot(Arepeat$PLstim, Arepeat$sinuosity) # if you zoom in enough, you see that it's basically a straight line... first order ODE?
+plot(Arepeat$PLstim, Arepeat$sinuosity) # if you zoom in enough, you see that it's basically a straight line... 
 
 plot(Arandom$PLstim, Arandom$ApEn_stim) 
 plot(Arepeat$PLstim, Arepeat$ApEn_stim)
