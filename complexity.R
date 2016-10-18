@@ -382,8 +382,6 @@ bcurv = function(t, p){
         bez_curv <- ((b1x * b2y) - (b1y * b2x))/(((b1x^2) + (b1y^2))^(3/2)) #signed curvature
         return(bez_curv)
 } 
-bez_curvature <- bcurv(t,p)
-plot(t, bez_curvature)
 
 # integrate:
 bcuv.spl <- splinefun(x = t, y = abs(bez_curvature))
@@ -392,4 +390,63 @@ pracma::integral(bcuv.spl, min(t), max(t), method = "Kron")
 
 # now, think about how you will integrate 5 segments...
 # how to account for the corners? convert to polar coordinates somehow? 
+
+# SIMULATIONS: is curvature capturing anything differently then pathlength?
+
+# less curvy
+t <- seq(0, 1, length=100)
+p <- matrix(c(0,0, 1,4, 2,2), nrow=3, ncol=2, byrow=TRUE)
+bez_curvature <- bcurv(t,p)
+plot(t, bez_curvature)
+bezierArcLength(p=p, t1=0, t2=1)
+bcuv.spl <- splinefun(x = t, y = abs(bez_curvature))
+integrate(bcuv.spl, min(t), max(t))
+# arclength: 4.083686
+# totcurv: 0.9322848
+
+# more curvy
+t <- seq(0, 1, length=100)
+p <- matrix(c(0,0, 1,6, 2,2), nrow=3, ncol=2, byrow=TRUE)
+bez_curvature <- bcurv(t,p)
+plot(t, bez_curvature)
+bezierArcLength(p=p, t1=0, t2=1)
+bcuv.spl <- splinefun(x = t, y = abs(bez_curvature))
+integrate(bcuv.spl, min(t), max(t))
+# arclength: 5.757364
+# totcurv: 0.9782689
+
+#even higher peak:
+t <- seq(0, 1, length=100)
+p <- matrix(c(0,0, 0.8,9, 2,2), nrow=3, ncol=2, byrow=TRUE)
+bez_curvature <- bcurv(t,p)
+plot(t, bez_curvature)
+bezierArcLength(p=p, t1=0, t2=1)
+bcuv.spl <- splinefun(x = t, y = abs(bez_curvature))
+integrate(bcuv.spl, min(t), max(t))
+# arclength: 8.546439
+# totcurv: 0.9676597 <- lower curvature!! yet much higher pathlength! 
+
+#weirder shape:
+t <- seq(0, 1, length=100)
+p <- matrix(c(0,-2, 0.8,9, 6,2), nrow=3, ncol=2, byrow=TRUE)
+bez_curvature <- bcurv(t,p)
+plot(t, bez_curvature)
+bezierArcLength(p=p, t1=0, t2=1)
+bcuv.spl <- splinefun(x = t, y = abs(bez_curvature))
+integrate(bcuv.spl, min(t), max(t))
+# arclength: 12.16398
+# totcurv: 0.2763268 <- far lower curvature (see plot) yet even higher pathlength
+
+#shorter shape (look at x values):
+t <- seq(0, 1, length=100)
+p <- matrix(c(0,1, .5,3, 1,1), nrow=3, ncol=2, byrow=TRUE)
+bez_curvature <- bcurv(t,p)
+plot(t, bez_curvature)
+bezierArcLength(p=p, t1=0, t2=1)
+bcuv.spl <- splinefun(x = t, y = abs(bez_curvature))
+integrate(bcuv.spl, min(t), max(t))
+# arclength: 2.323319
+# totcurv: 1.940285 <- hugely curved, yet shortest arclength yet...
+
+# SIMULATION CONCLUSION: appears to be independent! 
 
