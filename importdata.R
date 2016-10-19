@@ -45,7 +45,7 @@ for(i in 1:length(file.names)) {
                         #loads stimulus data
                         data_stim <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlf)), ", "))),ncol=3,nrow=length(tlf)/3, byrow=TRUE))
                         
-                        #extracts corrdinates for shape vertices (corners)
+                        #extracts coordinates for shape vertices (corners)
                         points <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(pts)), ", "))),ncol=2,nrow=length(pts)/2, byrow=TRUE))
                         
                         #index closest sample in stimulus data to vertices
