@@ -4,10 +4,10 @@
 graphics.off() # clear figures
 #cat("\014") # clear console
 
-fig2lowestval <- min(dplyr::filter(all_data, figure_type == "fig2", stimulus_mt > 1.4, stimulus_mt < 1.6, complexity4 != "NA")$complexity4)
-fig2highestval <- max(dplyr::filter(all_data, figure_type == "fig2", stimulus_mt > 1.4, stimulus_mt < 1.6, complexity4 != "NA")$complexity4)
-fig2lowest <- subset(all_data, complexity4 == fig2lowestval)
-fig2highest <- subset(all_data, complexity4 == fig2highestval)
+# fig2lowestval <- min(dplyr::filter(all_data, figure_type == "fig2", stimulus_mt > 1.4, stimulus_mt < 1.6, complexity4 != "NA")$complexity4)
+# fig2highestval <- max(dplyr::filter(all_data, figure_type == "fig2", stimulus_mt > 1.4, stimulus_mt < 1.6, complexity4 != "NA")$complexity4)
+# fig2lowest <- subset(all_data, complexity4 == fig2lowestval)
+# fig2highest <- subset(all_data, complexity4 == fig2highestval)
 
 # lowest tortuosity score for 1500ms gt = p16_s4_b1_t10_2016-09-28.tlf 
 # highest tortuosity score for 1500ms gt = p15_s1_b1_t18_2016-09-19.tlf 
@@ -16,11 +16,11 @@ fig2highest <- subset(all_data, complexity4 == fig2highestval)
 # fig2
 #file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p16_2016-09-19 13:23:10/training/session_4/p16_s4_b1_t10_2016-09-28.zip"
 #file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p15_2016-09-19 12:33:09/testing/session_1/p15_s1_b1_t18_2016-09-19.zip"
-file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p13_2016-09-14 10:15:00/training/session_2/p13_s2_b4_t20_2016-09-16.zip" # 500 ms
+# file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p13_2016-09-14 10:15:00/training/session_2/p13_s2_b4_t20_2016-09-16.zip" # 500 ms
 
 #fig1
 #file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p20_2016-09-22 09:11:41/training/session_2/p20_s2_b3_t3_2016-09-27.zip" # 500 ms
-file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p20_2016-09-22 09:11:41/training/session_2/p20_s2_b3_t1_2016-09-27.zip" # 2000 ms
+# file.name <- "/Users/tonyingram/TraceLab/ExpAssets/Data/p20_2016-09-22 09:11:41/training/session_2/p20_s2_b3_t1_2016-09-27.zip" # 2000 ms
 
 
 name.tlf <- gsub(".zip",".tlf",basename(file.name))
@@ -33,6 +33,11 @@ pts <- read.table(unz(file.name, name.pts),stringsAsFactors=FALSE, sep=",")
 #create data frames
 data_stim <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlf)), ", "))),ncol=3,nrow=length(tlf)/3, byrow=TRUE))
 points <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(pts)), ", "))),ncol=2,nrow=length(pts)/2, byrow=TRUE))
+
+
+
+
+
 
 #data_stim2 <- data_stim
 # YEAH, a repeated figure captures literally the same points!
