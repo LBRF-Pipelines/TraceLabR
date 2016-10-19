@@ -115,9 +115,33 @@ for(i in 1:length(file.names)) {
         bez_points5 <- bezier0(t, ctrl_pts[13:15,])
         bez_fig <- matrix(rbind(bez_points1,bez_points2,bez_points3,bez_points4,bez_points5), ncol=2)
         
-        #plot(bez_fig[,1],-bez_fig[,2])
-        #compare to real figure:
-        #plot(data_five$X1,-data_five$X2)
+        # plot(bez_fig[,1], bez_fig[,2], xlim=c(0,1920), ylim=c(1080,0))
+        # compare to real figure:
+        # plot(data_five$X1, data_five$X2, xlim=c(0,1920), ylim=c(1080,0))
+        
+        # WTF IS HAPPENING?!
+        
+        # what if I screw with control points?
+        # make x of control points negative
+        
+        ##### interpolate data_five to make it equally spaced #####
+        
+        spl.time <- seq(0, 1, length=nrow(data_five))
+        xnew <- splinefun(spl.time, data_five$X1)
+        ynew <- splinefun(spl.time, data_five$X2)
+        spl.time2 <- seq(min(spl.time), max(spl.time), length.out = 500)
+        five_fig <- matrix(cbind(xnew(spl.time2), ynew(spl.time2)), ncol=2)
+        #plot(five_fig[,1], five_fig[,2], xlim=c(0,1920), ylim=c(1080,0))
+        
+        # are five_fig points equally spaced after the spline interpolation?
+        five_fig_d <- matrix()
+        for (k in 1:(nrow(five_fig)-1)) {
+                d_length <- sqrt((five_fig[k+1,1]-five_fig[k,1])^2 + (five_fig[k+1,2]-five_fig[k,2])^2)
+                five_fig_d[k] <- d_length
+        }
+        print(five_fig_d) # NO... WTF
+        
+
         
         
         
