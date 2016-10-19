@@ -47,6 +47,36 @@ for(i in 1:length(file.names)) {
         data_five_n <- nrow(data_five)
         all_figs[i,1] <- data_five_n 
         
+        # Bezier Curve Functions:
+        bezier0 <- function(t, p){
+                b0x = (((1-t)^2)*p[1,1]) + (2*(1-t)*t*p[2,1]) + ((t^2)*p[3,1])
+                b0y = (((1-t)^2)*p[1,2]) + (2*(1-t)*t*p[2,2]) + ((t^2)*p[3,2])
+                b0 <- cbind(b0x,b0y)
+                return(b0)
+        } # create quadratic bez curve
+        bezier1 <- function(t, p){
+                b1x = (2 * (1-t) * (p[2,1]-p[1,1])) + (2 * t * (p[3,1] - p[2,1]))
+                b1y = (2 * (1-t) * (p[2,2]-p[1,2])) + (2 * t * (p[3,2] - p[2,2]))
+                b1 <- cbind(b1x,b1y)
+                return(b1)
+        } # first deriv of quad bez
+        bezier2 <- function(t, p){
+                b2x = (2 * (p[3,1] - (2 * p[2,1]) + p[1,1]))
+                b2y = (2 * (p[3,2] - (2 * p[2,2]) + p[1,2]))
+                b2 <- cbind(b2x,b2y)
+                return(b2)
+        } # second deriv of quad bez
+        bcurv = function(t, p){
+                b1x = (2 * (1-t) * (p[2,1]-p[1,1])) + (2 * t * (p[3,1] - p[2,1])) #first derivative of x
+                b1y = (2 * (1-t) * (p[2,2]-p[1,2])) + (2 * t * (p[3,2] - p[2,2])) #first derivative of y
+                b2x = (2 * (p[3,1] - (2 * p[2,1]) + p[1,1])) #second derivative of x
+                b2y = (2 * (p[3,2] - (2 * p[2,2]) + p[1,2])) #second derivative of y
+                bez_curv <- ((b1x * b2y) - (b1y * b2x))/(((b1x^2) + (b1y^2))^(3/2)) #signed curvature
+                return(bez_curv)
+        } # curvature at t points
+        
+        
+        
 }
 
 
