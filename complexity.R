@@ -387,6 +387,8 @@ bcurv = function(t, p){
         bez_curv <- ((b1x * b2y) - (b1y * b2x))/(((b1x^2) + (b1y^2))^(3/2)) #signed curvature
         return(bez_curv)
 } 
+bez_curvature <- bcurv(t,p)
+plot(t, bez_curvature)
 
 # integrate:
 bcuv.spl <- splinefun(x = t, y = abs(bez_curvature))
