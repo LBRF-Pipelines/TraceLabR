@@ -43,6 +43,14 @@ for(i in 1:length(file.names)) {
         ctrl_pts <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlfs)), ", "))),ncol=2,nrow=length(tlfs)/2, byrow=TRUE)) 
         data_five <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlfx)), ", "))),ncol=2,nrow=length(tlfx)/2, byrow=TRUE))
         
+        # rearrange control points 
+        # currently [point, point, ctrl]..., needs to be [point, ctrl, point]
+        for(j in 1:nrow(ctrl_pts)){
+                if (j %% 3 == 0){
+                        ctrl_pts[(j-1):j,] <- ctrl_pts[j:(j-1),]
+                }
+        } # every 3rd row switched with previous row
+        
         # how many data points in five seconds?
         data_five_n <- nrow(data_five)
         all_figs[i,1] <- data_five_n 
