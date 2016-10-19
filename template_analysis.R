@@ -69,7 +69,9 @@ for(i in 1:length(file.names)) {
         
         # NOPE :/ 
         
-        t <- seq(0, 1, length=60)
+        
+        ##### Bezier Curve Analysis #####
+        
         # Bezier Curve Functions:
         bezier0 <- function(t, p){
                 b0x = (((1-t)^2)*p[1,1]) + (2*(1-t)*t*p[2,1]) + ((t^2)*p[3,1])
@@ -98,7 +100,14 @@ for(i in 1:length(file.names)) {
                 return(bez_curv)
         } # curvature at t points
         
-        # make this a function... geez
+        # reproduce figure using control points:
+        
+        # *NOTE* that this doesn't produce equally spaced points.
+        # use splines for this? even necessary for integrating later?
+        # what about arclength? 
+        
+        t <- seq(0, 1, length=100)
+        # make this a function or loop of some sort... geez
         bez_points1 <- bezier0(t, ctrl_pts[1:3,])
         bez_points2 <- bezier0(t, ctrl_pts[4:6,])
         bez_points3 <- bezier0(t, ctrl_pts[7:9,])
