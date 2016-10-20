@@ -5,8 +5,8 @@
 # figures. The purpose is to characterize the randomly generated figures 
 # (pathlength, complexity, etc.) at the parameters set in TraceLab_params.py.
 
-rm(list = ls()) # clear work space
-# rm(list=setdiff(ls(), "all_figs")) # clear all but all_figs
+# rm(list = ls()) # clear work space
+rm(list=setdiff(ls(), c("all_figs","all_data"))) # clear all but all_figs
 # graphics.off() # clear figures
 # cat("\014") # clear console
 
@@ -53,6 +53,8 @@ for(i in 1:length(file.names)) {
                 }
         } # every 3rd row switched with previous row
         
+        ##### data_five analysis #####
+        
         # how many data points in five seconds?
         data_five_n <- nrow(data_five)
         all_figs[i,1] <- data_five_n 
@@ -68,6 +70,24 @@ for(i in 1:length(file.names)) {
         # plot(data_five$X1,-data_five$X2)
         
         # NOPE :/ 
+        
+        ##### interpolate data_five to make it equally spaced #####
+        
+        spl.time <- seq(0, 1, length=nrow(data_five))
+        xnew <- splinefun(spl.time, data_five$X1)
+        ynew <- splinefun(spl.time, data_five$X2)
+        spl.time2 <- seq(min(spl.time), max(spl.time), length.out = 500)
+        five_fig <- matrix(cbind(xnew(spl.time2), ynew(spl.time2)), ncol=2)
+        #plot(five_fig[,1], five_fig[,2], xlim=c(0,1920), ylim=c(1080,0))
+        
+        # are five_fig points equally spaced after the spline interpolation?
+        five_fig_d <- matrix()
+        for (k in 1:(nrow(five_fig)-1)) {
+                d_length <- sqrt((five_fig[k+1,1]-five_fig[k,1])^2 + (five_fig[k+1,2]-five_fig[k,2])^2)
+                five_fig_d[k] <- d_length
+        }
+        #print(five_fig_d) # NO... WTF
+        
         
         
         ##### Bezier Curve Analysis #####
@@ -118,32 +138,74 @@ for(i in 1:length(file.names)) {
         # plot(bez_fig[,1], bez_fig[,2], xlim=c(0,1920), ylim=c(1080,0))
         # compare to real figure:
         # plot(data_five$X1, data_five$X2, xlim=c(0,1920), ylim=c(1080,0))
-        
-        # WTF IS HAPPENING?!
+        # WTF IS HAPPENING?! for now use bez points... 
         
         # what if I screw with control points?
         # make x of control points negative
         
-        ##### interpolate data_five to make it equally spaced #####
-        
-        spl.time <- seq(0, 1, length=nrow(data_five))
-        xnew <- splinefun(spl.time, data_five$X1)
-        ynew <- splinefun(spl.time, data_five$X2)
-        spl.time2 <- seq(min(spl.time), max(spl.time), length.out = 500)
-        five_fig <- matrix(cbind(xnew(spl.time2), ynew(spl.time2)), ncol=2)
-        #plot(five_fig[,1], five_fig[,2], xlim=c(0,1920), ylim=c(1080,0))
-        
-        # are five_fig points equally spaced after the spline interpolation?
-        five_fig_d <- matrix()
-        for (k in 1:(nrow(five_fig)-1)) {
-                d_length <- sqrt((five_fig[k+1,1]-five_fig[k,1])^2 + (five_fig[k+1,2]-five_fig[k,2])^2)
-                five_fig_d[k] <- d_length
+        # make equally spaced figure:
+        t <- seq(0, 5, length=200) # t for five curves
+        # rearrange ctrl_pts to get rid of repeated points
+        ctrl_pts_rm <- ctrl_pts[1,]
+        for(j in 2:nrow(ctrl_pts)){
+                if (ctrl_pts[j,] != ctrl_pts[j-1,]){
+                        ctrl_pts_rm <- rbind(ctrl_pts_rm, ctrl_pts[j,])
+                }
         }
-        #print(five_fig_d) # NO... WTF
+        #bez_test <- bezier(t, ctrl_pts_rm, deg=2)
+        #plot(bez_test[,1],bez_test[,2], xlim=c(0,1920), ylim=c(1080,0))
         
+        bez_eqsp <- pointsOnBezier(ctrl_pts_rm, n = 200
+                                   , method = 'evenly_spaced'
+                                   , deg = 2
+                                   , print.progress = TRUE)
+        #plot(bez_eqsp$points[,1],bez_eqsp$points[,2], xlim=c(0,1920), ylim=c(1080,0))
+        
+        # # are bez_eqsp$points equally spaced after for real?
+        # bez_eqsp_d <- matrix()
+        # for (k in 1:(nrow(bez_eqsp$points)-1)) {
+        #         d_length <- sqrt((bez_eqsp$points[k+1,1]-bez_eqsp$points[k,1])^2 + (bez_eqsp$points[k+1,2]-bez_eqsp$points[k,2])^2)
+        #         bez_eqsp_d[k] <- d_length
+        # }
+        # plot(bez_eqsp_d)
+        # mean(bez_eqsp_d)
+        # sd(bez_eqsp_d) # YAAAAAS IT WORKS... the generation is crazy slow though... 
 
         
+        ##### approximate entropy / sample entropy #####
         
+        # using bez curve NOT equally distant points:
+        
+        # create "turning angle" sequence, reducing 2D (x,y) to 1D (relative angle):
+        bez_test_theta <- rep(0, length(bez_test[,1])-2) # note you always lose two points
+        for (a in 1:length(bez_test_theta)){
+                V1 = c(bez_test[a+1,1],bez_test[a+1,2]) - c(bez_test[a,1],bez_test[a,2])
+                V2 = c(bez_test[a+2,1],bez_test[a+2,2]) - c(bez_test[a+1,1],bez_test[a+1,2])
+                bez_test_theta[a] = atan2(V2[2],V2[1]) - atan2(V1[2],V1[1])
+                if (abs(bez_test_theta[a]) > pi){
+                        bez_test_theta[a] = bez_test_theta[a] - ((2*pi)*sign(bez_test_theta[a]))
+                }
+        }
+        approx_entropy(bez_test_theta)
+        sample_entropy(bez_test_theta)
+        
+        # using bez curve NOT equally distant points:
+        
+        # create "turning angle" sequence, reducing 2D (x,y) to 1D (relative angle):
+        bez_eqsp_theta <- rep(0, length(bez_eqsp$points[,1])-2) # note you always lose two points
+        for (a in 1:length(bez_eqsp_theta)){
+                V1 = c(bez_eqsp$points[a+1,1],bez_eqsp$points[a+1,2]) - c(bez_eqsp$points[a,1],bez_eqsp$points[a,2])
+                V2 = c(bez_eqsp$points[a+2,1],bez_eqsp$points[a+2,2]) - c(bez_eqsp$points[a+1,1],bez_eqsp$points[a+1,2])
+                bez_eqsp_theta[a] = atan2(V2[2],V2[1]) - atan2(V1[2],V1[1])
+                if (abs(bez_eqsp_theta[a]) > pi){
+                        bez_eqsp_theta[a] = bez_eqsp_theta[a] - ((2*pi)*sign(bez_eqsp_theta[a]))
+                }
+        }
+        approx_entropy(bez_eqsp_theta)
+        sample_entropy(bez_eqsp_theta)
+        
+        # very slight difference in entropy scores when normalizing distances... 
+        # might not be necessary for this analysis... ?
         
         
 }
