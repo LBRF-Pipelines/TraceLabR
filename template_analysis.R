@@ -143,8 +143,12 @@ for(i in 1:length(file.names)) {
         # what if I screw with control points?
         # make x of control points negative
         
-        # make equally spaced figure:
+        # another method, using Bezier package:
         t <- seq(0, 5, length=200) # t for five curves
+        bez_test <- bezier(t, ctrl_pts_rm, deg=2)
+        
+        # make equally spaced figure:
+        
         # rearrange ctrl_pts to get rid of repeated points
         ctrl_pts_rm <- ctrl_pts[1,]
         for(j in 2:nrow(ctrl_pts)){
