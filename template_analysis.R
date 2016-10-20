@@ -170,6 +170,8 @@ for(i in 1:length(file.names)) {
         # plot(bez_eqsp_d)
         # mean(bez_eqsp_d)
         # sd(bez_eqsp_d) # YAAAAAS IT WORKS... the generation is crazy slow though... 
+        
+        # how about arc length? should *not* be different... 
 
         
         ##### approximate entropy / sample entropy #####
