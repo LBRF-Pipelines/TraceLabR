@@ -5,6 +5,10 @@
 # figures. The purpose is to characterize the randomly generated figures 
 # (pathlength, complexity, etc.) at the parameters set in TraceLab_params.py.
 
+#### TO DO ####
+# 1. add sinuosity
+# 2. add mean seg curvature ? total probably better... 
+
 # rm(list = ls()) # clear work space
 #rm(list=setdiff(ls(), c("all_figs"))) # clear all but all_figs
 rm(list=setdiff(ls(), c("all_data"))) # clear all but all_data
@@ -30,8 +34,8 @@ path <- "../autofigs"
 file.names <- dir(path, recursive = TRUE, full.names = TRUE,pattern="\\.zip$")
 
 # initialize data frame, and name each column up front
-all_figs <- data.frame(matrix(ncol = 2, nrow = length(file.names)))
-names(all_figs) <- c("data_five_n","blah")
+all_figs <- data.frame(matrix(ncol = 6, nrow = length(file.names)))
+names(all_figs) <- c("figure", "data_five_n","bezfig_len", "totabscurv", "ApEn", "SampEn")
 
 #i = 1
 
@@ -49,6 +53,9 @@ for(i in 1:length(file.names)) {
         ctrl_pts <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlfs)), ", "))),ncol=2,nrow=length(tlfs)/2, byrow=TRUE)) 
         data_five <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlfx)), ", "))),ncol=2,nrow=length(tlfx)/2, byrow=TRUE))
         
+        # add file name to data frame:
+        all_figs[i,1] <- file.names[i]
+        
         # rearrange control points 
         # currently [point, point, ctrl]..., needs to be [point, ctrl, point]
         for(j in 1:nrow(ctrl_pts)){
@@ -61,19 +68,19 @@ for(i in 1:length(file.names)) {
         # this is needed for the bezier package
         ctrl_pts_rm <- ctrl_pts[1,]
         for(j in 2:nrow(ctrl_pts)){
-                if (ctrl_pts[j,] != ctrl_pts[j-1,]){
+                if (ctrl_pts[j,1] != ctrl_pts[j-1,1] & ctrl_pts[j,2] != ctrl_pts[j-1,2]){
                         ctrl_pts_rm <- rbind(ctrl_pts_rm, ctrl_pts[j,])
                 }
         }
-        
-        #bez_test <- bezier::bezier(t, ctrl_pts_rm, deg=2)
-        #plot(bez_test[,1],bez_test[,2], xlim=c(0,1920), ylim=c(1080,0))
+        # test to see if this worked:
+        # bez_test <- bezier::bezier(t, ctrl_pts_rm, deg=2)
+        # plot(bez_test[,1],bez_test[,2], xlim=c(0,1920), ylim=c(1080,0))
         
         ##### data_five analysis #####
         
         # how many data points in five seconds?
         data_five_n <- nrow(data_five)
-        all_figs[i,1] <- data_five_n 
+        all_figs[i,2] <- data_five_n 
         
         # are data_five points equally spaced?
         data_five_d <- matrix()
@@ -132,92 +139,173 @@ for(i in 1:length(file.names)) {
                 b1y = (2 * (1-t) * (p[2,2]-p[1,2])) + (2 * t * (p[3,2] - p[2,2])) #first derivative of y
                 b2x = (2 * (p[3,1] - (2 * p[2,1]) + p[1,1])) #second derivative of x
                 b2y = (2 * (p[3,2] - (2 * p[2,2]) + p[1,2])) #second derivative of y
-                bez_curv <- ((b1x * b2y) - (b1y * b2x))/(((b1x^2) + (b1y^2))^(3/2)) #signed curvature
-                return(bez_curv)
+                bez_curvature <- ((b1x * b2y) - (b1y * b2x))/(((b1x^2) + (b1y^2))^(3/2)) #signed curvature
+                return(bez_curvature)
         } # curvature at t points
         
         # reproduce figure using control points:
         
-        # *NOTE* that this doesn't produce equally spaced points.
-        # use splines for this? even necessary for integrating later?
-        # what about arclength? 
+        # *NOTE* that these do not produce equally spaced points, but see below.
         
-        t <- seq(0, 1, length=100)
-        # make this a function or loop of some sort... geez
-        bez_points1 <- bezier0(t, ctrl_pts[1:3,])
-        bez_points2 <- bezier0(t, ctrl_pts[4:6,])
-        bez_points3 <- bezier0(t, ctrl_pts[7:9,])
-        bez_points4 <- bezier0(t, ctrl_pts[10:12,])
-        bez_points5 <- bezier0(t, ctrl_pts[13:15,])
-        bez_fig <- matrix(rbind(bez_points1,bez_points2,bez_points3,bez_points4,bez_points5), ncol=2)
+        # # recreate figure using my own functions:
+        # n_segs <- 5
+        # t <- seq(0, 1, length=300/n_segs)
+        # bez_fig <- matrix(rbind(
+        #         bezier0(t, ctrl_pts[1:3,])
+        #         , bezier0(t, ctrl_pts[4:6,])
+        #         , bezier0(t, ctrl_pts[7:9,])
+        #         , bezier0(t, ctrl_pts[10:12,])
+        #         , bezier0(t, ctrl_pts[13:15,])
+        #         ), ncol=2)
         
+        # another method, using bezier package:
+        t <- seq(0, 5, length=300) # t for five curves
+        bez_fig <- bezier(t, ctrl_pts_rm, deg=2)
+        
+        # # either way, test to see if similar to data_five:
         # plot(bez_fig[,1], bez_fig[,2], xlim=c(0,1920), ylim=c(1080,0))
-        # compare to real figure:
+        # # compare to real figure:
         # plot(data_five$X1, data_five$X2, xlim=c(0,1920), ylim=c(1080,0))
-        # WTF IS HAPPENING?! for now use bez points... 
-        
-        # what if I screw with control points?
-        # make x of control points negative
-        
-        # another method, using Bezier package:
-        t <- seq(0, 5, length=200) # t for five curves
-        bez_curv <- bezier(t, ctrl_pts_rm, deg=2)
+        # # WTF IS HAPPENING?! for now use bez points...
         
         # make equally spaced figure:
         
-        bez_eqsp <- pointsOnBezier(ctrl_pts_rm, n = 200
-                                   , method = 'evenly_spaced'
-                                   , deg = 2
-                                   , print.progress = TRUE)
-        #plot(bez_eqsp$points[,1],bez_eqsp$points[,2], xlim=c(0,1920), ylim=c(1080,0))
-        
+        # bez_eqsp <- pointsOnBezier(
+        #         ctrl_pts_rm
+        #         , n = 300
+        #         , method = 'evenly_spaced'
+        #         , deg = 2
+        #         , print.progress = TRUE
+        #         , sub.relative.min.slope = 1e-2
+        # )
+        # plot(bez_eqsp$points[,1],bez_eqsp$points[,2], xlim=c(0,1920), ylim=c(1080,0))
+        # 
         # # are bez_eqsp$points equally spaced after for real?
         # bez_eqsp_d <- matrix()
         # for (k in 1:(nrow(bez_eqsp$points)-1)) {
         #         d_length <- sqrt((bez_eqsp$points[k+1,1]-bez_eqsp$points[k,1])^2 + (bez_eqsp$points[k+1,2]-bez_eqsp$points[k,2])^2)
         #         bez_eqsp_d[k] <- d_length
         # }
-        # plot(bez_eqsp_d)
+        # # plot(bez_eqsp_d)
         # mean(bez_eqsp_d)
-        # sd(bez_eqsp_d) # YAAAAAS IT WORKS... the generation is crazy slow though... 
-        
-        # how about arc length? should *not* be different... 
+        # sd(bez_eqsp_d) # YAAAAAS IT WORKS... the generation is crazy slow though...
 
+        
+        ##### arclength #####
+        
+        bezfig_len <- bezierArcLength(
+                ctrl_pts_rm
+                , deg = 2
+        )
+        # print(bezfig_len$arc.length)
+        all_figs[i,3] <- bezfig_len$arc.length
+        
+        # # adding up distances for not equidistant points:
+        # bez_fig_d <- matrix()
+        # for (k in 1:(nrow(bez_fig)-1)) {
+        #         d_length <- sqrt((bez_fig[k+1,1]-bez_fig[k,1])^2 + (bez_fig[k+1,2]-bez_fig[k,2])^2)
+        #         bez_fig_d[k] <- d_length
+        # }
+        # sum(bez_fig_d)
+        # 
+        # # adding up distances for equidistant points:
+        # bez_eqsp_d <- matrix()
+        # for (k in 1:(nrow(bez_eqsp$points)-1)) {
+        #         d_length <- sqrt((bez_eqsp$points[k+1,1]-bez_eqsp$points[k,1])^2 + (bez_eqsp$points[k+1,2]-bez_eqsp$points[k,2])^2)
+        #         bez_eqsp_d[k] <- d_length
+        # }
+        # sum(bez_eqsp_d)
+        # 
+        # # BARELY DIFFERENT... yaaaaas!!!! just use function then... 
+
+        ##### curvature #####
+        
+        # using my own function, so need to specify t as such:
+        n_segs <- 5
+        t <- seq(0, 1, length=300/n_segs)
+        # curvature <- c(bcurv(t, ctrl_pts[1:3,])
+        #              , bcurv(t, ctrl_pts[4:6,])
+        #              , bcurv(t, ctrl_pts[7:9,])
+        #              , bcurv(t, ctrl_pts[10:12,])
+        #              , bcurv(t, ctrl_pts[13:15,])
+        # )
+        # plot(curvature) # looks very odd 
+        # obviously not a good way to look at this... 
+        
+        # calculate total absolute curvature of each segment and sum:
+        totabscurv <- (integrate(
+                        splinefun(
+                                x = t, y = abs(
+                                        bcurv(t, ctrl_pts[1:3,])
+                                )
+                        )
+                , min(t), max(t))
+                )$value + (integrate(
+                        splinefun(
+                                x = t, y = abs(
+                                        bcurv(t, ctrl_pts[4:6,])
+                                )
+                        )
+                        , min(t), max(t))
+                )$value +(integrate(
+                        splinefun(
+                                x = t, y = abs(
+                                        bcurv(t, ctrl_pts[7:9,])
+                                )
+                        )
+                        , min(t), max(t))
+                )$value +(integrate(
+                        splinefun(
+                                x = t, y = abs(
+                                        bcurv(t, ctrl_pts[10:12,])
+                                )
+                        )
+                        , min(t), max(t))
+                )$value +(integrate(
+                        splinefun(
+                                x = t, y = abs(
+                                        bcurv(t, ctrl_pts[13:15,])
+                                )
+                        )
+                        , min(t), max(t))
+                )$value
+        all_figs[i,4] <- totabscurv
+        
         
         ##### approximate entropy / sample entropy #####
         
         # using bez curve NOT equally distant points:
         
         # create "turning angle" sequence, reducing 2D (x,y) to 1D (relative angle):
-        bez_test_theta <- rep(0, length(bez_test[,1])-2) # note you always lose two points
-        for (a in 1:length(bez_test_theta)){
-                V1 = c(bez_test[a+1,1],bez_test[a+1,2]) - c(bez_test[a,1],bez_test[a,2])
-                V2 = c(bez_test[a+2,1],bez_test[a+2,2]) - c(bez_test[a+1,1],bez_test[a+1,2])
-                bez_test_theta[a] = atan2(V2[2],V2[1]) - atan2(V1[2],V1[1])
-                if (abs(bez_test_theta[a]) > pi){
-                        bez_test_theta[a] = bez_test_theta[a] - ((2*pi)*sign(bez_test_theta[a]))
+        bez_fig_theta <- rep(0, length(bez_fig[,1])-2) # note you always lose two points
+        for (a in 1:length(bez_fig_theta)){
+                V1 = c(bez_fig[a+1,1],bez_fig[a+1,2]) - c(bez_fig[a,1],bez_fig[a,2])
+                V2 = c(bez_fig[a+2,1],bez_fig[a+2,2]) - c(bez_fig[a+1,1],bez_fig[a+1,2])
+                bez_fig_theta[a] = atan2(V2[2],V2[1]) - atan2(V1[2],V1[1])
+                if (abs(bez_fig_theta[a]) > pi){
+                        bez_fig_theta[a] = bez_fig_theta[a] - ((2*pi)*sign(bez_fig_theta[a]))
                 }
         }
-        approx_entropy(bez_test_theta)
-        sample_entropy(bez_test_theta)
+        all_figs[i,5] <- approx_entropy(bez_fig_theta) # note, increasing length of sequence decreases both significantly... 
+        all_figs[i,6] <- sample_entropy(bez_fig_theta) # sample entropy isn't supposed to be like that... what gives? 
         
-        # using bez curve NOT equally distant points:
+        # using bez curve WITH equally distant points:
         
-        # create "turning angle" sequence, reducing 2D (x,y) to 1D (relative angle):
-        bez_eqsp_theta <- rep(0, length(bez_eqsp$points[,1])-2) # note you always lose two points
-        for (a in 1:length(bez_eqsp_theta)){
-                V1 = c(bez_eqsp$points[a+1,1],bez_eqsp$points[a+1,2]) - c(bez_eqsp$points[a,1],bez_eqsp$points[a,2])
-                V2 = c(bez_eqsp$points[a+2,1],bez_eqsp$points[a+2,2]) - c(bez_eqsp$points[a+1,1],bez_eqsp$points[a+1,2])
-                bez_eqsp_theta[a] = atan2(V2[2],V2[1]) - atan2(V1[2],V1[1])
-                if (abs(bez_eqsp_theta[a]) > pi){
-                        bez_eqsp_theta[a] = bez_eqsp_theta[a] - ((2*pi)*sign(bez_eqsp_theta[a]))
-                }
-        }
-        approx_entropy(bez_eqsp_theta)
-        sample_entropy(bez_eqsp_theta)
+        # # create "turning angle" sequence, reducing 2D (x,y) to 1D (relative angle):
+        # bez_eqsp_theta <- rep(0, length(bez_eqsp$points[,1])-2) # note you always lose two points
+        # for (a in 1:length(bez_eqsp_theta)){
+        #         V1 = c(bez_eqsp$points[a+1,1],bez_eqsp$points[a+1,2]) - c(bez_eqsp$points[a,1],bez_eqsp$points[a,2])
+        #         V2 = c(bez_eqsp$points[a+2,1],bez_eqsp$points[a+2,2]) - c(bez_eqsp$points[a+1,1],bez_eqsp$points[a+1,2])
+        #         bez_eqsp_theta[a] = atan2(V2[2],V2[1]) - atan2(V1[2],V1[1])
+        #         if (abs(bez_eqsp_theta[a]) > pi){
+        #                 bez_eqsp_theta[a] = bez_eqsp_theta[a] - ((2*pi)*sign(bez_eqsp_theta[a]))
+        #         }
+        # }
+        # approx_entropy(bez_eqsp_theta)
+        # sample_entropy(bez_eqsp_theta)
         
         # very slight difference in entropy scores when normalizing distances... 
-        # might not be necessary for this analysis... ?
+        # might not be necessary for this analysis... ? would help speed big time... 
         
         
 }
