@@ -139,7 +139,7 @@ for(i in 1:length(file.names)) {
                 d_length <- sqrt((five_fig[k+1,1]-five_fig[k,1])^2 + (five_fig[k+1,2]-five_fig[k,2])^2)
                 five_fig_d[k] <- d_length
         }
-        print(five_fig_d) # NO... WTF
+        #print(five_fig_d) # NO... WTF
         
 
         
