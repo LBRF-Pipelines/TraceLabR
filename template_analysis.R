@@ -1,12 +1,14 @@
 ##### Template Figure Analysis #####
-##### authored by Tony Ingram #####
+  ### authored by Tony Ingram ###
 
 # This script analyzes large numbers of auto-generated template trajectory 
 # figures. The purpose is to characterize the randomly generated figures 
 # (pathlength, complexity, etc.) at the parameters set in TraceLab_params.py.
 
 # rm(list = ls()) # clear work space
-rm(list=setdiff(ls(), c("all_figs","all_data"))) # clear all but all_figs
+#rm(list=setdiff(ls(), c("all_figs"))) # clear all but all_figs
+rm(list=setdiff(ls(), c("all_data"))) # clear all but all_data
+#rm(list=setdiff(ls(), c("all_figs","all_data"))) # clear all but all_figs & all_data
 # graphics.off() # clear figures
 # cat("\014") # clear console
 
@@ -20,6 +22,8 @@ library(dplyr) # data wrangling
 library(ggplot2) # plotting
 library(pracma) # for ApEn and SampEn
 library(bezier) # for bezier curve analysis
+
+# initialize data frame
 
 # Find all .zip files
 path <- "../autofigs"
@@ -53,6 +57,18 @@ for(i in 1:length(file.names)) {
                 }
         } # every 3rd row switched with previous row
         
+        # rearrange ctrl_pts to get rid of repeated points
+        # this is needed for the bezier package
+        ctrl_pts_rm <- ctrl_pts[1,]
+        for(j in 2:nrow(ctrl_pts)){
+                if (ctrl_pts[j,] != ctrl_pts[j-1,]){
+                        ctrl_pts_rm <- rbind(ctrl_pts_rm, ctrl_pts[j,])
+                }
+        }
+        
+        #bez_test <- bezier::bezier(t, ctrl_pts_rm, deg=2)
+        #plot(bez_test[,1],bez_test[,2], xlim=c(0,1920), ylim=c(1080,0))
+        
         ##### data_five analysis #####
         
         # how many data points in five seconds?
@@ -73,20 +89,20 @@ for(i in 1:length(file.names)) {
         
         ##### interpolate data_five to make it equally spaced #####
         
-        spl.time <- seq(0, 1, length=nrow(data_five))
-        xnew <- splinefun(spl.time, data_five$X1)
-        ynew <- splinefun(spl.time, data_five$X2)
-        spl.time2 <- seq(min(spl.time), max(spl.time), length.out = 500)
-        five_fig <- matrix(cbind(xnew(spl.time2), ynew(spl.time2)), ncol=2)
-        #plot(five_fig[,1], five_fig[,2], xlim=c(0,1920), ylim=c(1080,0))
-        
-        # are five_fig points equally spaced after the spline interpolation?
-        five_fig_d <- matrix()
-        for (k in 1:(nrow(five_fig)-1)) {
-                d_length <- sqrt((five_fig[k+1,1]-five_fig[k,1])^2 + (five_fig[k+1,2]-five_fig[k,2])^2)
-                five_fig_d[k] <- d_length
-        }
-        #print(five_fig_d) # NO... WTF
+        # spl.time <- seq(0, 1, length=nrow(data_five))
+        # xnew <- splinefun(spl.time, data_five$X1)
+        # ynew <- splinefun(spl.time, data_five$X2)
+        # spl.time2 <- seq(min(spl.time), max(spl.time), length.out = 500)
+        # five_fig <- matrix(cbind(xnew(spl.time2), ynew(spl.time2)), ncol=2)
+        # #plot(five_fig[,1], five_fig[,2], xlim=c(0,1920), ylim=c(1080,0))
+        # 
+        # # are five_fig points equally spaced after the spline interpolation?
+        # five_fig_d <- matrix()
+        # for (k in 1:(nrow(five_fig)-1)) {
+        #         d_length <- sqrt((five_fig[k+1,1]-five_fig[k,1])^2 + (five_fig[k+1,2]-five_fig[k,2])^2)
+        #         five_fig_d[k] <- d_length
+        # }
+        # print(five_fig_d) # NO... WTF
         
         
         
@@ -145,19 +161,9 @@ for(i in 1:length(file.names)) {
         
         # another method, using Bezier package:
         t <- seq(0, 5, length=200) # t for five curves
-        bez_test <- bezier(t, ctrl_pts_rm, deg=2)
+        bez_curv <- bezier(t, ctrl_pts_rm, deg=2)
         
         # make equally spaced figure:
-        
-        # rearrange ctrl_pts to get rid of repeated points
-        ctrl_pts_rm <- ctrl_pts[1,]
-        for(j in 2:nrow(ctrl_pts)){
-                if (ctrl_pts[j,] != ctrl_pts[j-1,]){
-                        ctrl_pts_rm <- rbind(ctrl_pts_rm, ctrl_pts[j,])
-                }
-        }
-        #bez_test <- bezier(t, ctrl_pts_rm, deg=2)
-        #plot(bez_test[,1],bez_test[,2], xlim=c(0,1920), ylim=c(1080,0))
         
         bez_eqsp <- pointsOnBezier(ctrl_pts_rm, n = 200
                                    , method = 'evenly_spaced'

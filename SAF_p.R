@@ -1,5 +1,5 @@
 ##### Speed Accuracy Functions #####
-##### authored by Tony Ingram #####
+  ### authored by Tony Ingram ###
 
 ## TO DO ##
 # 1. look at looping fitting, so I can do other error outcomes (raw, shape, scale, rot, trans)

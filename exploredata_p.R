@@ -1,5 +1,5 @@
-##### Exploring Data ##### 
-##### authored by Tony Ingram #####
+#####     Exploring Data      ##### 
+  ### authored by Tony Ingram ###
 
 ## TO DO ##
 # 1. for MT check, find out how to color plots by day
