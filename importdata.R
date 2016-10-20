@@ -31,7 +31,7 @@ out.file <- "" # note, using "" here is why everything is output as a character 
 for(i in 1:length(file.names)) {
         name.tlf <- gsub(".zip",".tlf",basename(file.names[i]))
         name.tlt <- gsub(".zip",".tlt",basename(file.names[i]))
-        name.pts <- gsub(".zip","_points.txt",basename(file.names[i]))
+        name.pts <- gsub(".zip",".tlfp",basename(file.names[i]))
         # read in data 
         tlf <- read.table(unz(file.names[i], name.tlf),stringsAsFactors=FALSE, sep=",")
         tlt <- read.table(unz(file.names[i], name.tlt),stringsAsFactors=FALSE, sep=",")
