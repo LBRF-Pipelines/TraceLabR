@@ -7,8 +7,6 @@
 
 #### TO DO ####
 # 1. add sinuosity
-# 2. try calculating curvature with equally spaced points to see if it's different
-# 3. try calculating ApEn with curvature
 
 # rm(list = ls()) # clear work space
 #rm(list=setdiff(ls(), c("all_figs"))) # clear all but all_figs
@@ -146,9 +144,10 @@ for(i in 1:length(file.names)) {
                 return(bez_curvature)
         } # curvature at t points
         
-        # reproduce figure using control points:
+        ### reproduce figure using control points: ###
         
-        # *NOTE* that these do not produce equally spaced points, but see below.
+        # *NOTE* that these methods do not produce equally spaced points, 
+        # but see below — don't need.
         
         # # recreate figure using my own functions:
         # n_segs <- 5
@@ -171,8 +170,8 @@ for(i in 1:length(file.names)) {
         # plot(data_five$X1, data_five$X2, xlim=c(0,1920), ylim=c(1080,0))
         # # WTF IS HAPPENING?! for now use bez points...
         
-        # make equally spaced figure:
-        
+        # make equally spaced figure: (don't need for now)
+         
         # bez_eqsp <- pointsOnBezier(
         #         ctrl_pts_rm
         #         , n = 300
@@ -226,14 +225,35 @@ for(i in 1:length(file.names)) {
         # using my own function, so need to specify t as such:
         n_segs <- 5
         t <- seq(0, 1, length=300/n_segs)
-        # curvature <- c(bcurv(t, ctrl_pts[1:3,])
-        #              , bcurv(t, ctrl_pts[4:6,])
-        #              , bcurv(t, ctrl_pts[7:9,])
-        #              , bcurv(t, ctrl_pts[10:12,])
-        #              , bcurv(t, ctrl_pts[13:15,])
-        # )
-        # plot(curvature) # looks very odd 
+        curvature <- c(bcurv(t, ctrl_pts[1:3,])
+                     , bcurv(t, ctrl_pts[4:6,])
+                     , bcurv(t, ctrl_pts[7:9,])
+                     , bcurv(t, ctrl_pts[10:12,])
+                     , bcurv(t, ctrl_pts[13:15,])
+        )
+        plot(curvature) # looks very odd
         # obviously not a good way to look at this... 
+        
+        # calculate curvature with equally spaced points:
+        s <- seq(from = 1, to = 100, length.out = nrow(bez_eqsp$points)) # ends at 99.888889
+        s2 <- s #seq(min(s), max(s), length.out = 10000) # ends at 99.888889
+        xt.spl <- splinefun(x = s, y = bez_eqsp$points[,1]) 
+        yt.spl <- splinefun(x = s, y = bez_eqsp$points[,2])
+        curvature2 = (
+                (xt.spl(s2, deriv=1) * yt.spl(s2, deriv=2)) - (yt.spl(s2, deriv=1) * xt.spl(s2, deriv=2)))/
+                ((xt.spl(s2, deriv=1)^2 + yt.spl(s2, deriv=1)^2)^(3/2)) #signed curvature
+        plot(s2, curvature2, ylim= c(-0.015,0.06))
+        
+        approx_entropy(curvature)
+        approx_entropy(curvature2) #these two barely different... 
+        
+        sample_entropy(curvature)
+        sample_entropy(curvature2) #these two pretty different...
+        
+        # CONCLUSION: using equally spaced points doesn't seem to make a difference
+        # also, both ApEn and SampEn calculations are very similar to to what we're
+        # getting with turning angle below. As turning angle accounts for the actual
+        # segment change, I prefer that for the regularity score.
         
         # calculate total absolute curvature of each segment and sum:
         totabscurv <- (integrate(
