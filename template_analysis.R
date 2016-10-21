@@ -6,7 +6,7 @@
 # (pathlength, complexity, etc.) at the parameters set in TraceLab_params.py.
 
 #### TO DO ####
-# 1. add sinuosity
+
 
 # rm(list = ls()) # clear work space
 #rm(list=setdiff(ls(), c("all_figs"))) # clear all but all_figs
@@ -34,7 +34,7 @@ file.names <- dir(path, recursive = TRUE, full.names = TRUE,pattern="\\.zip$")
 
 # initialize data frame, and name each column up front
 all_figs <- data.frame(matrix(ncol = 6, nrow = length(file.names)))
-names(all_figs) <- c("figure", "data_five_n","bezfig_len", "totabscurv", "ApEn", "SampEn")
+names(all_figs) <- c("figure", "bezfig_len", "sinuosity", "totabscurv", "ApEn", "SampEn")
 
 #i = 1
 
@@ -42,15 +42,15 @@ names(all_figs) <- c("figure", "data_five_n","bezfig_len", "totabscurv", "ApEn",
 for(i in 1:length(file.names)) {
         name.p <- gsub(".zip",".tlfp",basename(file.names[i]))
         name.s <- gsub(".zip",".tlfs",basename(file.names[i]))
-        name.x <- gsub(".zip",".tlfx",basename(file.names[i]))
+        # name.x <- gsub(".zip",".tlfx",basename(file.names[i])) # tlfx disabled as it did not add any information — see below.
         # read in data 
         tlfp <- read.table(unz(file.names[i], name.p),stringsAsFactors=FALSE, sep=",")
         tlfs <- read.table(unz(file.names[i], name.s),stringsAsFactors=FALSE, sep=",")
-        tlfx <- read.table(unz(file.names[i], name.x),stringsAsFactors=FALSE, sep=",")
+        # tlfx <- read.table(unz(file.names[i], name.x),stringsAsFactors=FALSE, sep=",")
         # create data frames
         vertices <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlfp)), ", "))),ncol=2,nrow=length(tlfp)/2, byrow=TRUE)) 
         ctrl_pts <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlfs)), ", "))),ncol=2,nrow=length(tlfs)/2, byrow=TRUE)) 
-        data_five <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlfx)), ", "))),ncol=2,nrow=length(tlfx)/2, byrow=TRUE))
+        # data_five <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlfx)), ", "))),ncol=2,nrow=length(tlfx)/2, byrow=TRUE))
         
         # add file name to data frame:
         all_figs[i,1] <- file.names[i]
@@ -76,12 +76,13 @@ for(i in 1:length(file.names)) {
         # plot(bez_test[,1],bez_test[,2], xlim=c(0,1920), ylim=c(1080,0))
         
         ##### data_five analysis #####
+        ## no longer implimented as the five sec data didn't add anything useful
         
         # plot(data_five$X1,data_five$X2, xlim=c(0,1920), ylim=c(1080,0))
         
         # how many data points in five seconds?
-        data_five_n <- nrow(data_five)
-        all_figs[i,2] <- data_five_n 
+        # data_five_n <- nrow(data_five)
+        # all_figs[i,2] <- data_five_n 
         
         # # are data_five points equally spaced?
         # data_five_d <- matrix()
@@ -112,7 +113,6 @@ for(i in 1:length(file.names)) {
         #         five_fig_d[k] <- d_length
         # }
         # print(five_fig_d) # NO... WTF
-        
         
         
         ##### Bezier Curve Analysis #####
@@ -164,12 +164,7 @@ for(i in 1:length(file.names)) {
         # another method, using bezier package:
         t <- seq(0, 5, length=300) # t for five curves
         bez_fig <- bezier(t, ctrl_pts_rm, deg=2)
-        
-        # # either way, test to see if similar to data_five:
         # plot(bez_fig[,1], bez_fig[,2], xlim=c(0,1920), ylim=c(1080,0))
-        # # compare to real figure:
-        # plot(data_five$X1, data_five$X2, xlim=c(0,1920), ylim=c(1080,0))
-        # # WTF IS HAPPENING?! for now use bez points...
         
         # make equally spaced figure: (don't need for now)
          
@@ -201,7 +196,7 @@ for(i in 1:length(file.names)) {
                 , deg = 2
         )
         # print(bezfig_len$arc.length)
-        all_figs[i,3] <- bezfig_len$arc.length
+        all_figs[i,2] <- bezfig_len$arc.length
         
         # # adding up distances for not equidistant points:
         # bez_fig_d <- matrix()
@@ -220,7 +215,20 @@ for(i in 1:length(file.names)) {
         # sum(bez_eqsp_d)
         # 
         # # BARELY DIFFERENT... yaaaaas!!!! just use function then... 
-
+        
+        
+        ##### sinuosity #####
+        
+        segs <- matrix()
+        for (j in 1:NROW(vertices)) {
+                seg_len <- sqrt((vertices[j+1,1]-vertices[j,1])^2 + (vertices[j+1,2]-vertices[j,2])^2)
+                segs <- rbind(segs, seg_len)
+        }
+        perimeter <- sum(segs, na.rm = TRUE)
+        pathlength <- bezfig_len$arc.length
+        sinuosity <- pathlength/perimeter
+        all_figs[i,3] <- sinuosity
+        
         ##### curvature #####
         
         # # using my own function, so need to specify t as such:
