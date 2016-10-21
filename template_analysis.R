@@ -7,7 +7,8 @@
 
 #### TO DO ####
 # 1. add sinuosity
-# 2. add mean seg curvature ? total probably better... 
+# 2. try calculating curvature with equally spaced points to see if it's different
+# 3. try calculating ApEn with curvature
 
 # rm(list = ls()) # clear work space
 #rm(list=setdiff(ls(), c("all_figs"))) # clear all but all_figs
@@ -82,15 +83,17 @@ for(i in 1:length(file.names)) {
         data_five_n <- nrow(data_five)
         all_figs[i,2] <- data_five_n 
         
-        # are data_five points equally spaced?
-        data_five_d <- matrix()
-        for (k in 1:(nrow(data_five)-1)) {
-                d_length <- sqrt((data_five[k+1,1]-data_five[k,1])^2 + (data_five[k+1,2]-data_five[k,2])^2)
-                data_five_d[k] <- d_length
-        }
-        # print(data_five_d)
+        # # are data_five points equally spaced?
+        # data_five_d <- matrix()
+        # for (k in 1:(nrow(data_five)-1)) {
+        #         d_length <- sqrt((data_five[k+1,1]-data_five[k,1])^2 + (data_five[k+1,2]-data_five[k,2])^2)
+        #         data_five_d[k] <- d_length
+        # }
+        # # print(data_five_d)
         # plot(data_five_d)
         # plot(data_five$X1,-data_five$X2)
+        # mean(data_five_d)
+        # sd(data_five_d)
         
         # NOPE :/ 
         
@@ -306,6 +309,7 @@ for(i in 1:length(file.names)) {
         
         # very slight difference in entropy scores when normalizing distances... 
         # might not be necessary for this analysis... ? would help speed big time... 
+        
         
         
 }
