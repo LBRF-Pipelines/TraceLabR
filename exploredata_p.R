@@ -247,12 +247,6 @@ plot(mt_compare_PP[,5],mt_compare_PP[,6])
 boxplot(PLstim ~ figure_type, data = all_data, main="PLstim", xlab="figure_type", ylab="pixels") # what participant saw
 boxplot(PLresp ~ figure_type, data = all_data, main="PLresp", xlab="figure_type", ylab="pixels") # what participant did
 
-medianPL <- median(subset(all_data, figure_type == "random")$PLstim, na.rm = TRUE)
-
-# looks close: fig 1, 4, 6, 9, 13, 14, 15
-medianFigPL <- median(subset(all_data, figure_type == "fig6")$PLstim, na.rm = TRUE)
-
-
 
 ## COMPLEXITY ##
 
@@ -290,8 +284,6 @@ boxplot(ApEn_stim ~ figure_type, data = all_data_mt2, main="approx entropy", xla
 boxplot(ApEn_stim ~ figure_type, data = all_data_mt3, main="approx entropy", xlab="figure_type", ylab="ApEn_stim")
 boxplot(ApEn_stim ~ figure_type, data = all_data_mt4, main="approx entropy", xlab="figure_type", ylab="ApEn_stim")
 boxplot(ApEn_stim ~ figure_type, data = all_data_mt5, main="approx entropy", xlab="figure_type", ylab="ApEn_stim")
-
-
 
 
 all_data_fig1 <- dplyr::filter(
