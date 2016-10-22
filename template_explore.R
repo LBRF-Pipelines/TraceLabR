@@ -12,8 +12,6 @@ library(ggplot2)
 
 #### Path Length ####
 
-# characterize the distribution of pathlengths:
-
 ggplot(data = all_figs
        , mapping = aes(
                x = 1
@@ -24,6 +22,17 @@ ggplot(data = all_figs
              , x = "Randomly Generated Figures"
              , y = "Pathlength")
 
+ggplot(data = all_figs
+       , mapping = aes(
+               bezfig_len
+       )) + geom_histogram(
+               binwidth = 100
+       ) + theme_minimal() +
+        labs(title = "Pathlength Distribution"
+             , x = "Pathlength"
+             , y = "Count")
+
+pathlength_mean <- mean(all_figs$bezfig_len)
 pathlength_median <- median(all_figs$bezfig_len)
 pathlength_SD <- sd(all_figs$bezfig_len)
 pathlength_min <- min(all_figs$bezfig_len)
@@ -42,6 +51,19 @@ ggplot(data = all_figs
              , x = "Randomly Generated Figures"
              , y = "Sinuosity")
 
+ggplot(data = all_figs
+       , mapping = aes(
+               sinuosity
+       )) + geom_histogram(
+               binwidth = .05
+       ) + theme_minimal() +
+        labs(title = "Sinuosity Distribution"
+             , x = "Sinuosity"
+             , y = "Count")
+
+# almost looks like it has a lognormal distribution! 
+
+sinuosity_mean <- mean(all_figs$sinuosity)
 sinuosity_median <- median(all_figs$sinuosity)
 sinuosity_SD <- sd(all_figs$sinuosity)
 sinuosity_min <- min(all_figs$sinuosity)
@@ -62,6 +84,19 @@ ggplot(data = all_figs
 
 # highly positively skewed, must set ylim 
 
+ggplot(data = all_figs
+       , mapping = aes(
+               totabscurv
+       )) + geom_histogram(
+               binwidth = .001
+       ) + theme_minimal() +
+        labs(title = "Total Absolute Curvature Distribution"
+             , x = "Curvature"
+             , y = "Count")
+
+# looks like log normal but extremely skewed — can I plot log?
+
+curvature_mean <- mean(all_figs$totabscurv)
 curvature_median <- median(all_figs$totabscurv)
 curvature_SD <- sd(all_figs$totabscurv) # inflated by skew
 curvature_min <- min(all_figs$totabscurv)
@@ -82,6 +117,17 @@ ggplot(data = all_figs
              , x = "Randomly Generated Figures"
              , y = "Approximate Entropy")
 
+ggplot(data = all_figs
+       , mapping = aes(
+               ApEn
+       )) + geom_histogram(
+               binwidth = .0025
+       ) + theme_minimal() +
+        labs(title = "Approximate Entropy Distribution"
+             , x = "ApEn"
+             , y = "Count")
+
+ApEn_mean <- mean(all_figs$ApEn)
 ApEn_median <- median(all_figs$ApEn)
 ApEn_SD <- sd(all_figs$ApEn)
 ApEn_min <- min(all_figs$ApEn)
@@ -99,11 +145,21 @@ ggplot(data = all_figs
              , x = "Randomly Generated Figures"
              , y = "Sample Entropy")
 
+ggplot(data = all_figs
+       , mapping = aes(
+               SampEn
+       )) + geom_histogram(
+               binwidth = .0025
+       ) + theme_minimal() +
+        labs(title = "Sample Entropy Distribution"
+             , x = "SampEn"
+             , y = "Count")
+
+SampEn_mean <- mean(all_figs$SampEn)
 SampEn_median <- median(all_figs$SampEn)
 SampEn_SD <- sd(all_figs$SampEn)
 SampEn_min <- min(all_figs$SampEn)
 SampEn_max <- max(all_figs$SampEn)
-
 
 
 #### Relationships ####
