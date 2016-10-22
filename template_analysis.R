@@ -1,8 +1,8 @@
-##### Template Figure Analysis #####
-  ### authored by Tony Ingram ###
+##### Template Figure Processing #####
+   ### authored by Tony Ingram ###
 
-# This script analyzes large numbers of auto-generated template trajectory 
-# figures. The purpose is to characterize the randomly generated figures 
+# This script imports and analyzes large numbers of auto-generated template  
+# trajectories. The purpose is to characterize the randomly generated figures 
 # (pathlength, complexity, etc.) at the parameters set in TraceLab_params.py.
 
 #### TO DO ####
