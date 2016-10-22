@@ -36,7 +36,7 @@ file.names <- dir(path, recursive = TRUE, full.names = TRUE,pattern="\\.zip$")
 all_figs <- data.frame(matrix(ncol = 6, nrow = length(file.names)))
 names(all_figs) <- c("figure", "bezfig_len", "sinuosity", "totabscurv", "ApEn", "SampEn")
 
-#i = 1
+#i = 4
 
 # analyze all figures
 for(i in 1:length(file.names)) {
@@ -65,12 +65,15 @@ for(i in 1:length(file.names)) {
         
         # rearrange ctrl_pts to get rid of repeated points
         # this is needed for the bezier package
-        ctrl_pts_rm <- ctrl_pts[1,]
-        for(j in 2:nrow(ctrl_pts)){
-                if (ctrl_pts[j,1] != ctrl_pts[j-1,1] & ctrl_pts[j,2] != ctrl_pts[j-1,2]){
-                        ctrl_pts_rm <- rbind(ctrl_pts_rm, ctrl_pts[j,])
-                }
-        }
+        ctrl_pts_rm <- ctrl_pts[c(1:3,5:6,8:9,11:12,14:15),]
+        
+        # ctrl_pts_rm <- ctrl_pts[1,]
+        # for(j in 2:nrow(ctrl_pts)){
+        #         if (!(ctrl_pts[j,1] == ctrl_pts[j-1,1] & ctrl_pts[j,2] == ctrl_pts[j-1,2])){
+        #                 ctrl_pts_rm <- rbind(ctrl_pts_rm, ctrl_pts[j,])
+        #         }
+        # } # this didn't work as there are occaisons where the control point is == to an end point...
+        
         # test to see if this worked:
         # bez_test <- bezier::bezier(t, ctrl_pts_rm, deg=2)
         # plot(bez_test[,1],bez_test[,2], xlim=c(0,1920), ylim=c(1080,0))
