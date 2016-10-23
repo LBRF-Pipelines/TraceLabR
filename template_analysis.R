@@ -351,5 +351,5 @@ for(i in 1:length(file.names)) {
 
 write.table(all_figs,"~/RStudio/TraceLabDB/all_figs.txt", sep="\t") 
 # this saves object to load in R quickly: load("all_figs.Rda")
-save(all_figs, "~/RStudio/TraceLabDB/all_figs.Rda")
+save(all_figs, file = "all_figs.Rda")
 

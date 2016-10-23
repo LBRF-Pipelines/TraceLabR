@@ -428,6 +428,6 @@ all_data <- all_data[c("participant_id","sex","age","handedness","condition","se
 # save .txt file with all_data:
 write.table(all_data,"~/RStudio/TraceLabDB/all_data.txt", sep="\t")
 # this saves object to load in R quickly: load("all_data.Rda")
-save(all_data, "~/RStudio/TraceLabDB/all_data.Rda")
+save(all_data, file = "all_data.Rda")
 
 ##### FIN #####
