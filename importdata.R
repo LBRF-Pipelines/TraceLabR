@@ -425,7 +425,9 @@ all_data <- dplyr::mutate(
 all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","figlength","sinuosity","totcurv","totabscurv","tortuosity","curvsum","ApEn_stim","SaEn_stim","trace_file","rt","it","mt","mt_clip","PLresp","vresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSS","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSS","shape_procSD","control_question","control_response","correct_response")]
 
 
-# save .txt file with all_data
-write.table(all_data,"~/RStudio/TraceLabDB/all_data.txt", sep="\t") #note: this doesn't work... can't import it later usefully... 
+# save .txt file with all_data:
+write.table(all_data,"~/RStudio/TraceLabDB/all_data.txt", sep="\t")
+# this saves object to load in R quickly: load("all_data.Rda")
+save(all_data, "~/RStudio/TraceLabDB/all_data.Rda")
 
 ##### FIN #####
