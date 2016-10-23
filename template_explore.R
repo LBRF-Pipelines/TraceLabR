@@ -181,6 +181,25 @@ ggplot(data = all_figs
 # therefore sinuosity does seem to provide some unique information that 
 # pathlength does not.
 
+## curvature and pathlength:
+
+ggplot(data = all_figs
+       , mapping = aes(
+               x = bezfig_len
+               , y = totabscurv
+       )) + geom_point(alpha = .5) + 
+        geom_smooth() + 
+        theme_minimal() +
+        labs(title = "Total Absolute Curvature vs Path Length"
+             , x = "Path Length"
+             , y = "Total Absolute Curvature")
+
+# Curvature appears to be almost completely unrelated to pathlength, which
+# is perhaps as it should be for curvature itself, but when adding curvature 
+# by integration one would expect a longer curve to have more total curvature.
+# Perhaps it's that curvature varies so widely at a given point that even 
+# summing them doesn't change the total much. 
+
 ## ApEn and SampEn:
 
 ggplot(data = all_figs
@@ -198,5 +217,22 @@ ggplot(data = all_figs
 # information, so will have to look at relationship with error after the 
 # actual experiment. 
 
+# curvature and ApEn:
 
+ggplot(data = all_figs
+       , mapping = aes(
+               x = totabscurv
+               , y = ApEn
+       )) + geom_point(alpha = .5) + 
+        geom_smooth() + 
+        theme_minimal() +
+        labs(title = "ApEn vs Total Absolute Curvature"
+             , x = "Total Absolute Curvature"
+             , y = "ApEn")
+
+# hmmm... if you zoome in close to zero (where most of the curvature scores
+# are) there actually does appear to be a positive relationship. Once the 
+# larger curvature scores come into play, the relationship disappears. This 
+# is an interesting relationship. Need to actually look at some of these 
+# high curvature figures individually to see what might be going on.
 
