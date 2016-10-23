@@ -149,7 +149,7 @@ ggplot(data = all_figs
        , mapping = aes(
                SampEn
        )) + geom_histogram(
-               binwidth = .0025
+               binwidth = .00125
        ) + theme_minimal() +
         labs(title = "Sample Entropy Distribution"
              , x = "SampEn"
