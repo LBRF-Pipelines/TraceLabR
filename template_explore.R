@@ -4,6 +4,9 @@
 # this script explores the template figures imported and processed with the 
 # template_analysis.R script.
 
+#### TO DO ####
+# 1. implement log scales for some of the more skewed distributions below
+
 rm(list=setdiff(ls(), c("all_figs","all_data"))) # clear all but all_figs & all_data
 # graphics.off() # clear figures
 # cat("\014") # clear console
