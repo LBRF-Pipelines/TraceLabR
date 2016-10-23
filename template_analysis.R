@@ -243,7 +243,7 @@ for(i in 1:length(file.names)) {
         #              , bcurv(t, ctrl_pts[10:12,])
         #              , bcurv(t, ctrl_pts[13:15,])
         # )
-        # # plot(curvature) # looks very odd
+        # plot(curvature) # looks very odd
         # # obviously not a good way to look at this... 
         # 
         # # calculate curvature with equally spaced points:
@@ -268,6 +268,9 @@ for(i in 1:length(file.names)) {
         # # segment change, I prefer that for the regularity score.
         
         # calculate total absolute curvature of each segment and sum:
+        n_segs <- 5
+        t <- seq(0, 1, length=300/n_segs)
+        
         totabscurv <- (integrate(
                         splinefun(
                                 x = t, y = abs(
