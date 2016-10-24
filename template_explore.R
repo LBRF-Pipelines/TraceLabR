@@ -247,3 +247,28 @@ ggplot(data = all_figs
 # is an interesting relationship. Need to actually look at some of these 
 # high curvature figures individually to see what might be going on.
 
+
+#### find median figures ####
+
+all_figs <- dplyr::mutate(
+        .data = all_figs
+        , PLdist =  abs(all_figs$bezfig_len - median(all_figs$bezfig_len))
+        , sindist = abs(all_figs$sinuosity - median(all_figs$sinuosity))
+        , curvdist = abs(all_figs$totabscurv - median(all_figs$totabscurv))
+        , ApEndist = abs(all_figs$ApEn - median(all_figs$ApEn))
+        , SampEndist = abs(all_figs$SampEn - median(all_figs$SampEn))
+) 
+# note that the following orders the data first by first listed variable, 
+# then the next, and so on... so might want to consider what is most 
+# important... hard to say a priori. 
+all_figs <- dplyr::arrange(all_figs
+                           , PLdist # most reliable measure that seems related to error during piloting
+                           , ApEndist # unsure whether to use ApEn or SampEn here...
+                           , SampEndist 
+                           , curvdist # probably the most variable / unreliable measure
+                           , sindist # gives similar info as pathlength
+)
+
+# for now, picking 1477095555.82 
+
+
