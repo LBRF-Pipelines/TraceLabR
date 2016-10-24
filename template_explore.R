@@ -62,9 +62,9 @@ ggplot(data = all_figs
        ) + theme_minimal() +
         labs(title = "Sinuosity Distribution"
              , x = "Sinuosity"
-             , y = "Count")
-
-# almost looks like it has a lognormal distribution! 
+             , y = "Count") +
+        coord_trans(x = "log2")
+# looks like it has a lognormal distribution
 
 sinuosity_mean <- mean(all_figs$sinuosity)
 sinuosity_median <- median(all_figs$sinuosity)
@@ -83,8 +83,8 @@ ggplot(data = all_figs
         theme_minimal() +
         labs(title = "Total Absolute Curvature Distribution"
              , x = "Randomly Generated Figures"
-             , y = "Curvature")
-
+             , y = "Curvature") +
+        ylim(0, .075)
 # highly positively skewed, must set ylim 
 
 ggplot(data = all_figs
@@ -95,15 +95,17 @@ ggplot(data = all_figs
        ) + theme_minimal() +
         labs(title = "Total Absolute Curvature Distribution"
              , x = "Curvature"
-             , y = "Count")
-
-# looks like log normal but extremely skewed — can I plot log?
+             , y = "Count") +
+        coord_trans(x = "log2") # takes a long time to plot, but much better
+# looks like log normal; extremely positively skewed
 
 curvature_mean <- mean(all_figs$totabscurv)
 curvature_median <- median(all_figs$totabscurv)
 curvature_SD <- sd(all_figs$totabscurv) # inflated by skew
 curvature_min <- min(all_figs$totabscurv)
 curvature_max <- max(all_figs$totabscurv)
+# may have to use non-parametric data... or rank (maybe that's why Krakauer did it)
+# or just transform it to log values... 
 
 
 #### Entropy ####
@@ -128,7 +130,8 @@ ggplot(data = all_figs
        ) + theme_minimal() +
         labs(title = "Approximate Entropy Distribution"
              , x = "ApEn"
-             , y = "Count")
+             , y = "Count") +
+        coord_trans(x = "log2")
 
 ApEn_mean <- mean(all_figs$ApEn)
 ApEn_median <- median(all_figs$ApEn)
@@ -156,7 +159,8 @@ ggplot(data = all_figs
        ) + theme_minimal() +
         labs(title = "Sample Entropy Distribution"
              , x = "SampEn"
-             , y = "Count")
+             , y = "Count") +
+        coord_trans(x = "log2")
 
 SampEn_mean <- mean(all_figs$SampEn)
 SampEn_median <- median(all_figs$SampEn)
@@ -178,7 +182,8 @@ ggplot(data = all_figs
         theme_minimal() +
         labs(title = "Sinuosity vs Path Length"
              , x = "Path Length"
-             , y = "Sinuosity")
+             , y = "Sinuosity") +
+        coord_trans(y = "log2") # note this
 
 # note: sinuosity does increase with pathlength but relationship not perfect
 # therefore sinuosity does seem to provide some unique information that 
@@ -195,7 +200,8 @@ ggplot(data = all_figs
         theme_minimal() +
         labs(title = "Total Absolute Curvature vs Path Length"
              , x = "Path Length"
-             , y = "Total Absolute Curvature")
+             , y = "Total Absolute Curvature") +
+        coord_trans(y = "log2") #note this
 
 # Curvature appears to be almost completely unrelated to pathlength, which
 # is perhaps as it should be for curvature itself, but when adding curvature 
@@ -214,7 +220,8 @@ ggplot(data = all_figs
         theme_minimal() +
         labs(title = "ApEn vs SampEn"
              , x = "ApEn"
-             , y = "SampEn")
+             , y = "SampEn") +
+        coord_trans(x = "log2", y = "log2") # note this
 
 # fairly linearly related but not perfectly. Not sure each gives different
 # information, so will have to look at relationship with error after the 
@@ -231,7 +238,8 @@ ggplot(data = all_figs
         theme_minimal() +
         labs(title = "ApEn vs Total Absolute Curvature"
              , x = "Total Absolute Curvature"
-             , y = "ApEn")
+             , y = "ApEn") +
+        coord_trans(x = "log2", y = "log2")
 
 # hmmm... if you zoome in close to zero (where most of the curvature scores
 # are) there actually does appear to be a positive relationship. Once the 
