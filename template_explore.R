@@ -269,6 +269,21 @@ all_figs <- dplyr::arrange(all_figs
                            , sindist # gives similar info as pathlength
 )
 
-# for now, picking 1477095555.82 
+# test picks:
 
+fig_pick <- subset(all_figs, figure == "../autofigs/template_1477095555.82.zip")
+fig_pick$PLdist < sd(all_figs$bezfig_len)
+fig_pick$ApEndist < sd(all_figs$ApEn) #false... WTF
+fig_pick$SampEndist < sd(all_figs$SampEn)
+fig_pick$curvdist < sd(all_figs$totabscurv)
+fig_pick$sindist < sd(all_figs$sinuosity)
+
+fig_pick <- subset(all_figs, figure == "../autofigs/template_1477164441.06.zip")
+fig_pick$PLdist < sd(all_figs$bezfig_len)
+fig_pick$ApEndist < sd(all_figs$ApEn) 
+fig_pick$SampEndist < sd(all_figs$SampEn)
+fig_pick$curvdist < sd(all_figs$totabscurv)
+fig_pick$sindist < sd(all_figs$sinuosity)
+
+# pick: template_1477164441.06
 
