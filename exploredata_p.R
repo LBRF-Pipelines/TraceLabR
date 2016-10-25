@@ -5,7 +5,7 @@
 # 1. for MT check, find out how to color plots by day
 # 2. add mutate() to add 'p' trial number and 's' trial number as columns so I don't need to use x = seq(length=nrow(all_data_p)
 
-#rm(list=setdiff(ls(), "all_data")) # clear all but all_data
+# rm(list=setdiff(ls(), c("all_figs","all_data"))) # clear all but all_figs & all_data
 graphics.off() # clear figures
 
 library(dplyr) 

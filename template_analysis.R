@@ -7,11 +7,8 @@
 
 #### TO DO ####
 
-
-# rm(list = ls()) # clear work space
-#rm(list=setdiff(ls(), c("all_figs"))) # clear all but all_figs
-rm(list=setdiff(ls(), c("all_data"))) # clear all but all_data
-#rm(list=setdiff(ls(), c("all_figs","all_data"))) # clear all but all_figs & all_data
+# rm(list=setdiff(ls(), "all_data")) # clear all but all_data
+# rm(list=setdiff(ls(), c("all_figs","all_data"))) # clear all but all_figs & all_data
 # graphics.off() # clear figures
 # cat("\014") # clear console
 

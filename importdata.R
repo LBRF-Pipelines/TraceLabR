@@ -6,8 +6,8 @@
 # 2. get write.table working so can use other scripts without having to re-run this...
 # 3. use ggplot2 to make better plots
 
-# rm(list = ls()) # clear work space
-# rm(list=setdiff(ls(), "all_data")) # clear all but all_data
+rm(list=setdiff(ls(), "all_figs")) # clear all but all_figs
+# rm(list=setdiff(ls(), c("all_figs","all_data"))) # clear all but all_figs & all_data
 # graphics.off() # clear figures
 # cat("\014") # clear console
 
