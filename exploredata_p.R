@@ -12,7 +12,7 @@ library(dplyr)
 library(ggplot2)
 
 ## SINGLE PARTICIPANT ##
-all_data_p <- subset(all_data, participant_id == 2)
+all_data_p <- subset(all_data, participant_id == 4)
 
 #this is just for Sarah K's data... and anyone with an incomplete session
 #all_data_p <- dplyr::filter(
