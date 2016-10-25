@@ -31,11 +31,13 @@ out.file <- "" # note, using "" here is why everything is output as a character 
 for(i in 1:length(file.names)) {
         name.tlf <- gsub(".zip",".tlf",basename(file.names[i]))
         name.tlt <- gsub(".zip",".tlt",basename(file.names[i]))
-        name.pts <- gsub(".zip",".tlfp",basename(file.names[i]))
+        name.tlfp <- gsub(".zip",".tlfp",basename(file.names[i]))
+        name.tlfs <- gsub(".zip",".tlfs",basename(file.names[i]))
         # read in data 
         tlf <- read.table(unz(file.names[i], name.tlf),stringsAsFactors=FALSE, sep=",")
         tlt <- read.table(unz(file.names[i], name.tlt),stringsAsFactors=FALSE, sep=",")
-        pts <- read.table(unz(file.names[i], name.pts),stringsAsFactors=FALSE, sep=",")
+        pts <- read.table(unz(file.names[i], name.tlfp),stringsAsFactors=FALSE, sep=",")
+        tlfs <- read.table(unz(file.names[i], name.tlfs),stringsAsFactors=FALSE, sep=",")
         # separate PP data from MI and CC data (remember, final session of MI and CC are also PP sessions)
         if (length(tlt)<15){
                 # disclude all groups except CC
