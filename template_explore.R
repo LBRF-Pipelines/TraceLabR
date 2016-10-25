@@ -258,16 +258,26 @@ all_figs <- dplyr::mutate(
         , ApEndist = abs(all_figs$ApEn - median(all_figs$ApEn))
         , SampEndist = abs(all_figs$SampEn - median(all_figs$SampEn))
 ) 
-# note that the following orders the data first by first listed variable, 
-# then the next, and so on... so might want to consider what is most 
-# important... hard to say a priori. 
-all_figs <- dplyr::arrange(all_figs
-                           , PLdist # most reliable measure that seems related to error during piloting
-                           , ApEndist # unsure whether to use ApEn or SampEn here...
-                           , SampEndist 
-                           , curvdist # probably the most variable / unreliable measure
-                           , sindist # gives similar info as pathlength
+# The following drops all trials that are more than .25 SD away from 
+# the median for all criterion. This seems like the best way to do it.
+all_figs_sub <- dplyr::filter(
+        .data = all_figs
+        , PLdist < sd(all_figs$bezfig_len)*.25
+        , sindist < sd(all_figs$sinuosity)*.25
+        , curvdist < sd(all_figs$totabscurv)*.25
+        , ApEndist < sd(all_figs$ApEn)*.25
+        , SampEndist < sd(all_figs$SampEn)*.25
 )
+# # Note that the following orders the data first by first listed variable, 
+# # then the next, and so on... so might want to consider what is most 
+# # important... hard to say a priori. 
+# all_figs <- dplyr::arrange(all_figs
+#                            , PLdist # most reliable measure that seems related to error during piloting
+#                            , ApEndist # unsure whether to use ApEn or SampEn here...
+#                            , SampEndist 
+#                            , curvdist # probably the most variable / unreliable measure
+#                            , sindist # gives similar info as pathlength
+# )
 
 # test picks:
 
