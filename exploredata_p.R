@@ -12,7 +12,7 @@ library(dplyr)
 library(ggplot2)
 
 ## SINGLE PARTICIPANT ##
-all_data_p <- subset(all_data, participant_id == 8)
+all_data_p <- subset(all_data, participant_id == 2)
 
 #this is just for Sarah K's data... and anyone with an incomplete session
 #all_data_p <- dplyr::filter(
@@ -23,7 +23,8 @@ all_data_p <- subset(all_data, participant_id == 8)
 all_data_p <- dplyr::mutate(
         .data = all_data_p
         , p_trial = c(1:nrow(all_data_p)) # number trials per participant 
-        , s_trial = rep(seq(100), max(all_data_p$session_num)) # number trials per session
+        , s_trial = rep(seq(20), max(all_data_p$session_num)) # just for piloting! 
+        #, s_trial = rep(seq(100), max(all_data_p$session_num)) # number trials per session
 )
 
 # for Sarah K's data:
@@ -218,7 +219,7 @@ fluctile(table(CC$control_response, CC$correct_response), shape="c")
 ### MOVEMENT TIME ###
 # are participants actually matching the stimulus MT?
 
-ggplot(data = subset(all_data, participant_id == 21)
+ggplot(data = subset(all_data, participant_id == 2)
        , mapping = aes(
         x = stimulus_mt
         , y = mt # use mt_clip for PP groups, mt for MI and CC groups
@@ -230,7 +231,6 @@ ggplot(data = subset(all_data, participant_id == 21)
 
 # what about speed (avg velocity per trial)?
 
-plot(mt_compare_PP[,5],mt_compare_PP[,6])
 
 
 
