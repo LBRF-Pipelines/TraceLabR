@@ -5,6 +5,7 @@
 # 1. go through and change loop inits that are = "" to something else... like = matrix()
 # 2. get write.table working so can use other scripts without having to re-run this...
 # 3. use ggplot2 to make better plots
+# 4. impliment DTW (with SD)
 
 rm(list=setdiff(ls(), "all_figs")) # clear all but all_figs
 # rm(list=setdiff(ls(), c("all_figs","all_data"))) # clear all but all_figs & all_data
@@ -195,6 +196,23 @@ for(i in 1:length(file.names)) {
                         # pre-procrustes transform sum of squares and SD:
                         raw_procSS <- sum(raw_dist^2)
                         raw_procSD <- sqrt(raw_procSS/(length(raw_dist)-1))
+                        
+                        ## Dynamic Time Warping (Multivariate) ##
+                        
+                        dtw <- dtw(x = resp, y = stim,
+                                   dist.method = "Euclidean",
+                                   step.pattern = symmetric1,
+                                   window.type = "none",
+                                   keep.internals = FALSE,
+                                   distance.only = TRUE,
+                                   open.end = FALSE,
+                                   open.begin = FALSE
+                        )
+                        
+                        dtw_tot <- dtw$distance
+                        dtw_mean <- dtw$distance/nrow(stim)
+                        # dtw_SD <- ## impliment this
+                        
                         
                         ##### path length #####
                         
