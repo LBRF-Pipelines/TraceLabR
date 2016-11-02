@@ -171,7 +171,7 @@ SampEn_max <- max(all_figs$SampEn)
 
 #### Relationships ####
 
-## sinuosity and pathlength:
+## sinuosity and path length:
 
 ggplot(data = all_figs
        , mapping = aes(
@@ -189,7 +189,7 @@ ggplot(data = all_figs
 # therefore sinuosity does seem to provide some unique information that 
 # pathlength does not.
 
-## curvature and pathlength:
+## curvature and path length:
 
 ggplot(data = all_figs
        , mapping = aes(
@@ -208,6 +208,23 @@ ggplot(data = all_figs
 # by integration one would expect a longer curve to have more total curvature.
 # Perhaps it's that curvature varies so widely at a given point that even 
 # summing them doesn't change the total much. 
+
+## ApEn and path length:
+
+ggplot(data = all_figs
+       , mapping = aes(
+               x = bezfig_len
+               , y = ApEn
+       )) + geom_point(alpha = .5) + 
+        geom_smooth() + 
+        theme_minimal() +
+        labs(title = "Approximate Entropy vs Path Length"
+             , x = "Path Length"
+             , y = "Approximate Entropy") +
+        coord_trans(y = "log2") #note this
+
+# Similarly, ApEn doesn't appear to be related to path length. Which is good.
+
 
 ## ApEn and SampEn:
 
