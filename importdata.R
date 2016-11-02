@@ -20,11 +20,11 @@ library(pracma) # for ApEn and SampEn
 library(bezier) # for bezier curve analysis
 
 # Read in .db information
-participants <- read.csv("~/RStudio/TraceLabDB/participants.csv")
-trials <- read.csv("~/RStudio/TraceLabDB/trials.csv", stringsAsFactors = FALSE)
+participants <- read.csv("~/Documents/RStudio/TraceLabDB/participants.csv")
+trials <- read.csv("~/Documents/RStudio/TraceLabDB/trials.csv", stringsAsFactors = FALSE)
 
 # Find all .zip files
-path <- "~/TraceLab/ExpAssets/Data"
+path <- "~/Documents/RStudio/TraceLabDB/Data"
 file.names <- dir(path, recursive = TRUE, full.names = TRUE,pattern="\\.zip$")
 
 out.file <- "" # note, using "" here is why everything is output as a character string at the end, and needs reverting... messy code. Gotta refine. This should be = matrix()
@@ -446,7 +446,7 @@ all_data <- all_data[c("participant_id","sex","age","handedness","condition","se
 
 
 # save .txt file with all_data:
-write.table(all_data,"~/RStudio/TraceLabDB/all_data.txt", sep="\t")
+write.table(all_data,"~/Documents/RStudio/TraceLabDB/all_data.txt", sep="\t")
 # this saves object to load in R quickly: load("all_data.Rda")
 save(all_data, file = "all_data.Rda")
 
