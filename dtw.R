@@ -6,8 +6,8 @@ library(dtw)
 
 x <- matrix(rnorm(8), ncol = 2)
 ## test inheritance of names
-rownames(x) <- LETTERS[1:4]
-colnames(x) <- letters[1:2]
+rownames(x) <- LETTERS[1:4] # points
+colnames(x) <- letters[1:2] # x's and y's
 proxy::dist(x)
 proxy::dist(x, x)
 # test: 
@@ -17,7 +17,7 @@ d <- proxy::dist(stim, resp)
 
 dtw <- dtw(x = resp, y = stim,
     dist.method = "Euclidean",
-    step.pattern = symmetric1,
+    step.pattern = symmetric2,
     window.type = "none",
     keep.internals = TRUE,
     distance.only = FALSE,
@@ -25,7 +25,11 @@ dtw <- dtw(x = resp, y = stim,
     open.begin = FALSE
 )
 
-subset(dtw$localCostMatrix, )
+# FIGURE OUT HOW TO GET COORDINATES TO DO RAW and PROCRUSTES ERROR 
+
+
+
+subset(dtw$localCostMatrix, ) 
 
 costx <- dtw$localCostMatrix[dtw$index1,]
 costy <- costx[dtw$index2,]
