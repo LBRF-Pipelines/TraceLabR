@@ -17,7 +17,7 @@ d <- proxy::dist(stim, resp)
 
 dtw <- dtw(x = resp, y = stim,
     dist.method = "Euclidean",
-    step.pattern = symmetric2,
+    step.pattern = symmetric1,
     window.type = "none",
     keep.internals = TRUE,
     distance.only = FALSE,
@@ -27,21 +27,48 @@ dtw <- dtw(x = resp, y = stim,
 
 # FIGURE OUT HOW TO GET COORDINATES TO DO RAW and PROCRUSTES ERROR 
 
+resp_dtw <- matrix(rep(0, 2*length(dtw$index1)), ncol=2)
+for (j in 1:nrow(resp_dtw)){
+        resp_dtw[j,1] <- resp[dtw$index1[j], 1]
+        resp_dtw[j,2] <- resp[dtw$index1[j], 2]
+}
+plot(resp_dtw[,1],-resp_dtw[,2])
+
+stim_dtw <- matrix(rep(0, 2*length(dtw$index2)), ncol=2)
+for (j in 1:nrow(stim_dtw)){
+        stim_dtw[j,1] <- stim[dtw$index2[j], 1]
+        stim_dtw[j,2] <- stim[dtw$index2[j], 2]
+}
+plot(stim_dtw[,1],-stim_dtw[,2])
+
+# raw error
+raw_dist = rep(0, length(resp[,1]))
+for (m in 1:length(raw_dist)){
+        raw_dist[m] = as.numeric(sqrt(((resp[m,1]-stim[m,1])^2)+((resp[m,2]-stim[m,2])^2)))
+}
+# error throughout trial:
+sum(raw_dist)
+mean(raw_dist)
+sd(raw_dist)
+# pre-procrustes transform sum of squares and SD:
+raw_procSS <- sum(raw_dist^2)
+raw_procSD <- sqrt(raw_procSS/(length(raw_dist)-1))
+
+# raw error DTW
+raw_dist_dtw = rep(0, length(resp_dtw[,1]))
+for (m in 1:length(raw_dist_dtw)){
+        raw_dist_dtw[m] = as.numeric(sqrt(((resp_dtw[m,1]-stim_dtw[m,1])^2)+((resp_dtw[m,2]-stim_dtw[m,2])^2)))
+}
+sum(raw_dist_dtw)
+mean(raw_dist_dtw)
+sd(raw_dist_dtw)
+# pre-procrustes transform sum of squares and SD:
+rawdtw_procSS <- sum(raw_dist_dtw^2)
+rawdtw_procSD <- sqrt(rawdtw_procSS/(length(raw_dist_dtw)-1))
 
 
-subset(dtw$localCostMatrix, ) 
-
-costx <- dtw$localCostMatrix[dtw$index1,]
-costy <- costx[dtw$index2,]
-
-costmatrix <- dtw$costMatrix
-dirmatrix <- dtw$directionMatrix
-steppattern <- dtw$stepPattern
 
 
-dtw_tot <- dtw$distance
-dtw_mean <- dtw$distance/nrow(stim)
-dtw_SD <- 
 
 dtwPlotDensity(dtw)
 
