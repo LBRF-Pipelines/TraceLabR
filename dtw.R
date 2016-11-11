@@ -66,6 +66,48 @@ sd(raw_dist_dtw)
 rawdtw_procSS <- sum(raw_dist_dtw^2)
 rawdtw_procSD <- sqrt(rawdtw_procSS/(length(raw_dist_dtw)-1))
 
+# DTW procrustes transformation
+trans_dtw <- rotonto(stim_dtw, resp_dtw, scale = TRUE, signref = FALSE, reflection = FALSE, weights = NULL, centerweight = FALSE)
+
+#get translation
+translation_dtw <- sqrt((trans_dtw$transy[1] - trans_dtw$trans[1])^2 + (trans_dtw$transy[2] - trans_dtw$trans[2])^2)
+
+#get scale factor
+scale_dtw <- trans_dtw$bet
+
+#get rotation angle *radians*
+rotation_dtw <- acos(trans_dtw$gamm[1,1])
+
+
+## SHAPE ERROR ##
+
+# create vector of point by point distances (error) between stimulus and response:
+shape_dist = rep(0, length(trans$Y[,1]))
+for (h in 1:length(shape_dist)){
+        shape_dist[h] = as.numeric(sqrt(((trans$Y[h,1]-trans$X[h,1])^2)+((trans$Y[h,2]-trans$X[h,2])^2)))
+}
+# error throughout trial:
+shape_error_tot <- sum(shape_dist)
+shape_error_mean <- mean(shape_dist)
+shape_error_SD <- sd(shape_dist)
+
+# "ordinary procrustes sum of squares" and SD:
+shape_procSS <- sum(shape_dist^2)
+shape_procSD <- sqrt(shape_procSS/(length(shape_dist)-1))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
