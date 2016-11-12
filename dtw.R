@@ -43,8 +43,8 @@ plot(stim_dtw[,1],-stim_dtw[,2])
 
 # raw error
 raw_dist = rep(0, length(resp[,1]))
-for (m in 1:length(raw_dist)){
-        raw_dist[m] = as.numeric(sqrt(((resp[m,1]-stim[m,1])^2)+((resp[m,2]-stim[m,2])^2)))
+for (j in 1:length(raw_dist)){
+        raw_dist[j] = as.numeric(sqrt(((resp[j,1]-stim[j,1])^2)+((resp[j,2]-stim[j,2])^2)))
 }
 # error throughout trial:
 sum(raw_dist)
@@ -56,8 +56,8 @@ raw_procSD <- sqrt(raw_procSS/(length(raw_dist)-1))
 
 # raw error DTW
 raw_dist_dtw = rep(0, length(resp_dtw[,1]))
-for (m in 1:length(raw_dist_dtw)){
-        raw_dist_dtw[m] = as.numeric(sqrt(((resp_dtw[m,1]-stim_dtw[m,1])^2)+((resp_dtw[m,2]-stim_dtw[m,2])^2)))
+for (j in 1:length(raw_dist_dtw)){
+        raw_dist_dtw[j] = as.numeric(sqrt(((resp_dtw[j,1]-stim_dtw[j,1])^2)+((resp_dtw[j,2]-stim_dtw[j,2])^2)))
 }
 sum(raw_dist_dtw)
 mean(raw_dist_dtw)
@@ -79,17 +79,17 @@ scale_dtw <- trans_dtw$bet
 rotation_dtw <- acos(trans_dtw$gamm[1,1])
 
 
-## SHAPE ERROR ##
+## SHAPE ERROR DTW ##
 
 # create vector of point by point distances (error) between stimulus and response:
-shape_dist = rep(0, length(trans$Y[,1]))
-for (h in 1:length(shape_dist)){
-        shape_dist[h] = as.numeric(sqrt(((trans$Y[h,1]-trans$X[h,1])^2)+((trans$Y[h,2]-trans$X[h,2])^2)))
+shape_dist_dtw = rep(0, length(trans_dtw$Y[,1]))
+for (j in 1:length(shape_dist_dtw)){
+        shape_dist_dtw[j] = as.numeric(sqrt(((trans_dtw$Y[j,1]-trans_dtw$X[j,1])^2)+((trans_dtw$Y[j,2]-trans_dtw$X[j,2])^2)))
 }
 # error throughout trial:
-shape_error_tot <- sum(shape_dist)
-shape_error_mean <- mean(shape_dist)
-shape_error_SD <- sd(shape_dist)
+sum(shape_dist_dtw)
+mean(shape_dist_dtw)
+sd(shape_dist_dtw)
 
 # "ordinary procrustes sum of squares" and SD:
 shape_procSS <- sum(shape_dist^2)
