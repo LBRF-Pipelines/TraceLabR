@@ -20,6 +20,16 @@ library(pracma) # for ApEn and SampEn
 library(bezier) # for bezier curve analysis
 library(dtw) # for Dynamic Time Warping
 
+# Curvature of Bezier Curve at t points:
+bcurv = function(t, p){
+        b1x = (2 * (1-t) * (p[2,1]-p[1,1])) + (2 * t * (p[3,1] - p[2,1])) #first derivative of x
+        b1y = (2 * (1-t) * (p[2,2]-p[1,2])) + (2 * t * (p[3,2] - p[2,2])) #first derivative of y
+        b2x = (2 * (p[3,1] - (2 * p[2,1]) + p[1,1])) #second derivative of x
+        b2y = (2 * (p[3,2] - (2 * p[2,2]) + p[1,2])) #second derivative of y
+        bez_curvature <- ((b1x * b2y) - (b1y * b2x))/(((b1x^2) + (b1y^2))^(3/2)) #signed curvature
+        return(bez_curvature)
+}
+
 # Read in .db information
 participants <- read.csv("~/Documents/RStudio/TraceLabDB/participants.csv")
 trials <- read.csv("~/Documents/RStudio/TraceLabDB/trials.csv", stringsAsFactors = FALSE)
@@ -38,7 +48,7 @@ for(i in 1:length(file.names)) {
         # read in data 
         tlf <- read.table(unz(file.names[i], name.tlf),stringsAsFactors=FALSE, sep=",")
         tlt <- read.table(unz(file.names[i], name.tlt),stringsAsFactors=FALSE, sep=",")
-        pts <- read.table(unz(file.names[i], name.tlfp),stringsAsFactors=FALSE, sep=",")
+        tlfp <- read.table(unz(file.names[i], name.tlfp),stringsAsFactors=FALSE, sep=",")
         tlfs <- read.table(unz(file.names[i], name.tlfs),stringsAsFactors=FALSE, sep=",")
         # separate PP data from MI and CC data (remember, final session of MI and CC are also PP sessions)
         if (length(tlt)<15){
@@ -50,7 +60,7 @@ for(i in 1:length(file.names)) {
                         data_stim <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlf)), ", "))),ncol=3,nrow=length(tlf)/3, byrow=TRUE))
                         
                         #extracts coordinates for shape vertices (corners)
-                        vertices <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(pts)), ", "))),ncol=2,nrow=length(pts)/2, byrow=TRUE))
+                        vertices <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlfp)), ", "))),ncol=2,nrow=length(tlfp)/2, byrow=TRUE))
                         
                         #index closest sample in stimulus data to vertices
                         index_vec <- ""
@@ -103,21 +113,34 @@ for(i in 1:length(file.names)) {
                 #create data frames
                 data_stim <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlf)), ", "))),ncol=3,nrow=length(tlf)/3, byrow=TRUE))
                 data_resp <- data.frame(matrix(as.numeric(gsub("\\[|\\]|\\(|\\)", "", as.character(tlt))),ncol=3,nrow=length(tlt)/3, byrow=TRUE))
-                vertices <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(pts)), ", "))),ncol=2,nrow=length(pts)/2, byrow=TRUE))
+                vertices <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlfp)), ", "))),ncol=2,nrow=length(tlfp)/2, byrow=TRUE))
+                ctrl_pts <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlfs)), ", "))),ncol=2,nrow=length(tlfs)/2, byrow=TRUE)) 
                 
-                #remove artifacts 
+                ### Pre-processing Trajectories ###
+                
+                # rearrange control points — currently [point, point, ctrl]..., needs to be [point, ctrl, point]
+                for(j in 1:nrow(ctrl_pts)){
+                        if (j %% 3 == 0){
+                                ctrl_pts[(j-1):j,] <- ctrl_pts[j:(j-1),]
+                        }
+                } # every 3rd row switched with previous row
+                
+                # rearrange ctrl_pts to get rid of repeated points — this is needed for the bezier package
+                ctrl_pts_rm <- ctrl_pts[c(1:3,5:6,8:9,11:12,14:15),]
+                
+                #remove artifacts (now built into data collection)
                 data_resp_rem <- data_resp #[!(data_resp$X1=="1919"&data_resp$X2=="1079"),]
                 data_resp_rem <- data_resp_rem #[!(data_resp_rem$X1=="119"&data_resp_rem$X2=="1079"),]
                 
                 #find repeated points (from when people miss green, for example)
                 clip_index <- rep(1, length(data_resp_rem$X1))
                 #clip_index gives a vector of 1's and 0's where 0 means point 'i' has same [x,y] as point 'i-1'
-                for(k in 2:(length(data_resp_rem$X1))){ #start at 2 as first point will never be same as previous
-                        if(data_resp_rem[k,1]!=data_resp_rem[k-1,1] | data_resp_rem[k,2]!=data_resp_rem[k-1,2]){
-                                clip_index[k] <- 1
+                for(j in 2:(length(data_resp_rem$X1))){ #start at 2 as first point will never be same as previous
+                        if(data_resp_rem[j,1]!=data_resp_rem[j-1,1] | data_resp_rem[j,2]!=data_resp_rem[j-1,2]){
+                                clip_index[j] <- 1
                         }
                         else{
-                                clip_index[k] <- 0
+                                clip_index[j] <- 0
                         }
                 }
                 #decide minimum response length — if not reached, report NA's for trial
@@ -125,6 +148,8 @@ for(i in 1:length(file.names)) {
                         datarow=c(name.tlf,rep(NA,times=25))
                 }
                 else{
+                        ### Pre-processing Trajectories Continued ###
+                        
                         #remove all repeated response points (when person not moving)
                         data_resp_clip <- cbind(data_resp_rem,clip_index)
                         data_resp_clip <- data_resp_clip[!(data_resp_clip$clip_index==0),1:3]
@@ -139,48 +164,13 @@ for(i in 1:length(file.names)) {
                         rem_seq <- round(seq(from=1, to=ifelse(length(data_resp_rem$X1)>length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1)), by=ifelse(length(data_resp_rem$X1)>length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1))/ifelse(length(data_resp_rem$X1)<length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1))),digits=0)
                         data_sub <- if(length(data_resp_rem$X1)==length(rem_seq)) {data_stim[c(rem_seq),]} else {data_resp_rem[c(rem_seq),]}
                         
-                        ##### PROCRUSTES ANALYSIS #####
+                        
+                        ##### ERROR ANALYSIS - RAW #####
                         
                         #take (x,y) coordinates only
                         stim <- if(length(data_stim$X1)==length(data_sub$X1)) {data_stim[,c(1,2)]} else {data_sub[,c(1,2)]}
                         resp <- if(length(data_resp_rem$X1)==length(data_sub$X1)) {data_resp_rem[,c(1,2)]} else {data_sub[,c(1,2)]}
                         
-                        #procrustes transformation
-                        trans <- rotonto(stim, resp, scale = TRUE, signref = FALSE, reflection = FALSE, weights = NULL, centerweight = FALSE)
-                        
-                        #get translation
-                        translation <- sqrt((trans$transy[,1] - trans$trans[,1])^2 + (trans$transy[,2] - trans$trans[,2])^2)
-                        
-                        #get scale factor
-                        scale <- trans$bet
-                        
-                        #get rotation angle *radians*
-                        #from rotation matrix — don't know what I mean? wiki: rotation matrix
-                        #should be same number for each case below... so just pick one:
-                        rotation <- acos(trans$gamm[1,1])
-                        # asin(trans$gamm[2,1]) 
-                        # -asin(trans$gamm[1,2])
-                        # acos(trans$gamm[2,2])
-                        
-                        ## SHAPE ERROR ##
-                        
-                        # create vector of point by point distances (error) between stimulus and response:
-                        shape_dist = rep(0, length(trans$Y[,1]))
-                        for (h in 1:length(shape_dist)){
-                                shape_dist[h] = as.numeric(sqrt(((trans$Y[h,1]-trans$X[h,1])^2)+((trans$Y[h,2]-trans$X[h,2])^2)))
-                        }
-                        # error throughout trial:
-                        shape_error_tot <- sum(shape_dist)
-                        shape_error_mean <- mean(shape_dist)
-                        shape_error_SD <- sd(shape_dist)
-                        
-                        # "ordinary procrustes sum of squares" and SD:
-                        shape_procSS <- sum(shape_dist^2)
-                        shape_procSD <- sqrt(shape_procSS/(length(shape_dist)-1))
-                        
-                        # NOTE: SD of error is NOT same as procSD — in SD you're subtracting each data point from the mean 
-                        # and squaring that. For ProcSD you just take the distance between points and square that. It just 
-                        # happens that in our error SD, the error's ARE distances between points. 
                         
                         ## RAW ERROR ##
                         
@@ -197,6 +187,41 @@ for(i in 1:length(file.names)) {
                         # pre-procrustes transform sum of squares and SD:
                         raw_procSS <- sum(raw_dist^2)
                         raw_procSD <- sqrt(raw_procSS/(length(raw_dist)-1))
+                        # NOTE: SD of error is NOT same as procSD — in SD you're subtracting each data point from the mean 
+                        # and squaring that. For ProcSD you just take the distance between points and square that. It just 
+                        # happens that in our error SD, the error's ARE distances between points. 
+                        
+                        
+                        ## SHAPE ERROR ##
+                        
+                        #procrustes transformation
+                        trans <- rotonto(stim, resp, scale = TRUE, signref = FALSE, reflection = FALSE, weights = NULL, centerweight = FALSE)
+                        
+                        #get translation
+                        translation <- sqrt((trans$transy[,1] - trans$trans[,1])^2 + (trans$transy[,2] - trans$trans[,2])^2)
+                        
+                        #get scale factor
+                        scale <- trans$bet
+                        
+                        #get rotation angle *radians* from rotation matrix
+                        rotation <- acos(trans$gamm[1,1])
+                        
+                        # create vector of point by point distances (error) between stimulus and response:
+                        shape_dist = rep(0, length(trans$Y[,1]))
+                        for (h in 1:length(shape_dist)){
+                                shape_dist[h] = as.numeric(sqrt(((trans$Y[h,1]-trans$X[h,1])^2)+((trans$Y[h,2]-trans$X[h,2])^2)))
+                        }
+                        # error throughout trial:
+                        shape_error_tot <- sum(shape_dist)
+                        shape_error_mean <- mean(shape_dist)
+                        shape_error_SD <- sd(shape_dist)
+                        
+                        # "ordinary procrustes sum of squares" and SD:
+                        shape_procSS <- sum(shape_dist^2)
+                        shape_procSD <- sqrt(shape_procSS/(length(shape_dist)-1))
+                        
+                        
+                        
                         
                         ## Dynamic Time Warping (Multivariate) ##
                         
@@ -217,8 +242,7 @@ for(i in 1:length(file.names)) {
                         
                         ##### path length #####
                         
-                        #get pathlength of participant response 
-                        
+                        # get path length of participant response 
                         segs <- matrix()
                         for (y in 1:NROW(data_resp_rem)) {
                                 seg_leg <- sqrt((data_resp_rem[y+1,1]-data_resp_rem[y,1])^2 + (data_resp_rem[y+1,2]-data_resp_rem[y,2])^2)
@@ -226,14 +250,20 @@ for(i in 1:length(file.names)) {
                         }
                         PLresp <- sum(segs, na.rm = TRUE)
                         
-                        #stimulus pathlength
-                        
+                        # stimulus path length
                         segs <- matrix()
                         for (u in 1:NROW(data_stim)) {
                                 seg_leg <- sqrt((data_stim[u+1,1]-data_stim[u,1])^2 + (data_stim[u+1,2]-data_stim[u,2])^2)
                                 segs <- rbind(segs, seg_leg)
                         }
                         PLstim <- sum(segs, na.rm = TRUE)
+                        
+                        # get path length from bezier curves
+                        bezfig_len <- bezier::bezierArcLength(
+                                ctrl_pts_rm
+                                , deg = 2
+                        )$arc.length
+                        
                         
                         ##### COMPLEXITY MEASURES #####
                         
