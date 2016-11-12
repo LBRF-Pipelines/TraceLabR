@@ -12,7 +12,7 @@ library(dplyr)
 library(ggplot2)
 
 ## SINGLE PARTICIPANT ##
-all_data_p <- subset(all_data, participant_id == 4)
+all_data_p <- subset(all_data, participant_id == 3)
 
 #this is just for Sarah K's data... and anyone with an incomplete session
 #all_data_p <- dplyr::filter(
@@ -23,8 +23,8 @@ all_data_p <- subset(all_data, participant_id == 4)
 all_data_p <- dplyr::mutate(
         .data = all_data_p
         , p_trial = c(1:nrow(all_data_p)) # number trials per participant 
-        , s_trial = rep(seq(20), max(all_data_p$session_num)) # just for piloting! 
-        #, s_trial = rep(seq(100), max(all_data_p$session_num)) # number trials per session
+        #, s_trial = rep(seq(20), max(all_data_p$session_num)) # just for piloting! 
+        , s_trial = rep(seq(100), max(all_data_p$session_num)) # number trials per session
 )
 
 # for Sarah K's data:
@@ -40,10 +40,25 @@ aggregate(!is.na(mt) ~ stimulus_gt, all_data_p, sum)
 # CC:
 aggregate(!is.na(correct_response) ~ stimulus_gt, all_data_p, sum)
 
-## in general was there a decrease in error? ##
+### REACTION TIME ###
 
-# RAW:
+ggplot(data = subset(all_data_p)
+       , mapping = aes(
+               x = s_trial
+               , y = rt
+               , color = factor(figure_type)
+       )) + geom_point(na.rm = TRUE, alpha = .5) +
+        geom_smooth(na.rm = TRUE) + 
+        facet_grid(. ~ session_num) +
+        theme_minimal() +
+        lims(y=c(0,5))
 
+
+### in general was there a decrease in error? ###
+
+### RAW ERROR ###
+
+# RAW mean:
 ggplot(data = all_data_p, mapping = aes(
         x = s_trial
         , y = raw_error_mean
@@ -56,7 +71,22 @@ ggplot(data = all_data_p, mapping = aes(
              , x = "Trial Number"
              , y = "Raw Error: mean (pixels)"
              , color = "Condition")
-        
+
+# RAW mean DTW:
+ggplot(data = all_data_p, mapping = aes(
+        x = s_trial
+        , y = raw_dtw_error_mean
+        , color = figure_type
+)) + geom_point(na.rm = TRUE, alpha = .5) +
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        facet_grid(. ~ session_num) +
+        labs(title = "Raw DTW Error Mean Across Time"
+             , x = "Trial Number"
+             , y = "Raw DTW Error: mean (pixels)"
+             , color = "Condition")
+
+# RAW SD:
 ggplot(data = all_data_p, mapping = aes(
         x = s_trial
         , y = raw_error_SD
@@ -70,21 +100,24 @@ ggplot(data = all_data_p, mapping = aes(
              , y = "Raw Error: SD (pixels)"
              , color = "Condition")
 
+# RAW SD DTW:
 ggplot(data = all_data_p, mapping = aes(
         x = s_trial
-        , y = raw_procSD
+        , y = raw_dtw_error_SD
         , color = figure_type
 )) + geom_point(na.rm = TRUE, alpha = .5) + 
         geom_smooth(na.rm = TRUE) + 
         theme_minimal() +
         facet_grid(. ~ session_num) +
-        labs(title = "Raw Error ProcSD Across Time"
+        labs(title = "Raw DTW Error SD Across Time"
              , x = "Trial Number"
-             , y = "Raw Error: ProcSD (pixels)"
+             , y = "Raw DTW Error: SD (pixels)"
              , color = "Condition")
 
-# SHAPE:
 
+### SHAPE ERROR ###
+
+# SHAPE mean:
 ggplot(data = all_data_p, mapping = aes(
         x = s_trial
         , y = shape_error_mean
@@ -98,6 +131,21 @@ ggplot(data = all_data_p, mapping = aes(
              , y = "Shape Error: mean (pixels)"
              , color = "Condition")
 
+# SHAPE mean DTW:
+ggplot(data = all_data_p, mapping = aes(
+        x = s_trial
+        , y = shape_dtw_error_mean
+        , color = figure_type
+)) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        facet_grid(. ~ session_num) +
+        labs(title = "Shape DTW Error Mean Across Time"
+             , x = "Trial Number"
+             , y = "Shape DTW Error: mean (pixels)"
+             , color = "Condition")
+
+# SHAPE SD
 ggplot(data = all_data_p, mapping = aes(
         x = s_trial
         , y = shape_error_SD
@@ -110,27 +158,27 @@ ggplot(data = all_data_p, mapping = aes(
              , x = "Trial Number"
              , y = "Shape Error: SD (pixels)"
              , color = "Condition")
-
+# SHAPE SD DTW
 ggplot(data = all_data_p, mapping = aes(
         x = s_trial
-        , y = shape_procSD
+        , y = shape_dtw_error_SD
         , color = figure_type
 )) + geom_point(na.rm = TRUE, alpha = .5) + 
         geom_smooth(na.rm = TRUE) + 
         theme_minimal() +
         facet_grid(. ~ session_num) +
-        labs(title = "Shape Error ProcSD Across Time"
+        labs(title = "Shape DTW Error SD Across Time"
              , x = "Trial Number"
-             , y = "Shape Error: ProcSD (pixels)"
+             , y = "Shape DTW Error: SD (pixels)"
              , color = "Condition")
 
-# SCALE:
 
+# SCALE:
 all_data_p1 <- filter(
         .data = all_data_p
         , scale < 2 # note that this filter gets rid of other days so plot will not facet sessions
 )
-ggplot(data = all_data_p, mapping = aes(
+ggplot(data = all_data_p1, mapping = aes(
         x = s_trial
         , y = scale
         , color = figure_type
@@ -142,9 +190,21 @@ ggplot(data = all_data_p, mapping = aes(
              , x = "Trial Number"
              , y = "Scale Factor"
              , color = "Condition")
+# SCALE DTW:
+ggplot(data = all_data_p1, mapping = aes(
+        x = s_trial
+        , y = scale_dtw
+        , color = figure_type
+)) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        facet_grid(. ~ session_num) +
+        labs(title = "Scale DTW Error Across Time"
+             , x = "Trial Number"
+             , y = "Scale DTW Factor"
+             , color = "Condition")
 
 # ROTATION:
-
 all_data_p2 <- filter(
         .data = all_data_p
         , rotation < 1
@@ -161,9 +221,21 @@ ggplot(data = all_data_p, mapping = aes(
              , x = "Trial Number"
              , y = "Rotation (radians)"
              , color = "Condition")
+# ROTATION DTW:
+ggplot(data = all_data_p, mapping = aes(
+        x = s_trial
+        , y = rotation_dtw
+        , color = figure_type
+)) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        facet_grid(. ~ session_num) +
+        labs(title = "Rotation DTW Error Across Time"
+             , x = "Trial Number"
+             , y = "Rotation DTW (radians)"
+             , color = "Condition")
 
 # TRANSLATION: 
-
 all_data_p3 <- filter(
         .data = all_data_p
         , translation < 300
@@ -180,25 +252,19 @@ ggplot(data = all_data_p, mapping = aes(
              , x = "Trial Number"
              , y = "Translation (pixels)"
              , color = "Condition")
-
-
-### REACTION TIME ###
-
-ggplot(data = subset(all_data_p)
-       , mapping = aes(
-               x = s_trial
-               , y = rt
-               , color = factor(figure_type)
-       )) + geom_point(na.rm = TRUE, alpha = .5) +
+# TRANSLATION DTW: 
+ggplot(data = all_data_p, mapping = aes(
+        x = s_trial
+        , y = translation_dtw
+        , color = figure_type
+)) + geom_point(na.rm = TRUE, alpha = .5) + 
         geom_smooth(na.rm = TRUE) + 
-        facet_grid(. ~ session_num) +
         theme_minimal() +
-        lims(y=c(0,5))
-
-
-
-##### SAME, BUT MEDIAN SPEED ONLY? #####
-
+        facet_grid(. ~ session_num) +
+        labs(title = "Translation DTW Error Across Time"
+             , x = "Trial Number"
+             , y = "Translation DTW (pixels)"
+             , color = "Condition")
 
 
 #### DATA CHECKING #####
@@ -253,76 +319,52 @@ boxplot(PLresp ~ figure_type, data = all_data, main="PLresp", xlab="figure_type"
 # boxlots - does repeated fig complexity fall within range of randoms?
 # all speeds:
 boxplot(sinuosity ~ figure_type, data = all_data, main="sinuosity", xlab="figure_type", ylab="sinuosity")
-boxplot(totcurv ~ figure_type, data = all_data, main="total curvature", xlab="figure_type", ylab="totcurv", ylim = c(-.5,.5))
-boxplot(totabscurv ~ figure_type, data = all_data, main="total absolute curvature", xlab="figure_type", ylab="totabscurv", ylim = c(.1,.8))
-boxplot(tortuosity ~ figure_type, data = all_data, main="tortuosity", xlab="figure_type", ylab="tortuosity", ylim = c(0,2.5))
-boxplot(curvsum ~ figure_type, data = all_data, main="sum curvature", xlab="figure_type", ylab="curvsum", ylim = c(0,50))
-boxplot(ApEn_stim ~ figure_type, data = all_data, main="approx entropy", xlab="figure_type", ylab="ApEn_stim")
-boxplot(SaEn_stim ~ figure_type, data = all_data, main="sample entropy", xlab="figure_type", ylab="SaEn_stim")
-
-# specific speeds:
-all_data_mt1 <- subset(all_data, stimulus_mt < .75)
-all_data_mt2 <- subset(all_data, (stimulus_mt > .75) & (stimulus_mt < 1.25))
-all_data_mt3 <- subset(all_data, (stimulus_mt > 1.25) & (stimulus_mt < 1.75))
-all_data_mt4 <- subset(all_data, (stimulus_mt > 1.75) & (stimulus_mt < 2.25))
-all_data_mt5 <- subset(all_data, stimulus_mt > 2.25)
-
-boxplot(sinuosity ~ figure_type, data = all_data_mt1, main="sinuosity", xlab="figure_type", ylab="sinuosity")
-boxplot(sinuosity ~ figure_type, data = all_data_mt2, main="sinuosity", xlab="figure_type", ylab="sinuosity")
-boxplot(sinuosity ~ figure_type, data = all_data_mt3, main="sinuosity", xlab="figure_type", ylab="sinuosity")
-boxplot(sinuosity ~ figure_type, data = all_data_mt4, main="sinuosity", xlab="figure_type", ylab="sinuosity")
-boxplot(sinuosity ~ figure_type, data = all_data_mt5, main="sinuosity", xlab="figure_type", ylab="sinuosity")
-
-boxplot(totabscurv ~ figure_type, data = all_data_mt1, main="total absolute curvature", xlab="figure_type", ylab="totabscurv", ylim = c(.1,.8))
-boxplot(totabscurv ~ figure_type, data = all_data_mt2, main="total absolute curvature", xlab="figure_type", ylab="totabscurv", ylim = c(.1,.8))
-boxplot(totabscurv ~ figure_type, data = all_data_mt3, main="total absolute curvature", xlab="figure_type", ylab="totabscurv", ylim = c(.1,.8))
-boxplot(totabscurv ~ figure_type, data = all_data_mt4, main="total absolute curvature", xlab="figure_type", ylab="totabscurv", ylim = c(.1,.8))
-boxplot(totabscurv ~ figure_type, data = all_data_mt5, main="total absolute curvature", xlab="figure_type", ylab="totabscurv", ylim = c(.1,.8))
-
-boxplot(ApEn_stim ~ figure_type, data = all_data_mt1, main="approx entropy", xlab="figure_type", ylab="ApEn_stim")
-boxplot(ApEn_stim ~ figure_type, data = all_data_mt2, main="approx entropy", xlab="figure_type", ylab="ApEn_stim")
-boxplot(ApEn_stim ~ figure_type, data = all_data_mt3, main="approx entropy", xlab="figure_type", ylab="ApEn_stim")
-boxplot(ApEn_stim ~ figure_type, data = all_data_mt4, main="approx entropy", xlab="figure_type", ylab="ApEn_stim")
-boxplot(ApEn_stim ~ figure_type, data = all_data_mt5, main="approx entropy", xlab="figure_type", ylab="ApEn_stim")
-
-
-all_data_fig1 <- dplyr::filter(
-        .data = all_data
-        , figure_type == "fig1"
-)
-table(all_data_fig1$ApEn_stim) # so there are always FIVE, because of the different sampling rates... 
-plot(all_data_fig1$stimulus_mt,all_data_fig1$ApEn_stim)
-
-hist(all_data$sinuosity, breaks=200) 
-hist(all_data$totcurv, breaks=200)
-hist(all_data$totabscurv, breaks=200)
-hist(all_data$tortuosity, breaks=200)
-hist(all_data$curvsum, breaks=200)
-hist(all_data$ApEn_stim, breaks=200)
-hist(all_data$SaEn_stim, breaks=200)
-
-plot(all_data$figlength, all_data$sinuosity)
-plot(all_data$figlength, all_data$totcurv, ylim = c(-.5,.5))
-plot(all_data$figlength, all_data$totabscurv, ylim = c(.1,.8))
-plot(all_data$figlength, all_data$tortuosity, ylim = c(0,2.5)) # for now, seems tortuosity is affected by figlength
-plot(all_data$figlength, all_data$curvsum, ylim = c(0,50))
-plot(all_data$figlength, all_data$ApEn_stim) # might be a relationship, even after interpolating, but not a strong one
-plot(all_data$figlength, all_data$SaEn_stim) # same 
-# it appears that the variability in the data is not a function of data collection resolution... probably the integrate and derivative functions themselves...
+boxplot(totabscurv ~ figure_type, data = all_data, main="total absolute curvature", xlab="figure_type", ylab="totabscurv")
+boxplot(ApEn ~ figure_type, data = all_data, main="approx entropy", xlab="figure_type", ylab="ApEn")
+boxplot(SampEn ~ figure_type, data = all_data, main="sample entropy", xlab="figure_type", ylab="SampEn")
 
 
 ##### is ERROR affected by pathlength or complexity? #####
 
+# Error as a function of Sinuosity
 ggplot(subset(all_data, #(participant_id == 11) & 
                       (figure_type == "random"))
        , mapping = aes(
-               x = SaEn_stim, y = raw_error_mean
+               x = sinuosity, y = raw_error_mean
                , color = factor(session_num)
        )) + geom_point(na.rm = TRUE, alpha = .5) + 
         geom_smooth(na.rm = TRUE) + 
         theme_minimal() +
         labs(title = "Random: Raw Error"
-             , x = "Sample Entropy"
+             , x = "Sinuosity"
+             , y = "Raw Error"
+             , color = "Session")
+
+# Error as a function of Total Absolute Curvature
+ggplot(subset(all_data, #(participant_id == 11) & 
+              (figure_type == "random"))
+       , mapping = aes(
+               x = totabscurv, y = raw_error_mean
+               , color = factor(session_num)
+       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        labs(title = "Random: Raw Error"
+             , x = "Total Absolute Curvature"
+             , y = "Raw Error"
+             , color = "Session")
+
+# Error as a function of ApEn
+ggplot(subset(all_data, #(participant_id == 11) & 
+              (figure_type == "random"))
+       , mapping = aes(
+               x = ApEn, y = raw_error_mean
+               , color = factor(session_num)
+       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        labs(title = "Random: Raw Error"
+             , x = "Approximate Entropy"
              , y = "Raw Error"
              , color = "Session")
 
