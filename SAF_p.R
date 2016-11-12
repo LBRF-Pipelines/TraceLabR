@@ -10,9 +10,7 @@
 #rm(list=setdiff(ls(), c("all_figs","all_data"))) # clear all but all_figs & all_data
 graphics.off() # clear figures
 
-library(tibble)
-library(dplyr)
-library(ggplot2)
+library(tidyverse)
 
 # REMOVE EXREME VALUES DUE TO TECHNICAL ERRORS:
 
@@ -29,14 +27,13 @@ aggregate(!is.na(PLresp) ~ stimulus_gt, all_data_sub, sum)
 
 ## SET UP PARTICIPANT ##
 # what participant?
-p <- 21
+p <- 3
 fig <- dplyr::filter(all_data, participant_id == p, figure_type != "random")$figure_type[1]
 
 
 ##### SESSION TO SESSION CHANGES #####
 
-## RAW error against speed ##
-
+## RAW error against speed:
 ggplot(subset(all_data_sub, participant_id == p)
        , mapping = aes(
                 x = vresp, y = raw_error_mean
@@ -50,8 +47,21 @@ ggplot(subset(all_data_sub, participant_id == p)
              , y = "Raw Error"
              , color = "Session")
 
-## SHAPE (proc) error against speed ##
+## RAW DTW error against speed:
+ggplot(subset(all_data_sub, participant_id == p)
+       , mapping = aes(
+               x = vresp, y = raw_dtw_error_mean
+               , color = factor(session_num)
+       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        facet_grid(. ~ figure_type) +
+        labs(title = "Raw DTW Error"
+             , x = "Velocity"
+             , y = "Raw DTW Error"
+             , color = "Session")
 
+## SHAPE error against speed:
 ggplot(subset(all_data_sub, participant_id == p)
        , mapping = aes(
                x = vresp, y = shape_error_mean
@@ -64,9 +74,21 @@ ggplot(subset(all_data_sub, participant_id == p)
              , x = "Velocity"
              , y = "Shape Error"
              , color = "Session")
+## SHAPE DTW error against speed:
+ggplot(subset(all_data_sub, participant_id == p)
+       , mapping = aes(
+               x = vresp, y = shape_dtw_error_mean
+               , color = factor(session_num)
+       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        facet_grid(. ~ figure_type) +
+        labs(title = "Shape DTW Error"
+             , x = "Velocity"
+             , y = "Shape DTW Error"
+             , color = "Session")
 
-## SCALE error against speed ##
-
+## SCALE error against speed:
 ggplot(subset(all_data_sub, participant_id == p)
        , mapping = aes(
                x = vresp, y = scale
@@ -79,9 +101,21 @@ ggplot(subset(all_data_sub, participant_id == p)
              , x = "Velocity"
              , y = "Scale Error"
              , color = "Session")
+## SCALE DTW error against speed:
+ggplot(subset(all_data_sub, participant_id == p)
+       , mapping = aes(
+               x = vresp, y = scale_dtw
+               , color = factor(session_num)
+       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        facet_grid(. ~ figure_type) +
+        labs(title = "Scale DTW Error"
+             , x = "Velocity"
+             , y = "Scale DTW Error"
+             , color = "Session")
 
-## ROTATION error against speed ##
-
+## ROTATION error against speed:
 ggplot(subset(all_data_sub, participant_id == p)
        , mapping = aes(
                x = vresp, y = rotation
@@ -94,9 +128,22 @@ ggplot(subset(all_data_sub, participant_id == p)
              , x = "Velocity"
              , y = "Rotation Error"
              , color = "Session")
+## ROTATION DTW error against speed:
+ggplot(subset(all_data_sub, participant_id == p)
+       , mapping = aes(
+               x = vresp, y = rotation_dtw
+               , color = factor(session_num)
+       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        facet_grid(. ~ figure_type) +
+        labs(title = "Rotation DTW Error"
+             , x = "Velocity"
+             , y = "Rotation DTW Error"
+             , color = "Session")
 
-## TRANSLATION error against speed ##
 
+## TRANSLATION error against speed:
 ggplot(subset(all_data_sub, participant_id == p)
        , mapping = aes(
                x = vresp, y = translation
@@ -109,57 +156,27 @@ ggplot(subset(all_data_sub, participant_id == p)
              , x = "Velocity"
              , y = "Translation Error"
              , color = "Session")
+## TRANSLATION RAW error against speed:
+ggplot(subset(all_data_sub, participant_id == p)
+       , mapping = aes(
+               x = vresp, y = translation_dtw
+               , color = factor(session_num)
+       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        facet_grid(. ~ figure_type) +
+        labs(title = "Translation DTW Error"
+             , x = "Velocity"
+             , y = "Translation DTW Error"
+             , color = "Session")
 
 
-
-
-## ERROR vs COMPLEXITY ##
-
-# only do for random shapes — repeated would just be straight vertical lines
-
-# RAW error against complexity
-plot(PP_random_1$complexity, PP_random_1$raw_error_mean, col = "black")
-points(PP_random_5$complexity, PP_random_5$raw_error_mean, col = "blue")
-
-# SHAPE error against complexity
-plot(PP_random_1$complexity, PP_random_1$shape_error_mean, col = "black")
-points(PP_random_5$complexity, PP_random_5$shape_error_mean, col = "blue")
-
-# SCALE error against complexity
-plot(PP_random_1$complexity, PP_random_1$scale, col = "black")
-points(PP_random_5$complexity, PP_random_5$scale, col = "blue")
-
-# TRANSLATION error against complexity
-plot(PP_random_1$complexity, PP_random_1$translation, col = "black")
-points(PP_random_5$complexity, PP_random_5$translation, col = "blue")
-
-# ROTATION error against complexity
-plot(PP_random_1$complexity, PP_random_1$rotation, col = "black")
-points(PP_random_5$complexity, PP_random_5$rotation, col = "blue")
 
 
 
 ## 3D plots of speed-complexity-error ##
-library(rgl)
-plot3d(PP_random_1$complexity, V_ran_1, PP_random_1$shape_error_mean, col="black", size=3)
-plot3d(PP_random_5$complexity, V_ran_5, PP_random_5$shape_error_mean, col="blue", size=3)
+# library(rgl)
 
-plot3d(PP_repeat_1$complexity, V_rep_1, PP_repeat_1$shape_error_mean, col="black", size=3)
-plot3d(PP_repeat_5$complexity, V_rep_5, PP_repeat_5$shape_error_mean, col="blue", size=3)
-
-# plot RAW error against MOVEMENT TIME:
-#plot(PP_random_5$mt, PP_random_5$RawSD, col = "blue")
-#points(PP_random_1$mt, PP_random_1$RawSD, col = "black")
-
-#plot(PP_repeat_5$mt, PP_repeat_5$RawSD, col = "blue")
-#points(PP_repeat_1$mt, PP_repeat_1$RawSD, col = "black")
-
-# plot PROC (shape) error against MOVEMENT TIME:
-#plot(PP_random_5$mt, PP_random_5$ProcSD, col = "blue")
-#points(PP_random_1$mt, PP_random_1$ProcSD, col = "black")
-
-#plot(PP_repeat_5$mt, PP_repeat_5$ProcSD, col = "blue")
-#points(PP_repeat_1$mt, PP_repeat_1$ProcSD, col = "black")
 
 
 ##### FITTING LOGISTIC FUNCTION #####
