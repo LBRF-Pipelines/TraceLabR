@@ -1,5 +1,5 @@
 ##### TRACELAB IMPORT AND MAIN ANALYSIS #####
-### AUTHORED BY JACK SOLOMON AND TONY INGRAM ###
+### AUTHORED BY TONY INGRAM AND JACK SOLOMON ###
 
 ## TO DO ##
 # 1. go through and change loop inits that are = "" to something else... like = matrix()
