@@ -27,7 +27,7 @@ aggregate(!is.na(PLresp) ~ stimulus_gt, all_data_sub, sum)
 
 ## SET UP PARTICIPANT ##
 # what participant?
-p <- 3
+p <- 4
 fig <- dplyr::filter(all_data, participant_id == p, figure_type != "random")$figure_type[1]
 
 
