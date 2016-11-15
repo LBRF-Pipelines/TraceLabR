@@ -47,7 +47,7 @@ assignment$fcode[assignment$figure == 4] <- "fig4"
 assignment$fcode[assignment$figure == 5] <- "fig5"
 
 # ensure 15 in each group:
-table(assignment)
+#table(assignment)
 
 # add participant ID's:
 assignment <- cbind(id = seq(1, 60, length=60), assignment)
@@ -56,6 +56,6 @@ assignment <- cbind(id = seq(1, 60, length=60), assignment)
 
 print(assignment)
 
-write.table(assignment,"~/RStudio/TraceLabDB/assignment.txt", sep="\t") 
+write.table(assignment,"~/Documents/RStudio/TraceLabDB/assignment.txt", sep="\t") 
 
 
