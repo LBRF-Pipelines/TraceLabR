@@ -489,19 +489,32 @@ all_data$correct_response <- as.integer(all_data$correct_response)
 # arrange trials in chronological order
 all_data <- dplyr::arrange(all_data, participant_id, session_num, block_num, trial_num)
 
-# calculate average response velocity per trial
-all_data <- dplyr::mutate(
-        .data = all_data,
-        vresp = PLresp / mt_clip 
-) # and reorder one last time:
-all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","sinuosity","totabscurv","ApEn","SampEn","trace_file","rt","it","mt","mt_clip","PLresp","vresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSD","raw_dtw_error_tot","raw_dtw_error_mean","raw_dtw_error_SD","raw_dtw_procSD","translation_dtw","scale_dtw","rotation_dtw","shape_dtw_error_tot","shape_dtw_error_mean","shape_dtw_error_SD","shape_dtw_procSD","control_question","control_response","correct_response")]
-
 # change name of repeated figure
 all_data$figure_type <- as.factor(gsub("template_1477090164.31","fig1", all_data$figure_type))
 all_data$figure_type <- as.factor(gsub("template_1477106073.55","fig2", all_data$figure_type))
 all_data$figure_type <- as.factor(gsub("template_1477081781.44","fig3", all_data$figure_type))
 all_data$figure_type <- as.factor(gsub("template_1477111169.26","fig4", all_data$figure_type))
 all_data$figure_type <- as.factor(gsub("template_1477121315.85","fig5", all_data$figure_type))
+
+# calculate average response velocity per trial
+all_data <- dplyr::mutate(
+        .data = all_data,
+        vresp = PLresp / mt_clip,
+        figure = figure_type
+) # and reorder one last time:
+all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","sinuosity","totabscurv","ApEn","SampEn","trace_file","rt","it","mt","mt_clip","PLresp","vresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSD","raw_dtw_error_tot","raw_dtw_error_mean","raw_dtw_error_SD","raw_dtw_procSD","translation_dtw","scale_dtw","rotation_dtw","shape_dtw_error_tot","shape_dtw_error_mean","shape_dtw_error_SD","shape_dtw_procSD","control_question","control_response","correct_response")]
+
+# simplify figure to random or repeat
+all_data$figure <- as.factor(gsub("fig1","repeated", all_data$figure))
+all_data$figure <- as.factor(gsub("fig2","repeated", all_data$figure))
+all_data$figure <- as.factor(gsub("fig3","repeated", all_data$figure))
+all_data$figure <- as.factor(gsub("fig4","repeated", all_data$figure))
+all_data$figure <- as.factor(gsub("fig5","repeated", all_data$figure))
+
+# switch names of columns: figure and figure_type — which is more intuitive
+
+colnames(all_data)[9] <- "figure_type"
+colnames(all_data)[10] <- "figure_name"
 
 # save .txt file with all_data:
 write.table(all_data,"~/Documents/RStudio/TraceLabDB/all_data.txt", sep="\t")
