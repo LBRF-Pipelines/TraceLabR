@@ -40,11 +40,11 @@ assignment$gcode[assignment$group == 3] <- "PP-VV-5"
 assignment$gcode[assignment$group == 4] <- "PP-VR-5"
 
 # add human readable code for each figure:
-assignment$fcode[assignment$figure == 1] <- "fig1"
-assignment$fcode[assignment$figure == 2] <- "fig2"
-assignment$fcode[assignment$figure == 3] <- "fig3"
-assignment$fcode[assignment$figure == 4] <- "fig4"
-assignment$fcode[assignment$figure == 5] <- "fig5"
+assignment$fcode[assignment$figure == 1] <- "template_1477090164.31"
+assignment$fcode[assignment$figure == 2] <- "template_1477106073.55"
+assignment$fcode[assignment$figure == 3] <- "template_1477081781.44"
+assignment$fcode[assignment$figure == 4] <- "template_1477111169.26"
+assignment$fcode[assignment$figure == 5] <- "template_1477121315.85"
 
 # ensure 15 in each group:
 #table(assignment)

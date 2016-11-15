@@ -497,7 +497,11 @@ all_data <- dplyr::mutate(
 all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","sinuosity","totabscurv","ApEn","SampEn","trace_file","rt","it","mt","mt_clip","PLresp","vresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSD","raw_dtw_error_tot","raw_dtw_error_mean","raw_dtw_error_SD","raw_dtw_procSD","translation_dtw","scale_dtw","rotation_dtw","shape_dtw_error_tot","shape_dtw_error_mean","shape_dtw_error_SD","shape_dtw_procSD","control_question","control_response","correct_response")]
 
 # change name of repeated figure
-all_data$figure_type <- as.factor(gsub("template_1477081781.44","repeat", all_data$figure_type))
+all_data$figure_type <- as.factor(gsub("template_1477090164.31","fig1", all_data$figure_type))
+all_data$figure_type <- as.factor(gsub("template_1477106073.55","fig2", all_data$figure_type))
+all_data$figure_type <- as.factor(gsub("template_1477081781.44","fig3", all_data$figure_type))
+all_data$figure_type <- as.factor(gsub("template_1477111169.26","fig4", all_data$figure_type))
+all_data$figure_type <- as.factor(gsub("template_1477121315.85","fig5", all_data$figure_type))
 
 # save .txt file with all_data:
 write.table(all_data,"~/Documents/RStudio/TraceLabDB/all_data.txt", sep="\t")
