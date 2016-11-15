@@ -14,19 +14,37 @@ assignment <- data.frame(c(rep(1, 15)
                            , rep(2, 15)
                            , rep(3, 15)
                            , rep(4, 15)))
+# create shape assignments — three of each shape per group:
+assignment <- cbind(assignment, rep(c(rep(1,3)
+                                  , rep(2,3)
+                                  , rep(3,3)
+                                  , rep(4,3)
+                                  , rep(5,3)
+                                  ),4
+                                 ))
+
 # randomize group assignment:
 assignment <- as.data.frame(assignment[sample(1:nrow(assignment)), ])
-colnames(assignment) <- "group"
+colnames(assignment) <- c("group","figure")
 
 # label factors appropriately:
-factor(assignment, levels = c(1, 2, 3, 4)
+factor(assignment$group, levels = c(1, 2, 3, 4)
        , labels = c("CC-00-5", "MI-00-5", "PP-VV-5", "PP-VR-5"))
+factor(assignment$figure, levels = c(1, 2, 3, 4, 5)
+       , labels = c("fig1", "fig2", "fig3", "fig4", "fig5"))
 
 # add human readable code for each group:
-assignment$code[assignment$group == 1] <- "CC-00-5"
-assignment$code[assignment$group == 2] <- "MI-00-5"
-assignment$code[assignment$group == 3] <- "PP-VV-5"
-assignment$code[assignment$group == 4] <- "PP-VR-5"
+assignment$gcode[assignment$group == 1] <- "CC-00-5"
+assignment$gcode[assignment$group == 2] <- "MI-00-5"
+assignment$gcode[assignment$group == 3] <- "PP-VV-5"
+assignment$gcode[assignment$group == 4] <- "PP-VR-5"
+
+# add human readable code for each figure:
+assignment$fcode[assignment$figure == 1] <- "fig1"
+assignment$fcode[assignment$figure == 2] <- "fig2"
+assignment$fcode[assignment$figure == 3] <- "fig3"
+assignment$fcode[assignment$figure == 4] <- "fig4"
+assignment$fcode[assignment$figure == 5] <- "fig5"
 
 # ensure 15 in each group:
 table(assignment)
