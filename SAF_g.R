@@ -25,14 +25,11 @@ aggregate(!is.na(PLresp) ~ stimulus_gt, all_data, sum)
 aggregate(!is.na(PLresp) ~ stimulus_gt, all_data_sub, sum)
 
 
-## SET UP PARTICIPANT ##
-# single participant?
-p <- 4
 # single group?
 #g <- "PP-VR-5"
-g <- "PP-VV-5"
+#g <- "PP-VV-5"
 #g <- "MI-00-5"
-#g <- "CC-00-5"
+g <- "CC-00-5"
 
 
 #fig <- dplyr::filter(all_data, participant_id == p, figure_type != "random")$figure_type[1] # can't remember why I did this... old code I guess
@@ -48,7 +45,7 @@ ggplot(subset(all_data_sub, condition == g)
 )) + geom_point(na.rm = TRUE, alpha = .5) + 
         geom_smooth(na.rm = TRUE) + 
         theme_minimal() +
-        facet_grid(. ~ figure_name) + #facet_grid(. ~ figure_type) +
+        facet_grid(. ~ figure_type) + #facet_grid(. ~ figure_name) +
         labs(title = "Raw Error"
              , x = "Velocity"
              , y = "Raw Error"
