@@ -21,10 +21,10 @@ aggregate(!is.na(PLresp) ~ stimulus_gt, all_data_sub, sum)
 
 
 # single group?
-#g <- "PP-VR-5"
+g <- "PP-VR-5"
 #g <- "PP-VV-5"
 #g <- "MI-00-5"
-g <- "CC-00-5"
+#g <- "CC-00-5"
 
 
 #fig <- dplyr::filter(all_data, participant_id == p, figure_type != "random")$figure_type[1] # can't remember why I did this... old code I guess
