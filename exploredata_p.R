@@ -8,8 +8,7 @@
 # rm(list=setdiff(ls(), c("all_figs","all_data"))) # clear all but all_figs & all_data
 graphics.off() # clear figures
 
-library(dplyr) 
-library(ggplot2)
+library(tidyverse)
 
 ## SINGLE PARTICIPANT ##
 all_data_p <- subset(all_data, participant_id == 4)

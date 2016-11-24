@@ -14,8 +14,7 @@ rm(list=setdiff(ls(), "all_figs")) # clear all but all_figs
 
 library(Morpho) # for procrustes analysis
 library(plyr) # for control task analysis. *use plyr::count()
-library(dplyr) # arranging data at end
-library(ggplot2) # plotting
+library(tidyverse) # arranging data at end & plotting
 library(pracma) # for ApEn and SampEn
 library(bezier) # for bezier curve analysis
 library(dtw) # for Dynamic Time Warping
