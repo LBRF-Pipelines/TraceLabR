@@ -54,7 +54,7 @@ for(i in 1:length(file.names)) {
         # separate PP data from MI and CC data (remember, final session of MI and CC are also PP sessions)
         if (length(tlt)<15){
                 # disclude all groups except CC
-                if(trials[trials$figure_file==name.tlf,5]!='CC-00-5'){datarow=c(name.tlf,rep(NA,times=30))}
+                if(trials[trials$figure_file==name.tlf,5]!='CC-00-5'){datamat=c(name.tlf,rep(NA,times=30))}
                 # if in CC group, runs control task
                 else{
                         #loads stimulus data
@@ -107,7 +107,7 @@ for(i in 1:length(file.names)) {
                                 out <- plyr::count(dir_sign[,2])
                                 corr.resp <- as.numeric(out[out$x==-1,2])
                         }
-                        datarow =c(name.tlf,rep(NA,times=29),corr.resp)
+                        datamat =c(name.tlf,rep(NA,times=29),corr.resp)
                 }
         }
         else{
@@ -146,7 +146,7 @@ for(i in 1:length(file.names)) {
                 }
                 #decide minimum response length — if not reached, report NA's for trial
                 if(sum(clip_index)<10){
-                        datarow=c(name.tlf,rep(NA,times=30))
+                        datamat=c(name.tlf,rep(NA,times=30))
                 }
                 else{
                         ### Pre-processing Trajectories Continued ###
@@ -462,6 +462,7 @@ for(i in 1:length(file.names)) {
                         
                         ##### save variables to a row & subsequently a file #####
                         
+                        # how many variables are you saving? this could be simplified...
                         datarow <- c(name.tlf,PLstim,sinuosity,totabscurv,ApEn,SampEn,mt_clip,PLresp,raw_error_tot,raw_error_mean,raw_error_SD,raw_procSD,translation,scale,rotation,shape_error_tot,shape_error_mean,shape_error_SD,shape_procSD,raw_dtw_error_tot,raw_dtw_error_mean,raw_dtw_error_SD,raw_dtw_procSD,translation_dtw,scale_dtw,rotation_dtw,shape_dtw_error_tot,shape_dtw_error_mean,shape_dtw_error_SD,shape_dtw_procSD,rep(NA,times=1))
                         
                         datamat <- matrix(rep(0, nrow(resp_dtw)*(length(datarow)+4)), nrow=nrow(resp_dtw))
@@ -471,7 +472,7 @@ for(i in 1:length(file.names)) {
                         }
                 }
         }
-        out.file <- rbind(out.file, datarow)
+        out.file <- rbind(out.file, datamat)
 }
 
 # change output to df
