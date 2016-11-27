@@ -10,6 +10,8 @@ graphics.off() # clear figures
 
 library(tidyverse)
 
+load("all_data.Rda")
+
 ## SINGLE PARTICIPANT ##
 all_data_p <- subset(all_data, participant_id == 4)
 

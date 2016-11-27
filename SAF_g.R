@@ -7,6 +7,8 @@ graphics.off() # clear figures
 
 library(tidyverse)
 
+load("all_data.Rda")
+
 # REMOVE EXREME VALUES DUE TO TECHNICAL ERRORS:
 
 all_data_sub <- dplyr::filter(
