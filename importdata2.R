@@ -175,12 +175,12 @@ for(i in 1:length(file.names)) {
                         stimt <- if(length(data_stim$X1)==length(data_sub$X1)) {data_stim[,3]} else {data_sub[,3]}
                         respt <- if(length(data_resp_rem$X1)==length(data_sub$X1)) {data_resp_rem[,3]} else {data_sub[,3]}
                         # speed at each point (pixels per second):
-                        stimv = rep(0, length(stimt))
-                        for (j in 2:length(stimv)){
-                                stimv[j] = as.numeric(
-                                        sqrt(((stim[j,1]-stim[j-1,1])^2)+((stim[j,2]-stim[j-1,2])^2))/(stimt[j] - stimt[j-1])
-                                        )
-                        } # this should be constant (with jitter from computer sampling rate mostly)
+                        # stimv = rep(0, length(stimt))
+                        # for (j in 2:length(stimv)){
+                        #         stimv[j] = as.numeric(
+                        #                 sqrt(((stim[j,1]-stim[j-1,1])^2)+((stim[j,2]-stim[j-1,2])^2))/(stimt[j] - stimt[j-1])
+                        #                 )
+                        # } # this should be constant (with jitter from computer sampling rate mostly)
                         respv = rep(0, length(respt))
                         for (j in 2:length(respv)){
                                 respv[j] = as.numeric(
@@ -262,6 +262,11 @@ for(i in 1:length(file.names)) {
                         for (j in 1:nrow(resp_dtw)){
                                 resp_dtw[j,1] <- resp[dtw$index1[j], 1]
                                 resp_dtw[j,2] <- resp[dtw$index1[j], 2]
+                        } 
+                        # and associated speeds at each point:
+                        respv_dtw <- rep(0, length(dtw$index1))
+                        for (j in 1:length(respv_dtw)){
+                                respv_dtw[j] <- respv[dtw$index1[j]]
                         }
                         
                         # create stimulus trajectory from matched points
@@ -270,7 +275,11 @@ for(i in 1:length(file.names)) {
                                 stim_dtw[j,1] <- stim[dtw$index2[j], 1]
                                 stim_dtw[j,2] <- stim[dtw$index2[j], 2]
                         }
-                        
+                        # # and associated speeds at each point:
+                        # stimv_dtw <- rep(0, length(dtw$index2))
+                        # for (j in 1:length(stimv_dtw)){
+                        #         stimv_dtw[j] <- stimv[dtw$index2[j]]
+                        # }
                         
                         ## RAW ERROR — DTW ## 
                         
