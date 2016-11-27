@@ -168,9 +168,25 @@ for(i in 1:length(file.names)) {
                         
                         ##### ERROR ANALYSIS - RAW #####
                         
-                        #take (x,y) coordinates only
+                        # take (x,y) coordinates only for analysis methods below (procrustes, DTW)
                         stim <- if(length(data_stim$X1)==length(data_sub$X1)) {data_stim[,c(1,2)]} else {data_sub[,c(1,2)]}
                         resp <- if(length(data_resp_rem$X1)==length(data_sub$X1)) {data_resp_rem[,c(1,2)]} else {data_sub[,c(1,2)]}
+                        # make a vector of time points for each:
+                        stimt <- if(length(data_stim$X1)==length(data_sub$X1)) {data_stim[,3]} else {data_sub[,3]}
+                        respt <- if(length(data_resp_rem$X1)==length(data_sub$X1)) {data_resp_rem[,3]} else {data_sub[,3]}
+                        # speed at each point (pixels per second):
+                        stimv = rep(0, length(stimt))
+                        for (j in 2:length(stimv)){
+                                stimv[j] = as.numeric(
+                                        sqrt(((stim[j,1]-stim[j-1,1])^2)+((stim[j,2]-stim[j-1,2])^2))/(stimt[j] - stimt[j-1])
+                                        )
+                        } # this should be constant (with jitter from computer sampling rate mostly)
+                        respv = rep(0, length(respt))
+                        for (j in 2:length(respv)){
+                                respv[j] = as.numeric(
+                                        sqrt(((resp[j,1]-resp[j-1,1])^2)+((resp[j,2]-resp[j-1,2])^2))/(respt[j] - respt[j-1])
+                                )
+                        } # this should be highly variable (people slow down at corners)
                         
                         
                         ## RAW ERROR ##
