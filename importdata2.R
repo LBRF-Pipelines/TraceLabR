@@ -1,6 +1,9 @@
 ##### TRACELAB IMPORT AND MAIN ANALYSIS #####
 ### AUTHORED BY TONY INGRAM AND JACK SOLOMON ###
 
+## This script imports all data points — that is, 
+## the error and speed of every point within trial!
+
 ## TO DO ##
 # 1. go through and change loop inits that are = "" to something else... like = matrix()
 # 2. get write.table working so can use other scripts without having to re-run this...
