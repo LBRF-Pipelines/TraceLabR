@@ -462,10 +462,13 @@ for(i in 1:length(file.names)) {
                         
                         ##### save variables to a row & subsequently a file #####
                         
-                        #? datamat <- matrix(rep(0, 2*length(dtw$index2)), ncol=2)
-                        #? datamat <- c(name.tlf,PLstim,sinuosity,totabscurv,ApEn,SampEn,mt_clip,PLresp,raw_error_tot,raw_error_mean,raw_error_SD,raw_procSD,translation,scale,rotation,shape_error_tot,shape_error_mean,shape_error_SD,shape_procSD,raw_dtw_error_tot,raw_dtw_error_mean,raw_dtw_error_SD,raw_dtw_procSD,translation_dtw,scale_dtw,rotation_dtw,shape_dtw_error_tot,shape_dtw_error_mean,shape_dtw_error_SD,shape_dtw_procSD,rep(NA,times=1))
-                        
                         datarow <- c(name.tlf,PLstim,sinuosity,totabscurv,ApEn,SampEn,mt_clip,PLresp,raw_error_tot,raw_error_mean,raw_error_SD,raw_procSD,translation,scale,rotation,shape_error_tot,shape_error_mean,shape_error_SD,shape_procSD,raw_dtw_error_tot,raw_dtw_error_mean,raw_dtw_error_SD,raw_dtw_procSD,translation_dtw,scale_dtw,rotation_dtw,shape_dtw_error_tot,shape_dtw_error_mean,shape_dtw_error_SD,shape_dtw_procSD,rep(NA,times=1))
+                        
+                        datamat <- matrix(rep(0, nrow(resp_dtw)*(length(datarow)+4)), nrow=nrow(resp_dtw))
+                        for (j in 1:nrow(datamat)){
+                                p = j 
+                                datamat[j,] <- c(name.tlf,PLstim,sinuosity,totabscurv,ApEn,SampEn,mt_clip,PLresp,p,raw_dist_dtw[j],shape_dist_dtw[j],respv_dtw[j],raw_error_tot,raw_error_mean,raw_error_SD,raw_procSD,translation,scale,rotation,shape_error_tot,shape_error_mean,shape_error_SD,shape_procSD,raw_dtw_error_tot,raw_dtw_error_mean,raw_dtw_error_SD,raw_dtw_procSD,translation_dtw,scale_dtw,rotation_dtw,shape_dtw_error_tot,shape_dtw_error_mean,shape_dtw_error_SD,shape_dtw_procSD,rep(NA,times=1))
+                        }
                 }
         }
         out.file <- rbind(out.file, datarow)
