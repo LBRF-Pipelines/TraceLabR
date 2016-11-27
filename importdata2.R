@@ -54,7 +54,7 @@ for(i in 1:length(file.names)) {
         # separate PP data from MI and CC data (remember, final session of MI and CC are also PP sessions)
         if (length(tlt)<15){
                 # disclude all groups except CC
-                if(trials[trials$figure_file==name.tlf,5]!='CC-00-5'){datamat=c(name.tlf,rep(NA,times=30))}
+                if(trials[trials$figure_file==name.tlf,5]!='CC-00-5'){datamat=c(name.tlf,rep(NA,times=34))}
                 # if in CC group, runs control task
                 else{
                         #loads stimulus data
@@ -107,7 +107,7 @@ for(i in 1:length(file.names)) {
                                 out <- plyr::count(dir_sign[,2])
                                 corr.resp <- as.numeric(out[out$x==-1,2])
                         }
-                        datamat =c(name.tlf,rep(NA,times=29),corr.resp)
+                        datamat =c(name.tlf,rep(NA,times=33),corr.resp)
                 }
         }
         else{
@@ -146,7 +146,7 @@ for(i in 1:length(file.names)) {
                 }
                 #decide minimum response length — if not reached, report NA's for trial
                 if(sum(clip_index)<10){
-                        datamat=c(name.tlf,rep(NA,times=30))
+                        datamat=c(name.tlf,rep(NA,times=34))
                 }
                 else{
                         ### Pre-processing Trajectories Continued ###
