@@ -71,7 +71,7 @@ for(i in 1:length(file.names)) {
                         index_vec <- index_vec[-1,]
                         index_vec <- as.numeric(index_vec)
                         
-                        #determines the direction of the begging of each line segment
+                        #determines the direction of the beginning of each line segment
                         direction_mat <- ""
                         for(n in 1:5){
                                 direction <- round(colMeans(data_stim[index_vec[n]+2:7,1:2]))-(data_stim[index_vec[n]+1,1:2])
@@ -81,7 +81,7 @@ for(i in 1:length(file.names)) {
                         direction_mat <- matrix(as.numeric(unlist(direction_mat)),ncol=2,dimnames = list(c("Corner1","Corner2","Corner3","Corner4","Corner5"),c("X","Y")))
                         dir_sign <- sign(direction_mat)
                         
-                        #loads question of control task (ex.How many segments went "LEFT"?)
+                        #loads question of control task (eg. How many segments went "LEFT"?)
                         direction <- trials[trials$figure_file==name.tlf,16]
                         
                         #counts number of times segments went in the direction specified
