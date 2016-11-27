@@ -468,7 +468,7 @@ for(i in 1:length(file.names)) {
                         datamat <- matrix(rep(0, nrow(resp_dtw)*(length(datarow)+4)), nrow=nrow(resp_dtw))
                         for (j in 1:nrow(datamat)){
                                 p = j 
-                                datamat[j,] <- c(name.tlf,PLstim,sinuosity,totabscurv,ApEn,SampEn,mt_clip,PLresp,p,raw_dist_dtw[j],shape_dist_dtw[j],respv_dtw[j],raw_error_tot,raw_error_mean,raw_error_SD,raw_procSD,translation,scale,rotation,shape_error_tot,shape_error_mean,shape_error_SD,shape_procSD,raw_dtw_error_tot,raw_dtw_error_mean,raw_dtw_error_SD,raw_dtw_procSD,translation_dtw,scale_dtw,rotation_dtw,shape_dtw_error_tot,shape_dtw_error_mean,shape_dtw_error_SD,shape_dtw_procSD,rep(NA,times=1))
+                                datamat[j,] <- c(name.tlf,PLstim,sinuosity,totabscurv,ApEn,SampEn,mt_clip,PLresp,p,respv_dtw[j],raw_dist_dtw[j],raw_error_tot,raw_error_mean,raw_error_SD,raw_procSD,translation,scale,rotation,shape_dist_dtw[j],shape_error_tot,shape_error_mean,shape_error_SD,shape_procSD,raw_dtw_error_tot,raw_dtw_error_mean,raw_dtw_error_SD,raw_dtw_procSD,translation_dtw,scale_dtw,rotation_dtw,shape_dtw_error_tot,shape_dtw_error_mean,shape_dtw_error_SD,shape_dtw_procSD,rep(NA,times=1))
                         }
                 }
         }
@@ -477,7 +477,7 @@ for(i in 1:length(file.names)) {
 
 # change output to df
 df.out.file <- data.frame(out.file[-1,],stringsAsFactors = FALSE)
-colnames(df.out.file) <- c("figure_file","PLstim","sinuosity","totabscurv","ApEn","SampEn","mt_clip","PLresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSD","raw_dtw_error_tot","raw_dtw_error_mean","raw_dtw_error_SD","raw_dtw_procSD","translation_dtw","scale_dtw","rotation_dtw","shape_dtw_error_tot","shape_dtw_error_mean","shape_dtw_error_SD","shape_dtw_procSD","correct_response")
+colnames(df.out.file) <- c("figure_file","PLstim","sinuosity","totabscurv","ApEn","SampEn","mt_clip","PLresp","point","speed","raw_error_dtw","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSD","translation","scale","rotation","shape_error_dtw","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSD","raw_dtw_error_tot","raw_dtw_error_mean","raw_dtw_error_SD","raw_dtw_procSD","translation_dtw","scale_dtw","rotation_dtw","shape_dtw_error_tot","shape_dtw_error_mean","shape_dtw_error_SD","shape_dtw_procSD","correct_response")
 
 # combine proc_df with db
 all_data <- merge(trials,df.out.file,by="figure_file")
