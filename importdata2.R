@@ -10,7 +10,7 @@
 # 3. use ggplot2 to make better plots
 
 rm(list=setdiff(ls(), "all_figs")) # clear all but all_figs
-# rm(list=setdiff(ls(), c("all_figs","all_data"))) # clear all but all_figs & all_data
+# rm(list=setdiff(ls(), c("all_figs","all_data2"))) # clear all but all_figs & all_data2
 # graphics.off() # clear figures
 # cat("\014") # clear console
 
@@ -480,82 +480,82 @@ df.out.file <- data.frame(out.file[-1,],stringsAsFactors = FALSE)
 colnames(df.out.file) <- c("figure_file","PLstim","sinuosity","totabscurv","ApEn","SampEn","mt_clip","PLresp","point","speed","raw_error_dtw","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSD","translation","scale","rotation","shape_error_dtw","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSD","raw_dtw_error_tot","raw_dtw_error_mean","raw_dtw_error_SD","raw_dtw_procSD","translation_dtw","scale_dtw","rotation_dtw","shape_dtw_error_tot","shape_dtw_error_mean","shape_dtw_error_SD","shape_dtw_procSD","correct_response")
 
 # combine proc_df with db
-all_data <- merge(trials,df.out.file,by="figure_file")
+all_data2 <- merge(trials,df.out.file,by="figure_file")
 colnames(participants)[1] <- paste("participant_id")
-all_data <- merge(participants[,c(1,4:6)],all_data,by="participant_id")
-all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","point","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","sinuosity","totabscurv","ApEn","SampEn","trace_file","rt","it","mt","mt_clip","speed","PLresp","raw_error_dtw","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSD","translation","scale","rotation","shape_error_dtw","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSD","raw_dtw_error_tot","raw_dtw_error_mean","raw_dtw_error_SD","raw_dtw_procSD","translation_dtw","scale_dtw","rotation_dtw","shape_dtw_error_tot","shape_dtw_error_mean","shape_dtw_error_SD","shape_dtw_procSD","control_question","control_response","correct_response")]
+all_data2 <- merge(participants[,c(1,4:6)],all_data2,by="participant_id")
+all_data2 <- all_data2[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","point","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","sinuosity","totabscurv","ApEn","SampEn","trace_file","rt","it","mt","mt_clip","speed","PLresp","raw_error_dtw","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSD","translation","scale","rotation","shape_error_dtw","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSD","raw_dtw_error_tot","raw_dtw_error_mean","raw_dtw_error_SD","raw_dtw_procSD","translation_dtw","scale_dtw","rotation_dtw","shape_dtw_error_tot","shape_dtw_error_mean","shape_dtw_error_SD","shape_dtw_procSD","control_question","control_response","correct_response")]
 
 # change data to numeric where appropriate
-all_data$point <- as.numeric(all_data$point)
-all_data$condition <- as.factor(all_data$condition)
-all_data$figure_type <- as.factor(all_data$figure_type)
-all_data$PLstim <- as.numeric(all_data$PLstim)
-all_data$sinuosity <- as.numeric(all_data$sinuosity)
-all_data$totabscurv <- as.numeric(all_data$totabscurv)
-all_data$ApEn <- as.numeric(all_data$ApEn)
-all_data$SampEn <- as.numeric(all_data$SampEn)
-all_data$mt_clip <- as.numeric(all_data$mt_clip)
-all_data$speed <- as.numeric(all_data$speed)
-all_data$PLresp <- as.numeric(all_data$PLresp)
-all_data$raw_error_dtw <- as.numeric(all_data$raw_error_dtw)
-all_data$raw_error_tot <- as.numeric(all_data$raw_error_tot)
-all_data$raw_error_mean <- as.numeric(all_data$raw_error_mean)
-all_data$raw_error_SD <- as.numeric(all_data$raw_error_SD)
-all_data$raw_procSD <- as.numeric(all_data$raw_procSD)
-all_data$translation <- as.numeric(all_data$translation)
-all_data$scale <- as.numeric(all_data$scale)
-all_data$rotation <- as.numeric(all_data$rotation)
-all_data$shape_error_dtw <- as.numeric(all_data$shape_error_dtw)
-all_data$shape_error_tot <- as.numeric(all_data$shape_error_tot)
-all_data$shape_error_mean <- as.numeric(all_data$shape_error_mean)
-all_data$shape_error_SD <- as.numeric(all_data$shape_error_SD)
-all_data$shape_procSD <- as.numeric(all_data$shape_procSD)
-all_data$raw_dtw_error_tot <- as.numeric(all_data$raw_dtw_error_tot)
-all_data$raw_dtw_error_mean <- as.numeric(all_data$raw_dtw_error_mean)
-all_data$raw_dtw_error_SD <- as.numeric(all_data$raw_dtw_error_SD)
-all_data$raw_dtw_procSD <- as.numeric(all_data$raw_dtw_procSD)
-all_data$translation_dtw <- as.numeric(all_data$translation_dtw)
-all_data$scale_dtw <- as.numeric(all_data$scale_dtw)
-all_data$rotation_dtw <- as.numeric(all_data$rotation_dtw)
-all_data$shape_dtw_error_tot <- as.numeric(all_data$shape_dtw_error_tot)
-all_data$shape_dtw_error_mean <- as.numeric(all_data$shape_dtw_error_mean)
-all_data$shape_dtw_error_SD <- as.numeric(all_data$shape_dtw_error_SD)
-all_data$shape_dtw_procSD <- as.numeric(all_data$shape_dtw_procSD)
-all_data$correct_response <- as.integer(all_data$correct_response)
+all_data2$point <- as.numeric(all_data2$point)
+all_data2$condition <- as.factor(all_data2$condition)
+all_data2$figure_type <- as.factor(all_data2$figure_type)
+all_data2$PLstim <- as.numeric(all_data2$PLstim)
+all_data2$sinuosity <- as.numeric(all_data2$sinuosity)
+all_data2$totabscurv <- as.numeric(all_data2$totabscurv)
+all_data2$ApEn <- as.numeric(all_data2$ApEn)
+all_data2$SampEn <- as.numeric(all_data2$SampEn)
+all_data2$mt_clip <- as.numeric(all_data2$mt_clip)
+all_data2$speed <- as.numeric(all_data2$speed)
+all_data2$PLresp <- as.numeric(all_data2$PLresp)
+all_data2$raw_error_dtw <- as.numeric(all_data2$raw_error_dtw)
+all_data2$raw_error_tot <- as.numeric(all_data2$raw_error_tot)
+all_data2$raw_error_mean <- as.numeric(all_data2$raw_error_mean)
+all_data2$raw_error_SD <- as.numeric(all_data2$raw_error_SD)
+all_data2$raw_procSD <- as.numeric(all_data2$raw_procSD)
+all_data2$translation <- as.numeric(all_data2$translation)
+all_data2$scale <- as.numeric(all_data2$scale)
+all_data2$rotation <- as.numeric(all_data2$rotation)
+all_data2$shape_error_dtw <- as.numeric(all_data2$shape_error_dtw)
+all_data2$shape_error_tot <- as.numeric(all_data2$shape_error_tot)
+all_data2$shape_error_mean <- as.numeric(all_data2$shape_error_mean)
+all_data2$shape_error_SD <- as.numeric(all_data2$shape_error_SD)
+all_data2$shape_procSD <- as.numeric(all_data2$shape_procSD)
+all_data2$raw_dtw_error_tot <- as.numeric(all_data2$raw_dtw_error_tot)
+all_data2$raw_dtw_error_mean <- as.numeric(all_data2$raw_dtw_error_mean)
+all_data2$raw_dtw_error_SD <- as.numeric(all_data2$raw_dtw_error_SD)
+all_data2$raw_dtw_procSD <- as.numeric(all_data2$raw_dtw_procSD)
+all_data2$translation_dtw <- as.numeric(all_data2$translation_dtw)
+all_data2$scale_dtw <- as.numeric(all_data2$scale_dtw)
+all_data2$rotation_dtw <- as.numeric(all_data2$rotation_dtw)
+all_data2$shape_dtw_error_tot <- as.numeric(all_data2$shape_dtw_error_tot)
+all_data2$shape_dtw_error_mean <- as.numeric(all_data2$shape_dtw_error_mean)
+all_data2$shape_dtw_error_SD <- as.numeric(all_data2$shape_dtw_error_SD)
+all_data2$shape_dtw_procSD <- as.numeric(all_data2$shape_dtw_procSD)
+all_data2$correct_response <- as.integer(all_data2$correct_response)
 
 # arrange trials in chronological order
-all_data <- dplyr::arrange(all_data, participant_id, session_num, block_num, trial_num, point)
+all_data2 <- dplyr::arrange(all_data2, participant_id, session_num, block_num, trial_num, point)
 
 # change name of repeated figure
-all_data$figure_type <- as.factor(gsub("template_1477090164.31","fig1", all_data$figure_type))
-all_data$figure_type <- as.factor(gsub("template_1477106073.55","fig2", all_data$figure_type))
-all_data$figure_type <- as.factor(gsub("template_1477081781.44","fig3", all_data$figure_type))
-all_data$figure_type <- as.factor(gsub("template_1477111169.26","fig4", all_data$figure_type))
-all_data$figure_type <- as.factor(gsub("template_1477121315.85","fig5", all_data$figure_type))
+all_data2$figure_type <- as.factor(gsub("template_1477090164.31","fig1", all_data2$figure_type))
+all_data2$figure_type <- as.factor(gsub("template_1477106073.55","fig2", all_data2$figure_type))
+all_data2$figure_type <- as.factor(gsub("template_1477081781.44","fig3", all_data2$figure_type))
+all_data2$figure_type <- as.factor(gsub("template_1477111169.26","fig4", all_data2$figure_type))
+all_data2$figure_type <- as.factor(gsub("template_1477121315.85","fig5", all_data2$figure_type))
 
 # calculate average response velocity per trial
-all_data <- dplyr::mutate(
-        .data = all_data,
+all_data2 <- dplyr::mutate(
+        .data = all_data2,
         vresp = PLresp / mt_clip,
         figure = figure_type
 ) # and reorder one last time:
-all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","point","figure","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","sinuosity","totabscurv","ApEn","SampEn","trace_file","rt","it","mt","mt_clip","speed","PLresp","vresp","raw_error_dtw","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSD","translation","scale","rotation","shape_error_dtw","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSD","raw_dtw_error_tot","raw_dtw_error_mean","raw_dtw_error_SD","raw_dtw_procSD","translation_dtw","scale_dtw","rotation_dtw","shape_dtw_error_tot","shape_dtw_error_mean","shape_dtw_error_SD","shape_dtw_procSD","control_question","control_response","correct_response")]
+all_data2 <- all_data2[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","point","figure","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","sinuosity","totabscurv","ApEn","SampEn","trace_file","rt","it","mt","mt_clip","speed","PLresp","vresp","raw_error_dtw","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSD","translation","scale","rotation","shape_error_dtw","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSD","raw_dtw_error_tot","raw_dtw_error_mean","raw_dtw_error_SD","raw_dtw_procSD","translation_dtw","scale_dtw","rotation_dtw","shape_dtw_error_tot","shape_dtw_error_mean","shape_dtw_error_SD","shape_dtw_procSD","control_question","control_response","correct_response")]
 
 # simplify figure to random or repeat
-all_data$figure <- as.factor(gsub("fig1","repeated", all_data$figure))
-all_data$figure <- as.factor(gsub("fig2","repeated", all_data$figure))
-all_data$figure <- as.factor(gsub("fig3","repeated", all_data$figure))
-all_data$figure <- as.factor(gsub("fig4","repeated", all_data$figure))
-all_data$figure <- as.factor(gsub("fig5","repeated", all_data$figure))
+all_data2$figure <- as.factor(gsub("fig1","repeated", all_data2$figure))
+all_data2$figure <- as.factor(gsub("fig2","repeated", all_data2$figure))
+all_data2$figure <- as.factor(gsub("fig3","repeated", all_data2$figure))
+all_data2$figure <- as.factor(gsub("fig4","repeated", all_data2$figure))
+all_data2$figure <- as.factor(gsub("fig5","repeated", all_data2$figure))
 
 # switch names of columns: figure and figure_type — which is more intuitive
 
-colnames(all_data)[10] <- "figure_type"
-colnames(all_data)[11] <- "figure_name"
+colnames(all_data2)[10] <- "figure_type"
+colnames(all_data2)[11] <- "figure_name"
 
-# save .txt file with all_data:
-write.table(all_data,"~/Documents/RStudio/TraceLabDB/all_data.txt", sep="\t")
-# this saves object to load in R quickly: load("all_data.Rda")
-save(all_data, file = "all_data2.Rda")
+# save .txt file with all_data2:
+write.table(all_data2,"~/Documents/RStudio/TraceLabDB/all_data2.txt", sep="\t")
+# this saves object to load in R quickly: load("all_data2.Rda")
+save(all_data2, file = "all_data2.Rda")
 
 ##### FIN #####
