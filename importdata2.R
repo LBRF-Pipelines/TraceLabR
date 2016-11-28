@@ -556,6 +556,6 @@ colnames(all_data)[11] <- "figure_name"
 # save .txt file with all_data:
 write.table(all_data,"~/Documents/RStudio/TraceLabDB/all_data.txt", sep="\t")
 # this saves object to load in R quickly: load("all_data.Rda")
-save(all_data, file = "all_data.Rda")
+save(all_data, file = "all_data2.Rda")
 
 ##### FIN #####
