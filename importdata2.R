@@ -108,7 +108,7 @@ for(i in 1:length(file.names)) {
                                 out <- plyr::count(dir_sign[,2])
                                 corr.resp <- as.numeric(out[out$x==-1,2])
                         }
-                        datamat =c(name.tlf,rep(NA,times=33),corr.resp)
+                        datamat <- c(name.tlf,rep(NA,times=33),corr.resp)
                 }
         }
         else{
