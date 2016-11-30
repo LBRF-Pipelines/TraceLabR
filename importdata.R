@@ -52,12 +52,16 @@ for(i in 1:length(file.names)) {
         # separate PP data from MI and CC data (remember, final session of MI and CC are also PP sessions)
         if (length(tlt)<15){
                 # disclude all groups except CC
-                if(trials[trials$figure_file==name.tlf,5]!='CC-00-5'){datarow=c(name.tlf,rep(NA,times=30))}
+                if(trials[trials$figure_file==name.tlf,5]!='CC-00-5'){
+                        datarow=c(name.tlf,rep(NA,times=30))
+                        
+                        }
                 # if in CC group, runs control task
                 else{
                         #loads stimulus data
                         data_stim <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlf)), ", "))),ncol=3,nrow=length(tlf)/3, byrow=TRUE))
-                        
+                        #loads control points
+                        ctrl_pts <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlfs)), ", "))),ncol=2,nrow=length(tlfs)/2, byrow=TRUE))
                         #extracts coordinates for shape vertices (corners)
                         vertices <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlfp)), ", "))),ncol=2,nrow=length(tlfp)/2, byrow=TRUE))
                         
@@ -105,7 +109,7 @@ for(i in 1:length(file.names)) {
                                 out <- plyr::count(dir_sign[,2])
                                 corr.resp <- as.numeric(out[out$x==-1,2])
                         }
-                        datarow =c(name.tlf,rep(NA,times=29),corr.resp)
+                        datarow <- c(name.tlf,rep(NA,times=29),corr.resp)
                 }
         }
         else{
