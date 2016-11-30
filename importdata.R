@@ -501,11 +501,13 @@ all_data$figure_type <- as.factor(gsub("template_1477121315.85","fig5", all_data
 
 # calculate average response velocity per trial
 all_data <- dplyr::mutate(
-        .data = all_data,
-        vresp = PLresp / mt_clip,
-        figure = figure_type
+        .data = all_data
+        , vresp = PLresp / mt_clip
+        , figure = figure_type
+        , abs_dtw_error_mean = raw_dtw_error_mean - shape_dtw_error_mean
+        , abs_dtw_error_SD = raw_dtw_error_SD - shape_dtw_error_SD
 ) # and reorder one last time:
-all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","sinuosity","totabscurv","ApEn","SampEn","trace_file","rt","it","mt","mt_clip","PLresp","vresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSD","raw_dtw_error_tot","raw_dtw_error_mean","raw_dtw_error_SD","raw_dtw_procSD","translation_dtw","scale_dtw","rotation_dtw","shape_dtw_error_tot","shape_dtw_error_mean","shape_dtw_error_SD","shape_dtw_procSD","control_question","control_response","correct_response")]
+all_data <- all_data[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","sinuosity","totabscurv","ApEn","SampEn","trace_file","rt","it","mt","mt_clip","PLresp","vresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSD","raw_dtw_error_tot","raw_dtw_error_mean","raw_dtw_error_SD","raw_dtw_procSD","translation_dtw","scale_dtw","rotation_dtw","shape_dtw_error_tot","shape_dtw_error_mean","shape_dtw_error_SD","shape_dtw_procSD","abs_dtw_error_mean","abs_dtw_error_SD","control_question","control_response","correct_response")]
 
 # simplify figure to random or repeat
 all_data$figure <- as.factor(gsub("fig1","repeated", all_data$figure))
