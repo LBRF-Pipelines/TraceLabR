@@ -8,6 +8,7 @@
 # 1. go through and change loop inits that are = "" to something else... like = matrix()
 # 2. get write.table working so can use other scripts without having to re-run this...
 # 3. use ggplot2 to make better plots
+# 4. add complexity measures to CC and MI groups!
 
 rm(list=setdiff(ls(), "all_figs")) # clear all but all_figs
 # rm(list=setdiff(ls(), c("all_figs","all_data2"))) # clear all but all_figs & all_data2
