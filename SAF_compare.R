@@ -24,7 +24,7 @@ aggregate(!is.na(PLresp) ~ stimulus_gt, all_data_sub, sum)
 ##### SESSION TO SESSION CHANGES #####
 
 ## RAW error against speed:
-ggplot(subset(all_data_sub, (figure_type == "repeated") & (session_num == c(1,5)))
+ggplot(subset(all_data_sub, (figure_type == "repeated") & ((session_num == 1) | (session_num == 5)))
        , mapping = aes(
                 x = vresp, y = raw_error_mean
                 , color = factor(session_num)
@@ -38,7 +38,7 @@ ggplot(subset(all_data_sub, (figure_type == "repeated") & (session_num == c(1,5)
              , color = "Session")
 
 ## RAW DTW error against speed:
-ggplot(subset(all_data_sub, (figure_type == "repeated") & (session_num == c(1,5)))
+ggplot(subset(all_data_sub, (figure_type == "repeated") & ((session_num == 1) | (session_num == 5)))
        , mapping = aes(
                x = vresp, y = raw_dtw_error_mean
                , color = factor(session_num)
@@ -52,7 +52,7 @@ ggplot(subset(all_data_sub, (figure_type == "repeated") & (session_num == c(1,5)
              , color = "Session")
 
 ## SHAPE error against speed:
-ggplot(subset(all_data_sub, (figure_type == "repeated") & (session_num == c(1,5)))
+ggplot(subset(all_data_sub, (figure_type == "repeated") & ((session_num == 1) | (session_num == 5)))
        , mapping = aes(
                x = vresp, y = shape_error_mean
                , color = factor(session_num)
@@ -65,7 +65,7 @@ ggplot(subset(all_data_sub, (figure_type == "repeated") & (session_num == c(1,5)
              , y = "Shape Error"
              , color = "Session")
 ## SHAPE DTW error against speed:
-ggplot(subset(all_data_sub, (figure_type == "repeated") & (session_num == c(1,5))) 
+ggplot(subset(all_data_sub, (figure_type == "repeated") & ((session_num == 1) | (session_num == 5)))
        , mapping = aes(
                x = vresp, y = shape_dtw_error_mean
                , color = factor(session_num)
@@ -79,7 +79,7 @@ ggplot(subset(all_data_sub, (figure_type == "repeated") & (session_num == c(1,5)
              , color = "Session")
 
 ## SCALE error against speed:
-ggplot(subset(all_data_sub, (figure_type == "repeated") & (session_num == c(1,5)))
+ggplot(subset(all_data_sub, (figure_type == "repeated") & ((session_num == 1) | (session_num == 5)))
        , mapping = aes(
                x = vresp, y = scale
                , color = factor(session_num)
@@ -92,7 +92,7 @@ ggplot(subset(all_data_sub, (figure_type == "repeated") & (session_num == c(1,5)
              , y = "Scale Error"
              , color = "Session")
 ## SCALE DTW error against speed:
-ggplot(subset(all_data_sub, (figure_type == "repeated") & (session_num == c(1,5)))
+ggplot(subset(all_data_sub, (figure_type == "repeated") & ((session_num == 1) | (session_num == 5)))
        , mapping = aes(
                x = vresp, y = scale_dtw
                , color = factor(session_num)
@@ -106,7 +106,7 @@ ggplot(subset(all_data_sub, (figure_type == "repeated") & (session_num == c(1,5)
              , color = "Session")
 
 ## ROTATION error against speed:
-ggplot(subset(all_data_sub, (figure_type == "repeated") & (session_num == c(1,5)))
+ggplot(subset(all_data_sub, (figure_type == "repeated") & ((session_num == 1) | (session_num == 5)))
        , mapping = aes(
                x = vresp, y = rotation
                , color = factor(session_num)
@@ -119,7 +119,7 @@ ggplot(subset(all_data_sub, (figure_type == "repeated") & (session_num == c(1,5)
              , y = "Rotation Error"
              , color = "Session")
 ## ROTATION DTW error against speed:
-ggplot(subset(all_data_sub, (figure_type == "repeated") & (session_num == c(1,5)))
+ggplot(subset(all_data_sub, (figure_type == "repeated") & ((session_num == 1) | (session_num == 5)))
        , mapping = aes(
                x = vresp, y = rotation_dtw
                , color = factor(session_num)
@@ -134,7 +134,7 @@ ggplot(subset(all_data_sub, (figure_type == "repeated") & (session_num == c(1,5)
 
 
 ## TRANSLATION error against speed:
-ggplot(subset(all_data_sub, (figure_type == "repeated") & (session_num == c(1,5)))
+ggplot(subset(all_data_sub, (figure_type == "repeated") & ((session_num == 1) | (session_num == 5)))
        , mapping = aes(
                x = vresp, y = translation
                , color = factor(session_num)
@@ -147,7 +147,7 @@ ggplot(subset(all_data_sub, (figure_type == "repeated") & (session_num == c(1,5)
              , y = "Translation Error"
              , color = "Session")
 ## TRANSLATION RAW error against speed:
-ggplot(subset(all_data_sub, (figure_type == "repeated") & (session_num == c(1,5)))
+ggplot(subset(all_data_sub, (figure_type == "repeated") & ((session_num == 1) | (session_num == 5)))
        , mapping = aes(
                x = vresp, y = translation_dtw
                , color = factor(session_num)
