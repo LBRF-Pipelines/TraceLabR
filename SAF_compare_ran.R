@@ -13,10 +13,11 @@ load("all_data.Rda")
 
 all_data_sub <- dplyr::filter(
         .data = all_data
-        , vresp > 200
-        , scale < 2
-        , rotation < 1
-        , translation < 400
+        , raw_dtw_error_mean < 400
+        # , vresp > 200
+        # , scale < 2
+        # , rotation < 1
+        # , translation < 400
 ) # note: this removes all MI and CC trials, so do next two lines to see how many dropped:
 aggregate(!is.na(PLresp) ~ stimulus_gt, all_data, sum)
 aggregate(!is.na(PLresp) ~ stimulus_gt, all_data_sub, sum)
