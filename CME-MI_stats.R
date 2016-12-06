@@ -80,32 +80,30 @@ data_for_stan = list(
         , Y = dat$raw_dtw_error_mean # outcome per trial
 )
 
+# ^ above needs SPEED somehow... 
 
 
+##### the rest of this needs to change:
 
 
-
-# pre-compile the models that we'll use -----------------------------------
-cme = rstan::stan_model('CME-MI_stats.stan')
-
-
-# Sample the model ---------
-data_for_stan = list(
-        N = nrow(dat)
-        , K = ncol(dat)-1
-        , X = scale(dat[,1:2]) #trick to standardize
-        , Y = scale(dat[,3])[,1] #trick to standardize
-)
+# Compile & sample the model ----
+mod = rstan::stan_model('CME-MI_stats.stan')
 post = rstan::sampling(
-        object = cme
+        object = mod
         , data = data_for_stan
         , seed = 1
+        , chains = 4
         , cores = 4
-)
-print(
-        post
-        , probs = c(.025,.975)
-        , digits = 2
+        , iter = 2e3
 )
 
 
+# Check the posterior ----
+stan_summary(post,'noise')
+stan_summary(
+        object = post
+        , par = 'coefs'
+        , W = W
+        , B = B
+)
+stan_summary(post,'corsW')
