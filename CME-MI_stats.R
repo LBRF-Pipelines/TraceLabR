@@ -26,7 +26,7 @@ options(
 )
 
 
-# load and check out data ------------
+# load and check out data ----
 
 load("all_data.Rda")
 dat <- all_data
@@ -55,6 +55,9 @@ W = get_contrast_matrix(
 )
 head(W) 
 
+## QUESTION: not sure session_num is really a "within" contrast... 
+## it's repeated measures and the order obviously matters.
+
 #for the between-subjects contrast matrix, first reduce data to just the subject
 # and between-subject predictors
 dat %>%
@@ -80,10 +83,7 @@ data_for_stan = list(
         , Y = dat$raw_dtw_error_mean # outcome per trial
 )
 
-# ^ above needs SPEED somehow... 
-
-
-##### the rest of this needs to change:
+## NOTE ^ above needs SPEED somehow... 
 
 
 # Compile & sample the model ----
