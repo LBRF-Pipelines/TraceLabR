@@ -48,10 +48,13 @@ ezDesign(
 
 # Prep the data for Stan ----
 
+dat$session_num_as_fac = factor(dat$session_num)
+
 #generate within-subjects matrix
+
 W = get_contrast_matrix(
         data = dat
-        , formula = ~ session_num*figure_type
+        , formula = ~ session_num_as_fac*figure_type
 )
 head(W) 
 
@@ -72,6 +75,8 @@ B = get_contrast_matrix(
 head(B)
 
 #package in list for Stan
+dat = dat[!is.na(dat$raw_dtw_error_mean),]
+dat = dat[!is.na(dat$vresp),]
 data_for_stan = list(
         nY = nrow(dat) # num trials total
         , nW = ncol(W) # num within-subject effects
@@ -80,7 +85,8 @@ data_for_stan = list(
         , B = B #between-subject contrast matrix
         , nS = length(unique(dat$participant_id)) # num subjects
         , S = as.numeric(factor(dat$participant_id)) #trick to turn ids into 1:nS
-        , Y = dat$raw_dtw_error_mean # outcome per trial
+        , error = scale(dat$raw_dtw_error_mean)[,1]
+        , speed = scale(dat$vresp)[,1]
 )
 
 ## NOTE ^ above needs SPEED somehow... 
@@ -92,9 +98,9 @@ post = rstan::sampling(
         object = mod
         , data = data_for_stan
         , seed = 1
-        , chains = 4
-        , cores = 4
-        , iter = 2e3
+        , chains = 1
+        , cores = 1
+        , iter = 2e2
 )
 
 
