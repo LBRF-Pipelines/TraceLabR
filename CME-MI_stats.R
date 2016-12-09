@@ -74,6 +74,7 @@ B = get_contrast_matrix(
         data = dat_between
         , formula = ~ condition
 )
+B = cbind(B,B,B,B)
 head(B)
 
 #package in list for Stan
@@ -96,9 +97,11 @@ post = rstan::sampling(
         object = mod
         , data = data_for_stan
         , seed = 1
-        , chains = 1
-        , cores = 1
+        , chains = 4
+        , cores = 4
         , iter = 2e2
+        , init = 0
+        , refresh = 1
 )
 
 
