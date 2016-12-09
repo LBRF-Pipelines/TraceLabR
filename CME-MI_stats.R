@@ -49,6 +49,8 @@ ezDesign(
 # Prep the data for Stan ----
 
 dat$session_num_as_fac = factor(dat$session_num)
+dat = dat[!is.na(dat$raw_dtw_error_mean),]
+dat = dat[!is.na(dat$vresp),]
 
 #generate within-subjects matrix
 
@@ -75,8 +77,6 @@ B = get_contrast_matrix(
 head(B)
 
 #package in list for Stan
-dat = dat[!is.na(dat$raw_dtw_error_mean),]
-dat = dat[!is.na(dat$vresp),]
 data_for_stan = list(
         nY = nrow(dat) # num trials total
         , nW = ncol(W) # num within-subject effects
@@ -88,8 +88,6 @@ data_for_stan = list(
         , error = scale(dat$raw_dtw_error_mean)[,1]
         , speed = scale(dat$vresp)[,1]
 )
-
-## NOTE ^ above needs SPEED somehow... 
 
 
 # Compile & sample the model ----
