@@ -2,7 +2,7 @@
         ## compare groups ##
   ### authored by Tony Ingram ###
 
-#rm(list=setdiff(ls(), c("all_figs","all_data"))) # clear all but all_figs & all_data
+#rm(list=setdiff(ls(), c("all_figs","all_data","post"))) # clear all but all_figs & all_data
 graphics.off() # clear figures
 
 library(tidyverse)
