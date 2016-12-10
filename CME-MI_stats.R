@@ -100,7 +100,7 @@ post = rstan::sampling(
         , seed = 1
         , chains = 4
         , cores = 4
-        , iter = 2e2
+        , iter = 2e3
         , init = 0
         , refresh = 1
 )
