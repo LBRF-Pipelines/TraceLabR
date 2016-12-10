@@ -7,8 +7,8 @@
 # 3. use ggplot2 to make better plots
 # 4. add complexity measures to CC and MI groups! take outside of loop?
 
-rm(list=setdiff(ls(), "all_figs")) # clear all but all_figs
-# rm(list=setdiff(ls(), c("all_figs","all_data"))) # clear all but all_figs & all_data
+rm(list=setdiff(ls(), "all_figs", "post")) # clear all but all_figs
+# rm(list=setdiff(ls(), c("all_figs","all_data", "post"))) # clear all but all_figs & all_data
 # graphics.off() # clear figures
 # cat("\014") # clear console
 
@@ -409,33 +409,33 @@ for(i in 1:length(file.names)) {
                         
                         ##### PLOTS #####
                         
-                        #plot shapes pre transforms:
-                        
-                        #adding colour to points
-                        #direction of movement: lighter to darker
-                        #stim = grey to black, resp = cyan to blue, resp_sub = yellow to green
-                        rbPalstim <- colorRampPalette(c("grey","black"))
-                        data_stim$Col <- rbPalstim(length(data_stim$X3))[as.numeric(cut(data_stim$X3,breaks=length(data_stim$X3)))]
-                        rbPalresp <- colorRampPalette(c("cyan","blue"))
-                        data_resp_rem$Col <- rbPalresp(length(data_resp_rem$X3))[as.numeric(cut(data_resp_rem$X3,breaks=length(data_resp_rem$X3)))]
-                        rbPalsub <- colorRampPalette(c("yellow","green"))
-                        data_sub$Col <- rbPalsub(length(data_sub$X3))[as.numeric(cut(data_sub$X3,breaks=length(data_sub$X3)))]
-                        
-                        #plot points 
-                        plot(data_stim$X1,data_stim$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20, col=data_stim$Col)
-                        points(data_resp_rem$X1,data_resp_rem$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20 ,col=data_resp_rem$Col)
-                        points(data_sub$X1,data_sub$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20 ,col=data_sub$Col)
-                        title(main = c(name.tlt, " raw"))
-                        
-                        #plot centroids (note that one of these is down sampled data)
-                        points(trans$trans[1],trans$trans[2],pch=8,col="black")
-                        points(trans$transy[1],trans$transy[2],pch=8,col="blue")
-                        
-                        #plot shapes post transforms:
-                        
-                        plot(trans$X, xlim=c(-960,960), ylim=c(540,-540))
-                        points(trans$Y, col="red")
-                        title(main = c(name.tlt, " proc"))
+                        # #plot shapes pre transforms:
+                        # 
+                        # #adding colour to points
+                        # #direction of movement: lighter to darker
+                        # #stim = grey to black, resp = cyan to blue, resp_sub = yellow to green
+                        # rbPalstim <- colorRampPalette(c("grey","black"))
+                        # data_stim$Col <- rbPalstim(length(data_stim$X3))[as.numeric(cut(data_stim$X3,breaks=length(data_stim$X3)))]
+                        # rbPalresp <- colorRampPalette(c("cyan","blue"))
+                        # data_resp_rem$Col <- rbPalresp(length(data_resp_rem$X3))[as.numeric(cut(data_resp_rem$X3,breaks=length(data_resp_rem$X3)))]
+                        # rbPalsub <- colorRampPalette(c("yellow","green"))
+                        # data_sub$Col <- rbPalsub(length(data_sub$X3))[as.numeric(cut(data_sub$X3,breaks=length(data_sub$X3)))]
+                        # 
+                        # #plot points 
+                        # plot(data_stim$X1,data_stim$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20, col=data_stim$Col)
+                        # points(data_resp_rem$X1,data_resp_rem$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20 ,col=data_resp_rem$Col)
+                        # points(data_sub$X1,data_sub$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20 ,col=data_sub$Col)
+                        # title(main = c(name.tlt, " raw"))
+                        # 
+                        # #plot centroids (note that one of these is down sampled data)
+                        # points(trans$trans[1],trans$trans[2],pch=8,col="black")
+                        # points(trans$transy[1],trans$transy[2],pch=8,col="blue")
+                        # 
+                        # #plot shapes post transforms:
+                        # 
+                        # plot(trans$X, xlim=c(-960,960), ylim=c(540,-540))
+                        # points(trans$Y, col="red")
+                        # title(main = c(name.tlt, " proc"))
                         
                         ##### save variables to a row & subsequently a file #####
                         
@@ -443,6 +443,7 @@ for(i in 1:length(file.names)) {
                 }
         }
         out.file <- rbind(out.file, datarow)
+        print(c(i, name.tlf))
 }
 
 # change output to df
