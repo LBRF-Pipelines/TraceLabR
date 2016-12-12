@@ -7,7 +7,7 @@
 # 3. use ggplot2 to make better plots
 # 4. add complexity measures to CC and MI groups! take outside of loop?
 
-rm(list=setdiff(ls(), "all_figs", "post")) # clear all but all_figs
+rm(list=setdiff(ls(), c("all_figs", "post"))) # clear all but all_figs
 # rm(list=setdiff(ls(), c("all_figs","all_data", "post"))) # clear all but all_figs & all_data
 # graphics.off() # clear figures
 # cat("\014") # clear console
