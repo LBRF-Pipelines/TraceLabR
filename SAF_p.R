@@ -2,7 +2,7 @@
        ## each participant ##
   ### authored by Tony Ingram ###
 
-#rm(list=setdiff(ls(), c("all_figs","all_data"))) # clear all but all_figs & all_data
+#rm(list=setdiff(ls(), c("all_figs","all_data","post"))) # clear all but all_figs & all_data
 graphics.off() # clear figures
 
 library(tidyverse)
@@ -24,7 +24,7 @@ aggregate(!is.na(PLresp) ~ stimulus_gt, all_data_sub, sum)
 
 ## SET UP PARTICIPANT ##
 # what participant?
-p <- 4
+p <- 15
 #fig <- dplyr::filter(all_data, participant_id == p, figure_type != "random")$figure_type[1] # can't remember why I did this... old code I guess
 
 
