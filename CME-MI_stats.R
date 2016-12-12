@@ -30,21 +30,25 @@ options(
 # load and check out data ----
 
 load("all_data.Rda")
-dat <- all_data
+#filter unfinished participant
+dat <- dplyr::filter(
+        .data = all_data
+        , participant_id < 16
+)
 
 # note: data already ordered by participant, 
 # then session, then block, then trial
 
-str(dat)
-summary(dat)
-ezPrecis(dat)
-ezDesign(
-        data = dat
-        , x = figure_type
-        , y = participant_id
-        , row = session_num
-        , col = condition
-)
+# str(dat)
+# summary(dat)
+# ezPrecis(dat)
+# ezDesign(
+#         data = dat
+#         , x = figure_type
+#         , y = participant_id
+#         , row = session_num
+#         , col = condition
+# )
 
 
 # Prep the data for Stan ----
@@ -59,10 +63,7 @@ W = get_contrast_matrix(
         data = dat
         , formula = ~ session_num_as_fac*figure_type
 )
-head(W) 
-
-## QUESTION: not sure session_num is really a "within" contrast... 
-## it's repeated measures and the order obviously matters.
+head(W)
 
 #for the between-subjects contrast matrix, first reduce data to just the subject
 # and between-subject predictors
@@ -104,7 +105,8 @@ post = rstan::sampling(
         , init = 0
         , refresh = 1
 )
-
+# this saves object to load in R quickly: load("post.Rda")
+save(post, file = "post.Rda")
 
 # Check the posterior ----
 stan_summary(post,'noise')
