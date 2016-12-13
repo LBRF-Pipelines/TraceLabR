@@ -54,7 +54,7 @@ dat <- dplyr::filter(
 # Prep the data for Stan ----
 
 dat$session_num_as_fac = factor(dat$session_num)
-dat = dat[!is.na(dat$raw_dtw_error_mean),]
+dat = dat[!is.na(dat$shape_dtw_error_mean),]
 dat = dat[!is.na(dat$vresp),]
 
 #generate within-subjects matrix
@@ -88,7 +88,7 @@ data_for_stan = list(
         , B = B #between-subject contrast matrix
         , nS = length(unique(dat$participant_id)) # num subjects
         , S = as.numeric(factor(dat$participant_id)) #trick to turn ids into 1:nS
-        , error = scale(dat$raw_dtw_error_mean)[,1]
+        , error = scale(dat$shape_dtw_error_mean)[,1]
         , speed = scale(dat$vresp)[,1]
 )
 
