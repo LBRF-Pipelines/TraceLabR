@@ -73,7 +73,7 @@ model {
                 d = rows_dot_product( Svals[S,(nW*3+1):(nW*4)] , W ) ; 
                 for(i in 1:nY){
         	        error[i] ~ normal(
-        	                (a[i]-b[i])/(1+exp(-c[i]*(speed[i]-d[i])))
+        	                b[i]+((a[i]-b[i])/(1+exp(-c[i]*(speed[i]-d[i]))))
         	                , Znoise
         	        ) ;
                 }
