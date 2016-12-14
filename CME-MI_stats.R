@@ -114,11 +114,12 @@ stan_summary(post,'Znoise')
 stan_ess(post, 'Zbetas')
 nW = ncol(W)
 nB = ncol(B0)
+datSD = sd(dat$shape_dtw_error_mean)
 Zbetas = rstan::extract(post, 'Zbetas')[[1]]
-a = Zbetas[,(nB*0+1):(nB*1),(nW*0+1):(nW*1)]
-b = Zbetas[,(nB*1+1):(nB*2),(nW*1+1):(nW*2)]
-c = Zbetas[,(nB*2+1):(nB*3),(nW*2+1):(nW*3)]
-d = Zbetas[,(nB*3+1):(nB*4),(nW*3+1):(nW*4)]
+a = Zbetas[,(nB*0+1):(nB*1),(nW*0+1):(nW*1)]*datSD
+b = Zbetas[,(nB*1+1):(nB*2),(nW*1+1):(nW*2)]*datSD
+c = Zbetas[,(nB*2+1):(nB*3),(nW*2+1):(nW*3)]*datSD
+d = Zbetas[,(nB*3+1):(nB*4),(nW*3+1):(nW*4)]*datSD
 
 a_cond = get_condition_post(
         post = post
@@ -149,7 +150,11 @@ a_cond %>%
         geom_point()+
         geom_line()+
         geom_errorbar()+
-        facet_wrap(~condition)
+        facet_wrap(~condition)+
+        labs(title = "Upper Asymptote"
+             , x = "Session"
+             , y = "Error"
+             , color = "Condition")
 
 b_cond = get_condition_post(
         post = post
@@ -180,7 +185,11 @@ b_cond %>%
         geom_point()+
         geom_line()+
         geom_errorbar()+
-        facet_wrap(~condition)
+        facet_wrap(~condition)+
+        labs(title = "Lower Asymptote"
+             , x = "Session"
+             , y = "Error"
+             , color = "Condition")
 
 c_cond = get_condition_post(
         post = post
@@ -211,7 +220,11 @@ c_cond %>%
         geom_point()+
         geom_line()+
         geom_errorbar()+
-        facet_wrap(~condition)
+        facet_wrap(~condition)+
+        labs(title = "Growth Rate"
+             , x = "Session"
+             , y = "Max Slope of Error w.r.t. Speed"
+             , color = "Condition")
 
 d_cond = get_condition_post(
         post = post
@@ -242,4 +255,8 @@ d_cond %>%
         geom_point()+
         geom_line()+
         geom_errorbar()+
-        facet_wrap(~condition)
+        facet_wrap(~condition)+
+        labs(title = "Shift"
+             , x = "Session"
+             , y = "Speed at Max Slope"
+             , color = "Condition")
