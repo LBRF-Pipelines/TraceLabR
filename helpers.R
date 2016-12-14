@@ -85,8 +85,12 @@ get_condition_post <-
 		both_formula = eval(parse(text=paste('~', paste(data_vars, collapse = '*'))))
 		unique_mm = model.matrix(both_formula,to_return)
 		unique_mm = unique_mm[,new_names]
-		samples = rstan::extract(post,par)[[1]]
-		samples = matrix(samples,nrow=dim(samples)[1])
+		if(is.character(par)){
+        		samples = rstan::extract(post,par)[[1]]
+		}else{
+		        samples = par
+		}
+        	samples = matrix(samples,nrow=dim(samples)[1])
 		# samples = samples[,match(new_names,dimnames(unique_mm)[[2]])]
 		mat = matrix(NA,nrow=nrow(to_return),ncol=dim(samples)[1])
 		for(i in 1:dim(samples)[1]){

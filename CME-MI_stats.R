@@ -72,11 +72,11 @@ dat %>%
         summarize(n=n()) -> dat_between
 
 #generate between-subjects contrast matrix
-B = get_contrast_matrix(
+B0 = get_contrast_matrix(
         data = dat_between
         , formula = ~ condition
 )
-B = cbind(B,B,B,B)
+B = cbind(B0,B0,B0,B0)
 head(B)
 
 #package in list for Stan
@@ -109,11 +109,137 @@ post = rstan::sampling(
 save(post, file = "post.Rda")
 
 # Check the posterior ----
-stan_summary(post,'noise')
-stan_summary(
-        object = post
-        , par = 'coefs'
+stan_summary(post,'Znoise')
+
+stan_ess(post, 'Zbetas')
+nW = ncol(W)
+nB = ncol(B0)
+Zbetas = rstan::extract(post, 'Zbetas')[[1]]
+a = Zbetas[,(nB*0+1):(nB*1),(nW*0+1):(nW*1)]
+b = Zbetas[,(nB*1+1):(nB*2),(nW*1+1):(nW*2)]
+c = Zbetas[,(nB*2+1):(nB*3),(nW*2+1):(nW*3)]
+d = Zbetas[,(nB*3+1):(nB*4),(nW*3+1):(nW*4)]
+
+a_cond = get_condition_post(
+        post = post
+        , par = a
         , W = W
-        , B = B
+        , B = B0
+        , data = dat
+        , numeric_res = 0
 )
-stan_summary(post,'corsW')
+
+a_cond %>%
+        dplyr::group_by(session_num_as_fac,figure_type,condition) %>%
+        dplyr::summarize(
+               med = median(value)
+               , lo = quantile(value,.025)
+               , hi = quantile(value,.975)
+        ) %>%
+        ggplot(
+                mapping = aes(
+                        x = session_num_as_fac
+                        , y = med
+                        , ymin = lo
+                        , ymax = hi
+                        , group = figure_type
+                        , colour = figure_type
+                )
+        ) +
+        geom_point()+
+        geom_line()+
+        geom_errorbar()+
+        facet_wrap(~condition)
+
+b_cond = get_condition_post(
+        post = post
+        , par = b
+        , W = W
+        , B = B0
+        , data = dat
+        , numeric_res = 0
+)
+
+b_cond %>%
+        dplyr::group_by(session_num_as_fac,figure_type,condition) %>%
+        dplyr::summarize(
+                med = median(value)
+                , lo = quantile(value,.025)
+                , hi = quantile(value,.975)
+        ) %>%
+        ggplot(
+                mapping = aes(
+                        x = session_num_as_fac
+                        , y = med
+                        , ymin = lo
+                        , ymax = hi
+                        , group = figure_type
+                        , colour = figure_type
+                )
+        ) +
+        geom_point()+
+        geom_line()+
+        geom_errorbar()+
+        facet_wrap(~condition)
+
+c_cond = get_condition_post(
+        post = post
+        , par = c
+        , W = W
+        , B = B0
+        , data = dat
+        , numeric_res = 0
+)
+
+c_cond %>%
+        dplyr::group_by(session_num_as_fac,figure_type,condition) %>%
+        dplyr::summarize(
+                med = median(value)
+                , lo = quantile(value,.025)
+                , hi = quantile(value,.975)
+        ) %>%
+        ggplot(
+                mapping = aes(
+                        x = session_num_as_fac
+                        , y = med
+                        , ymin = lo
+                        , ymax = hi
+                        , group = figure_type
+                        , colour = figure_type
+                )
+        ) +
+        geom_point()+
+        geom_line()+
+        geom_errorbar()+
+        facet_wrap(~condition)
+
+d_cond = get_condition_post(
+        post = post
+        , par = d
+        , W = W
+        , B = B0
+        , data = dat
+        , numeric_res = 0
+)
+
+d_cond %>%
+        dplyr::group_by(session_num_as_fac,figure_type,condition) %>%
+        dplyr::summarize(
+                med = median(value)
+                , lo = quantile(value,.025)
+                , hi = quantile(value,.975)
+        ) %>%
+        ggplot(
+                mapping = aes(
+                        x = session_num_as_fac
+                        , y = med
+                        , ymin = lo
+                        , ymax = hi
+                        , group = figure_type
+                        , colour = figure_type
+                )
+        ) +
+        geom_point()+
+        geom_line()+
+        geom_errorbar()+
+        facet_wrap(~condition)

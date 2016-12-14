@@ -53,7 +53,7 @@ transformed parameters{
 model {
 
 	#priors on population parameters
-	to_vector(Zbetas) ~ normal(0, 1) ;
+	to_vector(Zbetas) ~ normal(0, 10) ;
 	ZsdsW ~ weibull(2, 1) ;
 	Znoise ~ weibull(2, 1) ;
 	corsW ~ lkj_corr_cholesky(2) ;
