@@ -153,7 +153,7 @@ a_cond %>%
         facet_wrap(~condition)+
         labs(title = "Upper Asymptote"
              , x = "Session"
-             , y = "Error"
+             , y = "Error (pixels)"
              , color = "Condition")
 
 b_cond = get_condition_post(
@@ -188,7 +188,7 @@ b_cond %>%
         facet_wrap(~condition)+
         labs(title = "Lower Asymptote"
              , x = "Session"
-             , y = "Error"
+             , y = "Error (pixels)"
              , color = "Condition")
 
 c_cond = get_condition_post(
@@ -223,7 +223,7 @@ c_cond %>%
         facet_wrap(~condition)+
         labs(title = "Growth Rate"
              , x = "Session"
-             , y = "Max Slope of Error w.r.t. Speed"
+             , y = "Max Slope of Error w.r.t. Speed (pixels per second)"
              , color = "Condition")
 
 d_cond = get_condition_post(
@@ -258,5 +258,5 @@ d_cond %>%
         facet_wrap(~condition)+
         labs(title = "Shift"
              , x = "Session"
-             , y = "Speed at Max Slope"
+             , y = "Speed at Max Slope (pixels per second)"
              , color = "Condition")
