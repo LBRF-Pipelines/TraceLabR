@@ -1,7 +1,10 @@
 #### Rough Descriptive Stats ####
 
-vmed <- median(all_data_sub$vresp, na.rm = TRUE)
-vSD <- sd(all_data_sub$vresp, na.rm = TRUE)
+library(tidyverse)
+load("all_data.Rda")
+
+vmed <- median(all_data$vresp, na.rm = TRUE)
+vSD <- sd(all_data$vresp, na.rm = TRUE)
 # vIQR <- IQR(all_data_sub$vresp, na.rm = TRUE)
 dat <- dplyr::filter(
         .data = all_data
