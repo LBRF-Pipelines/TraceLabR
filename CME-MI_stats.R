@@ -33,7 +33,7 @@ load("all_data.Rda")
 #filter unfinished participant
 dat <- dplyr::filter(
         .data = all_data
-        , participant_id < 16
+        , participant_id != 18
 )
 
 # note: data already ordered by participant, 
