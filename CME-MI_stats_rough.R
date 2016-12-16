@@ -3,11 +3,15 @@
 library(tidyverse)
 load("all_data.Rda")
 
-vmed <- median(all_data$vresp, na.rm = TRUE)
-vSD <- sd(all_data$vresp, na.rm = TRUE)
-# vIQR <- IQR(all_data_sub$vresp, na.rm = TRUE)
 dat <- dplyr::filter(
         .data = all_data
+        , participant_id != 18
+)
+vmed <- median(dat$vresp, na.rm = TRUE)
+vSD <- sd(dat$vresp, na.rm = TRUE)
+# vIQR <- IQR(all_data_sub$vresp, na.rm = TRUE)
+dat <- dplyr::filter(
+        .data = dat
         , vresp > vmed - (.25*vSD)
         , vresp < vmed + (.25*vSD)
 )
@@ -73,3 +77,30 @@ CCmean_ran5 <- mean((subset(dat, (condition == "CC-00-5") & (figure_type == "ran
 CCsd5 <- sd((subset(dat, (condition == "CC-00-5") & (session_num == 5)))$shape_dtw_error_mean)
 CClearn5 <- (CCmean_ran5 - CCmean_rep5)/CCsd5
 print(CClearn5)
+
+#### EFFECT SIZES:
+
+# Day 1 PPVR
+length(unique(subset(dat, (condition == "PP-VR-5") & (session_num == 1))$participant_id))
+print(PPVRlearn1)
+
+# Day 1 PP
+length(unique(subset(dat, (condition == "PP-VV-5") & (session_num == 1))$participant_id))
+print(PPlearn1)
+
+# Day 5 PPVR
+length(unique(subset(dat, (condition == "PP-VR-5") & (session_num == 5))$participant_id))
+print(PPVRlearn5)
+
+# Day 5 PP
+length(unique(subset(dat, (condition == "PP-VV-5") & (session_num == 5))$participant_id))
+print(PPlearn5)
+
+# Day 5 MI
+length(unique(subset(dat, (condition == "MI-00-5") & (session_num == 5))$participant_id))
+print(MIlearn5)
+
+# Day 5 CC
+length(unique(subset(dat, (condition == "CC-00-5") & (session_num == 5))$participant_id))
+print(CClearn5)
+
