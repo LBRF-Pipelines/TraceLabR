@@ -7,6 +7,7 @@
 # 3. use ggplot2 to make better plots
 # 4. add complexity measures to CC and MI groups! take outside of loop?
 
+# code for timing this script:
 ptm <- proc.time()
 
 rm(list=setdiff(ls(), c("all_figs", "post"))) # clear all but all_figs
@@ -529,6 +530,7 @@ write.table(all_data,"~/Documents/RStudio/TraceLabDB/all_data.txt", sep="\t")
 # this saves object to load in R quickly: load("all_data.Rda")
 save(all_data, file = "all_data.Rda")
 
+# determine script timing:
 Rtime <- proc.time() - ptm
 print(Rtime)
 
