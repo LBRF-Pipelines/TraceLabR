@@ -5,7 +5,7 @@ load("all_data.Rda")
 
 dat <- dplyr::filter(
         .data = all_data
-        , participant_id != 18
+        #, participant_id != 18
 )
 vmed <- median(dat$vresp, na.rm = TRUE)
 vSD <- sd(dat$vresp, na.rm = TRUE)
