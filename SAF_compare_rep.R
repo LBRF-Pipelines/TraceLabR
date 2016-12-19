@@ -182,4 +182,25 @@ ggplot(subset(all_data_sub, (figure_type == "repeated") & ((session_num == 1) | 
 ## 3D plots of speed-complexity-error ##
 # library(rgl)
 
+#### PLOT FOR SEPPS ####
 
+## SHAPE DTW error against speed:
+my_plot <- ggplot(subset(all_data_sub, ((condition == "PP-VR-5") | (condition == "MI-00-5"))  & (figure_type == "repeated") & ((session_num == 1) | (session_num == 5)))
+       , mapping = aes(
+               x = vresp, y = shape_dtw_error_mean
+               , color = factor(session_num)
+       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        facet_grid(. ~ condition) +
+        labs(title = "Shape Error"
+             , x = "Speed"
+             , y = "Shape Error"
+             , color = "Session")
+ggsave(
+        filename = "my_plot.png"
+        , plot = my_plot
+        , width = 8 #inches
+        , height = 4
+        , dpi = 150
+)
