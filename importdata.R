@@ -1,6 +1,9 @@
 ##### TRACELAB IMPORT AND MAIN ANALYSIS #####
 ### AUTHORED BY TONY INGRAM AND JACK SOLOMON ###
 
+## NOTE: this script analyzes all data for first time. If you've already created 
+## "all_data.Rda", use the other script: importnewdata.R 
+
 ## TO DO ##
 # 1. go through and change loop inits that are = "" to something else... like = matrix()
 # 2. get write.table working so can use other scripts without having to re-run this...
