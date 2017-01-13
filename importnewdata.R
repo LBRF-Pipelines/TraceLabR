@@ -11,9 +11,6 @@ rm(list=setdiff(ls(), c())) # clear all but all_figs
 # graphics.off() # clear figures
 # cat("\014") # clear console
 
-# load currently analyzed data (if it exists, if not gives error and analyzes all data):
-load("all_data.Rda")
-
 # code for timing this script:
 ptm <- proc.time()
 
@@ -37,6 +34,9 @@ bcurv = function(t, p){
 # Read in .db information
 participants <- read.csv("~/Documents/RStudio/TraceLabDB/participants.csv")
 colnames(participants)[1] <- paste("participant_id")
+
+# load currently analyzed data (if it exists, if not gives error and analyzes all data):
+load("all_data.Rda")
 
 trials <- read.csv("~/Documents/RStudio/TraceLabDB/trials.csv", stringsAsFactors = FALSE)
 newtrials <- setdiff(trials$figure_file, all_data$figure_file)
@@ -535,7 +535,7 @@ colnames(all_data_new)[10] <- "figure_name"
 
 ## ADD all_data_new to all_data
 
-all_data <- rbind(all_data, all_data_new)
+ifelse(exists("all_data"), all_data <- rbind(all_data, all_data_new), all_data <- all_data_new)
 
 # arrange trials in chronological order AGAIN
 all_data <- dplyr::arrange(all_data, participant_id, session_num, block_num, trial_num)
