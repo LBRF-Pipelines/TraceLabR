@@ -535,7 +535,7 @@ colnames(all_data_new)[10] <- "figure_name"
 
 ## ADD all_data_new to all_data
 
-ifelse(exists("all_data"), all_data <- rbind(all_data, all_data_new), all_data <- all_data_new)
+invisble(ifelse(exists("all_data"), all_data <- rbind(all_data, all_data_new), all_data <- all_data_new))
 
 # arrange trials in chronological order AGAIN
 all_data <- dplyr::arrange(all_data, participant_id, session_num, block_num, trial_num)
