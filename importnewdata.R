@@ -1,5 +1,8 @@
-##### TRACELAB IMPORT AND MAIN ANALYSIS #####
+##### TRACELAB IMPORT AND MAIN ANALYSIS — NEW DATA ONLY #####
 ### AUTHORED BY TONY INGRAM AND JACK SOLOMON ###
+
+## NOTE: this script adds new data collected to an already existing "all_data.Rda".
+## If you've never analyzed data yet, use: importdata.R 
 
 ## TO DO ##
 
