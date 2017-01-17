@@ -2,16 +2,15 @@
 ## by Tony Ingram & Jack Solomon ##
 
 rm(list=setdiff(ls(), c())) # clear all but all_figs
-# rm(list=setdiff(ls(), c("all_data"))) # clear all but all_figs & all_data
-# graphics.off() # clear figures
-# cat("\014") # clear console
+graphics.off() # clear figures
+cat("\014") # clear console
 
 # DEFINE BLOCK OF INTEREST:
 
 # Participant number, session number, block number:
-p <- 3 
-s <- 1
-b <- 1
+p <- 22 
+s <- 2
+b <- 5
 
 # code for timing this script:
 ptm <- proc.time()
@@ -33,20 +32,24 @@ for(i in 1:length(file.names)) {
         # read in data 
         tlf <- read.table(unz(file.names[i], name.tlf),stringsAsFactors=FALSE, sep=",")
         tlt <- read.table(unz(file.names[i], name.tlt),stringsAsFactors=FALSE, sep=",")
-
+        
+        # skip missed trials
+        if (length(tlt)<15){
+        }
+        else{
+        
         #create data frames
         data_stim <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlf)), ", "))),ncol=3,nrow=length(tlf)/3, byrow=TRUE))
         data_resp <- data.frame(matrix(as.numeric(gsub("\\[|\\]|\\(|\\)", "", as.character(tlt))),ncol=3,nrow=length(tlt)/3, byrow=TRUE))
         
-
         ### Pre-processing Trajectories ###
         
         #remove artifacts (now built into data collection)
         data_resp_rem <- data_resp #[!(data_resp$X1=="1919"&data_resp$X2=="1079"),]
         data_resp_rem <- data_resp_rem #[!(data_resp_rem$X1=="119"&data_resp_rem$X2=="1079"),]
         
-        #find repeated points (from when people miss green, for example)
-        clip_index <- rep(1, length(data_resp_rem$X1))
+        #find repeated points (from when people miss target at end of trial, for example)
+        clip_index <- rep(1, length(data_resp_rem$X1)) # get indices that need to be cut off
         #clip_index gives a vector of 1's and 0's where 0 means point 'i' has same [x,y] as point 'i-1'
         for(j in 2:(length(data_resp_rem$X1))){ #start at 2 as first point will never be same as previous
                 if(data_resp_rem[j,1]!=data_resp_rem[j-1,1] | data_resp_rem[j,2]!=data_resp_rem[j-1,2]){
@@ -56,7 +59,7 @@ for(i in 1:length(file.names)) {
                         clip_index[j] <- 0
                 }
         }
-        #decide minimum response length — if not reached, report NA's for trial
+        #decide minimum response length
         if(sum(clip_index)<10){
         }
         else{
@@ -117,8 +120,9 @@ for(i in 1:length(file.names)) {
                 plot(trans$X, xlim=c(-960,960), ylim=c(540,-540))
                 points(trans$Y, col="red")
                 title(main = c(name.tlt, " proc"))
-                
                 }
+        }
+        
 }
 
 # determine script timing:
