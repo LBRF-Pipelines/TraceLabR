@@ -1,11 +1,9 @@
 ##### new data import and pre processing script #####
         ## by Tony Ingram and Jack Solomon ##
 
-
 rm(list=setdiff(ls(), c())) # clear all but all_figs
-# rm(list=setdiff(ls(), c("all_data"))) # clear all but all_figs & all_data
-# graphics.off() # clear figures
-# cat("\014") # clear console
+graphics.off() # clear figures
+cat("\014") # clear console
 
 # code for timing this script:
 ptm <- proc.time()
@@ -46,8 +44,10 @@ if(file.exists("all_data.Rda")){
         trials <- trials[trials$figure_file %in% newtrials, ]
         newtrials2 <- substr(newtrials, 1, nchar(newtrials)-4)
         tomatch <- paste(newtrials2,collapse="|")
-        file.names <- unique(grep(tomatch,file.names,value=TRUE))
+        file.names <- grep(tomatch,file.names,value=TRUE)
+        if(nrow(trials)==0){file.names = ""}
 }
+
 
 #### BEGIN ANALYSIS ####
 
@@ -67,4 +67,3 @@ for(i in 1:length(file.names)) {
         tlfs <- read.table(unz(file.names[i], name.tlfs),stringsAsFactors=FALSE, sep=",")
         if(trials[trials$figure_file==name.tlf,5]!='CC-00-5')
 }
-        

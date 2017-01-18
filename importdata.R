@@ -35,25 +35,27 @@ bcurv = function(t, p){
         return(bez_curvature)
 }
 
-# Read in .db information
+#### GATHER INFORMATION FROM DATABASE AND LOCATE DATA ####
+
 participants <- read.csv("~/Documents/RStudio/TraceLabDB/participants.csv")
 colnames(participants)[1] <- paste("participant_id")
-
-# load currently analyzed data (if it exists, if not gives error and analyzes all data):
-load("all_data.Rda")
-
 trials <- read.csv("~/Documents/RStudio/TraceLabDB/trials.csv", stringsAsFactors = FALSE)
-newtrials <- setdiff(trials$figure_file, all_data$figure_file)
-trials <- trials[trials$figure_file %in% newtrials, ]
-
-# Find all .zip files
 path <- "~/TraceLab/ExpAssets/Data"
 file.names <- dir(path, recursive = TRUE, full.names = TRUE,pattern="\\.zip$")
 
-newtrials2 <- substr(newtrials, 1, nchar(newtrials)-4)
-tomatch <- paste(newtrials2,collapse="|")
-file.names <- unique(grep(tomatch,file.names,value=TRUE))
+#### LOAD EXISTING DATA AND IDENTIFY NEW DATA TO BE ANALYZED ####
 
+if(file.exists("all_data.Rda")){
+        load("all_data.Rda")
+        newtrials <- setdiff(trials$figure_file, all_data$figure_file)
+        trials <- trials[trials$figure_file %in% newtrials, ]
+        newtrials2 <- substr(newtrials, 1, nchar(newtrials)-4)
+        tomatch <- paste(newtrials2,collapse="|")
+        file.names <- grep(tomatch,file.names,value=TRUE)
+        if(nrow(trials)==0){file.names = ""}
+}
+
+#### BEGIN ANALYSIS ####
 
 out.file <- "" # note, using "" here is why everything is output as a character string at the end, and needs reverting... messy code. Gotta refine. This should be = matrix()
 # Apply the function to all files.
