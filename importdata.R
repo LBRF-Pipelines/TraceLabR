@@ -9,6 +9,7 @@
 # 2. get write.table working so can use other scripts without having to re-run this...
 # 3. use ggplot2 to make better plots
 # 4. add complexity measures to CC and MI groups! take outside of loop?
+# 5. add a measure of error for control task... just get abs(control_response - correct_response)
 
 rm(list=setdiff(ls(), c())) # clear all but all_figs
 # rm(list=setdiff(ls(), c("all_data"))) # clear all but all_figs & all_data
