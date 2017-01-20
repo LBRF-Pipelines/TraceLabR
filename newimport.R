@@ -2,9 +2,10 @@
         ## by Tony Ingram and Jack Solomon ##
 
 # TO DO:
-# 1. create a function for complexity analysis to remove redundancies? note the pre-processing of control points... 
-# 2. add a measure of error for control task... just get abs(control_response - correct_response)
-# 3. think of ways to just return all the objects of interest rather than a datarow, so I can select the objects ONCE at the end of script. 
+# 1. create a function for complexity analysis to remove redundancies? 
+# 2. note the pre-processing of control points... put right after import 
+# 3. add a measure of error for control task... just get abs(control_response - correct_response)
+# 4. think of ways to just return all the objects of interest rather than a datarow, so I can select the objects ONCE at the end of script. 
 
 rm(list=setdiff(ls(), c())) # clear all but all_figs
 graphics.off() # clear figures
