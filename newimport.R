@@ -1,6 +1,11 @@
 ##### new data import and pre processing script #####
         ## by Tony Ingram and Jack Solomon ##
 
+# TO DO:
+# 1. create a function for complexity analysis to remove redundancies? note the pre-processing of control points... 
+# 2. add a measure of error for control task... just get abs(control_response - correct_response)
+# 3. think of ways to just return all the objects of interest rather than a datarow, so I can select the objects ONCE at the end of script. 
+
 rm(list=setdiff(ls(), c())) # clear all but all_figs
 graphics.off() # clear figures
 cat("\014") # clear console
@@ -34,35 +39,19 @@ PP_anal = function(tlf, tlt, tlfp, tlfs){
         vertices <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlfp)), ", "))),ncol=2,nrow=length(tlfp)/2, byrow=TRUE))
         ctrl_pts <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlfs)), ", "))),ncol=2,nrow=length(tlfs)/2, byrow=TRUE)) 
         
-        ### Pre-processing Trajectories ###
-        
-        # rearrange control points — currently [point, point, ctrl]..., needs to be [point, ctrl, point]
-        for(j in 1:nrow(ctrl_pts)){
-                if (j %% 3 == 0){
-                        ctrl_pts[(j-1):j,] <- ctrl_pts[j:(j-1),]
-                }
-        } # every 3rd row switched with previous row
-        
-        # rearrange ctrl_pts to get rid of repeated points — this is needed for the bezier package
-        ctrl_pts_rm <- ctrl_pts[c(1:3,5:6,8:9,11:12,14:15),]
-        
-        #remove artifacts (now built into data collection)
-        data_resp_rem <- data_resp #[!(data_resp$X1=="1919"&data_resp$X2=="1079"),]
-        data_resp_rem <- data_resp_rem #[!(data_resp_rem$X1=="119"&data_resp_rem$X2=="1079"),]
-        
-        #find repeated points (from when people miss green, for example)
-        clip_index <- rep(1, length(data_resp_rem$X1))
-        #clip_index gives a vector of 1's and 0's where 0 means point 'i' has same [x,y] as point 'i-1'
-        for(j in 2:(length(data_resp_rem$X1))){ #start at 2 as first point will never be same as previous
-                if(data_resp_rem[j,1]!=data_resp_rem[j-1,1] | data_resp_rem[j,2]!=data_resp_rem[j-1,2]){
-                        clip_index[j] <- 1
-                }
-                else{
-                        clip_index[j] <- 0
-                }
-        }
-        #decide minimum response length — if not reached, report NA's for trial
-        if(sum(clip_index)<10){
+        # detect mis-trial (less than a few points) — also see if(sum(clip_index)<10)
+        if (length(tlt)<15){
+                ### Pre-processing Trajectories ###
+                
+                # rearrange control points — currently [point, point, ctrl]..., needs to be [point, ctrl, point]
+                for(j in 1:nrow(ctrl_pts)){
+                        if (j %% 3 == 0){
+                                ctrl_pts[(j-1):j,] <- ctrl_pts[j:(j-1),]
+                        }
+                } # every 3rd row switched with previous row
+                
+                # rearrange ctrl_pts to get rid of repeated points — this is needed for the bezier package
+                ctrl_pts_rm <- ctrl_pts[c(1:3,5:6,8:9,11:12,14:15),]
                 
                 ### Pathlength ###
                 
@@ -160,265 +149,393 @@ PP_anal = function(tlf, tlt, tlfp, tlfs){
                 
                 datarow=c(name.tlf,PLstim,sinuosity,totabscurv,ApEn,SampEn,rep(NA,times=25))
         }
-        else{
-                ### Pre-processing Trajectories Continued ###
+        else {
+                ### Pre-processing Trajectories ###
                 
-                #remove all repeated response points (when person not moving)
-                data_resp_clip <- cbind(data_resp_rem,clip_index)
-                data_resp_clip <- data_resp_clip[!(data_resp_clip$clip_index==0),1:3]
-                data_resp_rem <- data_resp_clip
+                # rearrange control points — currently [point, point, ctrl]..., needs to be [point, ctrl, point]
+                for(j in 1:nrow(ctrl_pts)){
+                        if (j %% 3 == 0){
+                                ctrl_pts[(j-1):j,] <- ctrl_pts[j:(j-1),]
+                        }
+                } # every 3rd row switched with previous row
                 
-                #get new MT 
-                mt_clip <- max(data_resp_rem$X3)
+                # rearrange ctrl_pts to get rid of repeated points — this is needed for the bezier package
+                ctrl_pts_rm <- ctrl_pts[c(1:3,5:6,8:9,11:12,14:15),]
                 
-                #normalize to shortest trajectory
-                data_resp_rem$trialnum <- seq(from=1,to=length(data_resp_rem$X1),by=1)
-                data_stim$trialnum <- seq(from=1,to=length(data_stim$X1),by=1)
-                rem_seq <- round(seq(from=1, to=ifelse(length(data_resp_rem$X1)>length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1)), by=ifelse(length(data_resp_rem$X1)>length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1))/ifelse(length(data_resp_rem$X1)<length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1))),digits=0)
-                data_sub <- if(length(data_resp_rem$X1)==length(rem_seq)) {data_stim[c(rem_seq),]} else {data_resp_rem[c(rem_seq),]}
+                #remove artifacts (now built into data collection)
+                data_resp_rem <- data_resp #[!(data_resp$X1=="1919"&data_resp$X2=="1079"),]
+                data_resp_rem <- data_resp_rem #[!(data_resp_rem$X1=="119"&data_resp_rem$X2=="1079"),]
                 
-                
-                ### ERROR ANALYSIS - RAW ###
-                
-                #take (x,y) coordinates only
-                stim <- if(length(data_stim$X1)==length(data_sub$X1)) {data_stim[,c(1,2)]} else {data_sub[,c(1,2)]}
-                resp <- if(length(data_resp_rem$X1)==length(data_sub$X1)) {data_resp_rem[,c(1,2)]} else {data_sub[,c(1,2)]}
-                
-                
-                ## RAW ERROR ##
-                
-                # create vector of point by point distances (error) between stimulus and response:
-                raw_dist = rep(0, length(resp[,1]))
-                for (m in 1:length(raw_dist)){
-                        raw_dist[m] = as.numeric(sqrt(((resp[m,1]-stim[m,1])^2)+((resp[m,2]-stim[m,2])^2)))
-                }
-                # error throughout trial:
-                raw_error_tot <- sum(raw_dist)
-                raw_error_mean <- mean(raw_dist)
-                raw_error_SD <- sd(raw_dist)
-                
-                # pre-procrustes transform sum of squares and SD:
-                raw_procSS <- sum(raw_dist^2)
-                raw_procSD <- sqrt(raw_procSS/(length(raw_dist)-1))
-                # NOTE: SD of error is NOT same as procSD — in SD you're subtracting each data point from the mean 
-                # and squaring that. For ProcSD you just take the distance between points and square that. It just 
-                # happens that in our error SD, the error's ARE distances between points. 
-                
-                
-                ## SHAPE ERROR ##
-                
-                # procrustes transformation
-                trans <- rotonto(stim, resp, 
-                                 scale = TRUE, 
-                                 signref = FALSE, 
-                                 reflection = FALSE, 
-                                 weights = NULL, 
-                                 centerweight = FALSE
-                )
-                
-                #get translation
-                translation <- sqrt((trans$transy[,1] - trans$trans[,1])^2 + (trans$transy[,2] - trans$trans[,2])^2)
-                
-                #get scale factor
-                scale <- trans$bet
-                
-                #get rotation angle *radians* from rotation matrix
-                rotation <- acos(trans$gamm[1,1])
-                
-                # create vector of point by point distances (error) between stimulus and response:
-                shape_dist = rep(0, length(trans$Y[,1]))
-                for (h in 1:length(shape_dist)){
-                        shape_dist[h] = as.numeric(sqrt(((trans$Y[h,1]-trans$X[h,1])^2)+((trans$Y[h,2]-trans$X[h,2])^2)))
-                }
-                # error throughout trial:
-                shape_error_tot <- sum(shape_dist)
-                shape_error_mean <- mean(shape_dist)
-                shape_error_SD <- sd(shape_dist)
-                
-                # "ordinary procrustes sum of squares" and SD:
-                shape_procSS <- sum(shape_dist^2)
-                shape_procSD <- sqrt(shape_procSS/(length(shape_dist)-1))
-                
-                
-                ### ERROR ANALYSIS — DYNAMIC TIME WARPING ###
-                
-                # multivariate dynamic time warping
-                dtw <- dtw(x = resp, y = stim,
-                           dist.method = "Euclidean",
-                           step.pattern = symmetric1,
-                           window.type = "none",
-                           keep.internals = TRUE,
-                           distance.only = FALSE,
-                           open.end = FALSE,
-                           open.begin = FALSE
-                )
-                
-                # create response trajectory from matched points
-                resp_dtw <- matrix(rep(0, 2*length(dtw$index1)), ncol=2)
-                for (j in 1:nrow(resp_dtw)){
-                        resp_dtw[j,1] <- resp[dtw$index1[j], 1]
-                        resp_dtw[j,2] <- resp[dtw$index1[j], 2]
-                }
-                
-                # create stimulus trajectory from matched points
-                stim_dtw <- matrix(rep(0, 2*length(dtw$index2)), ncol=2)
-                for (j in 1:nrow(stim_dtw)){
-                        stim_dtw[j,1] <- stim[dtw$index2[j], 1]
-                        stim_dtw[j,2] <- stim[dtw$index2[j], 2]
-                }
-                
-                
-                ## RAW ERROR — DTW ## 
-                
-                # create vector of point by point distances (error) between stimulus and response:
-                raw_dist_dtw = rep(0, length(resp_dtw[,1]))
-                for (j in 1:length(raw_dist_dtw)){
-                        raw_dist_dtw[j] = as.numeric(sqrt(((resp_dtw[j,1]-stim_dtw[j,1])^2)+((resp_dtw[j,2]-stim_dtw[j,2])^2)))
-                }
-                # error throughout trial:
-                raw_dtw_error_tot <- sum(raw_dist_dtw)
-                raw_dtw_error_mean <- mean(raw_dist_dtw)
-                raw_dtw_error_SD <- sd(raw_dist_dtw)
-                # pre-procrustes transform sum of squares and SD:
-                raw_dtw_procSS <- sum(raw_dist_dtw^2)
-                raw_dtw_procSD <- sqrt(raw_dtw_procSS/(length(raw_dist_dtw)-1))
-                
-                
-                ## SHAPE ERROR — DTW ##
-                
-                # DTW procrustes transformation
-                trans_dtw <- rotonto(stim_dtw, resp_dtw, scale = TRUE, signref = FALSE, reflection = FALSE, weights = NULL, centerweight = FALSE)
-                
-                #get translation
-                translation_dtw <- sqrt((trans_dtw$transy[1] - trans_dtw$trans[1])^2 + (trans_dtw$transy[2] - trans_dtw$trans[2])^2)
-                
-                #get scale factor
-                scale_dtw <- trans_dtw$bet
-                
-                #get rotation angle *radians*
-                rotation_dtw <- acos(trans_dtw$gamm[1,1])
-                
-                # create vector of point by point distances (error) between stimulus and response:
-                shape_dist_dtw = rep(0, length(trans_dtw$Y[,1]))
-                for (j in 1:length(shape_dist_dtw)){
-                        shape_dist_dtw[j] = as.numeric(sqrt(((trans_dtw$Y[j,1]-trans_dtw$X[j,1])^2)+((trans_dtw$Y[j,2]-trans_dtw$X[j,2])^2)))
-                }
-                # error throughout trial:
-                shape_dtw_error_tot <- sum(shape_dist_dtw)
-                shape_dtw_error_mean <- mean(shape_dist_dtw)
-                shape_dtw_error_SD <- sd(shape_dist_dtw)
-                
-                # "ordinary procrustes sum of squares" and SD:
-                shape_dtw_procSS <- sum(shape_dist_dtw^2)
-                shape_dtw_procSD <- sqrt(shape_dtw_procSS/(length(shape_dist_dtw)-1))
-                
-                
-                ### path length ###
-                
-                # get path length of participant response 
-                segs <- matrix()
-                for (y in 1:NROW(data_resp_rem)) {
-                        seg_leg <- sqrt((data_resp_rem[y+1,1]-data_resp_rem[y,1])^2 + (data_resp_rem[y+1,2]-data_resp_rem[y,2])^2)
-                        segs <- rbind(segs, seg_leg)
-                }
-                PLresp <- sum(segs, na.rm = TRUE)
-                
-                # stimulus path length
-                segs <- matrix()
-                for (u in 1:NROW(data_stim)) {
-                        seg_leg <- sqrt((data_stim[u+1,1]-data_stim[u,1])^2 + (data_stim[u+1,2]-data_stim[u,2])^2)
-                        segs <- rbind(segs, seg_leg)
-                }
-                PLstim <- sum(segs, na.rm = TRUE)
-                
-                # get path length from bezier curves
-                bezfig_len <- bezier::bezierArcLength(
-                        ctrl_pts_rm
-                        , deg = 2
-                )$arc.length
-                
-                
-                ### COMPLEXITY MEASURES ###
-                
-                ## Sinuosity
-                # (stimulus pathlength) / (perimeter of straight lines between segment points)
-                segs <- matrix()
-                for (j in 1:NROW(vertices)) {
-                        seg_len <- sqrt((vertices[j+1,1]-vertices[j,1])^2 + (vertices[j+1,2]-vertices[j,2])^2)
-                        segs <- rbind(segs, seg_len)
-                }
-                perimeter <- sum(segs, na.rm = TRUE)
-                pathlength <- bezfig_len
-                sinuosity <- pathlength/perimeter
-                
-                
-                ## Total Absolute Curvature
-                
-                # Calculate total absolute curvature of each segment and sum:
-                # note, this essentially misses the spikes in curvature created by
-                # segment intersections. Consider using turning angle.
-                n_segs <- 5
-                t <- seq(0, 1, length=300/n_segs)
-                totabscurv <- (integrate(
-                        splinefun(
-                                x = t, y = abs(
-                                        bcurv(t, ctrl_pts[1:3,])
-                                )
-                        )
-                        , min(t), max(t))
-                )$value + (integrate(
-                        splinefun(
-                                x = t, y = abs(
-                                        bcurv(t, ctrl_pts[4:6,])
-                                )
-                        )
-                        , min(t), max(t))
-                )$value +(integrate(
-                        splinefun(
-                                x = t, y = abs(
-                                        bcurv(t, ctrl_pts[7:9,])
-                                )
-                        )
-                        , min(t), max(t))
-                )$value +(integrate(
-                        splinefun(
-                                x = t, y = abs(
-                                        bcurv(t, ctrl_pts[10:12,])
-                                )
-                        )
-                        , min(t), max(t))
-                )$value +(integrate(
-                        splinefun(
-                                x = t, y = abs(
-                                        bcurv(t, ctrl_pts[13:15,])
-                                )
-                        )
-                        , min(t), max(t))
-                )$value
-                
-                
-                ## approximate entropy / sample entropy ##
-                
-                # using bez curve without equally distant points (doesn't change values)
-                t <- seq(0, 5, length=300) # t for five curves
-                bez_fig <- bezier::bezier(t, ctrl_pts_rm, deg=2) # create bez fig with 300 points
-                # create "turning angle" sequence, reducing 2D (x,y) to 1D (relative angle)
-                # note, this is valid as stimulus trajectories move at constant velocity
-                bez_fig_theta <- rep(0, length(bez_fig[,1])-2) # note you always lose two points
-                for (a in 1:length(bez_fig_theta)){
-                        V1 = c(bez_fig[a+1,1],bez_fig[a+1,2]) - c(bez_fig[a,1],bez_fig[a,2])
-                        V2 = c(bez_fig[a+2,1],bez_fig[a+2,2]) - c(bez_fig[a+1,1],bez_fig[a+1,2])
-                        bez_fig_theta[a] = atan2(V2[2],V2[1]) - atan2(V1[2],V1[1])
-                        if (abs(bez_fig_theta[a]) > pi){
-                                bez_fig_theta[a] = bez_fig_theta[a] - ((2*pi)*sign(bez_fig_theta[a]))
+                #find repeated points (from when people miss green, for example)
+                clip_index <- rep(1, length(data_resp_rem$X1))
+                #clip_index gives a vector of 1's and 0's where 0 means point 'i' has same [x,y] as point 'i-1'
+                for(j in 2:(length(data_resp_rem$X1))){ #start at 2 as first point will never be same as previous
+                        if(data_resp_rem[j,1]!=data_resp_rem[j-1,1] | data_resp_rem[j,2]!=data_resp_rem[j-1,2]){
+                                clip_index[j] <- 1
+                        }
+                        else{
+                                clip_index[j] <- 0
                         }
                 }
-                ApEn <- approx_entropy(bez_fig_theta) 
-                SampEn <- sample_entropy(bez_fig_theta)
-                
-                ### save variables to a row & subsequently a file ###
-                
-                datarow <- c(name.tlf,PLstim,sinuosity,totabscurv,ApEn,SampEn,mt_clip,PLresp,raw_error_tot,raw_error_mean,raw_error_SD,raw_procSD,translation,scale,rotation,shape_error_tot,shape_error_mean,shape_error_SD,shape_procSD,raw_dtw_error_tot,raw_dtw_error_mean,raw_dtw_error_SD,raw_dtw_procSD,translation_dtw,scale_dtw,rotation_dtw,shape_dtw_error_tot,shape_dtw_error_mean,shape_dtw_error_SD,shape_dtw_procSD,rep(NA,times=1))
+                #decide minimum response length — if not reached, report NA's for trial
+                if(sum(clip_index)<10){
+                        
+                        ### Pathlength ###
+                        
+                        segs <- matrix()
+                        for (u in 1:NROW(data_stim)) {
+                                seg_leg <- sqrt((data_stim[u+1,1]-data_stim[u,1])^2 + (data_stim[u+1,2]-data_stim[u,2])^2)
+                                segs <- rbind(segs, seg_leg)
+                        }
+                        PLstim <- sum(segs, na.rm = TRUE)
+                        
+                        # get path length from bezier curves
+                        bezfig_len <- bezier::bezierArcLength(
+                                ctrl_pts_rm
+                                , deg = 2
+                        )$arc.length
+                        
+                        
+                        ### COMPLEXITY MEASURES ###
+                        
+                        ## Sinuosity
+                        # (stimulus pathlength) / (perimeter of straight lines between segment points)
+                        segs <- matrix()
+                        for (j in 1:NROW(vertices)) {
+                                seg_len <- sqrt((vertices[j+1,1]-vertices[j,1])^2 + (vertices[j+1,2]-vertices[j,2])^2)
+                                segs <- rbind(segs, seg_len)
+                        }
+                        perimeter <- sum(segs, na.rm = TRUE)
+                        pathlength <- bezfig_len
+                        sinuosity <- pathlength/perimeter
+                        
+                        
+                        ## Total Absolute Curvature
+                        
+                        # Calculate total absolute curvature of each segment and sum:
+                        # note, this essentially misses the spikes in curvature created by
+                        # segment intersections. Consider using turning angle.
+                        n_segs <- 5
+                        t <- seq(0, 1, length=300/n_segs)
+                        totabscurv <- (integrate(
+                                splinefun(
+                                        x = t, y = abs(
+                                                bcurv(t, ctrl_pts[1:3,])
+                                        )
+                                )
+                                , min(t), max(t))
+                        )$value + (integrate(
+                                splinefun(
+                                        x = t, y = abs(
+                                                bcurv(t, ctrl_pts[4:6,])
+                                        )
+                                )
+                                , min(t), max(t))
+                        )$value +(integrate(
+                                splinefun(
+                                        x = t, y = abs(
+                                                bcurv(t, ctrl_pts[7:9,])
+                                        )
+                                )
+                                , min(t), max(t))
+                        )$value +(integrate(
+                                splinefun(
+                                        x = t, y = abs(
+                                                bcurv(t, ctrl_pts[10:12,])
+                                        )
+                                )
+                                , min(t), max(t))
+                        )$value +(integrate(
+                                splinefun(
+                                        x = t, y = abs(
+                                                bcurv(t, ctrl_pts[13:15,])
+                                        )
+                                )
+                                , min(t), max(t))
+                        )$value
+                        
+                        
+                        ## approximate entropy / sample entropy ##
+                        
+                        # using bez curve without equally distant points (doesn't change values)
+                        t <- seq(0, 5, length=300) # t for five curves
+                        bez_fig <- bezier::bezier(t, ctrl_pts_rm, deg=2) # create bez fig with 300 points
+                        # create "turning angle" sequence, reducing 2D (x,y) to 1D (relative angle)
+                        # note, this is valid as stimulus trajectories move at constant velocity
+                        bez_fig_theta <- rep(0, length(bez_fig[,1])-2) # note you always lose two points
+                        for (a in 1:length(bez_fig_theta)){
+                                V1 = c(bez_fig[a+1,1],bez_fig[a+1,2]) - c(bez_fig[a,1],bez_fig[a,2])
+                                V2 = c(bez_fig[a+2,1],bez_fig[a+2,2]) - c(bez_fig[a+1,1],bez_fig[a+1,2])
+                                bez_fig_theta[a] = atan2(V2[2],V2[1]) - atan2(V1[2],V1[1])
+                                if (abs(bez_fig_theta[a]) > pi){
+                                        bez_fig_theta[a] = bez_fig_theta[a] - ((2*pi)*sign(bez_fig_theta[a]))
+                                }
+                        }
+                        ApEn <- approx_entropy(bez_fig_theta) 
+                        SampEn <- sample_entropy(bez_fig_theta)
+                        
+                        datarow=c(name.tlf,PLstim,sinuosity,totabscurv,ApEn,SampEn,rep(NA,times=25))
+                }
+                else{
+                        ### Pre-processing Trajectories Continued ###
+                        
+                        #remove all repeated response points (when person not moving)
+                        data_resp_clip <- cbind(data_resp_rem,clip_index)
+                        data_resp_clip <- data_resp_clip[!(data_resp_clip$clip_index==0),1:3]
+                        data_resp_rem <- data_resp_clip
+                        
+                        #get new MT 
+                        mt_clip <- max(data_resp_rem$X3)
+                        
+                        #normalize to shortest trajectory
+                        data_resp_rem$trialnum <- seq(from=1,to=length(data_resp_rem$X1),by=1)
+                        data_stim$trialnum <- seq(from=1,to=length(data_stim$X1),by=1)
+                        rem_seq <- round(seq(from=1, to=ifelse(length(data_resp_rem$X1)>length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1)), by=ifelse(length(data_resp_rem$X1)>length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1))/ifelse(length(data_resp_rem$X1)<length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1))),digits=0)
+                        data_sub <- if(length(data_resp_rem$X1)==length(rem_seq)) {data_stim[c(rem_seq),]} else {data_resp_rem[c(rem_seq),]}
+                        
+                        
+                        ### ERROR ANALYSIS - RAW ###
+                        
+                        #take (x,y) coordinates only
+                        stim <- if(length(data_stim$X1)==length(data_sub$X1)) {data_stim[,c(1,2)]} else {data_sub[,c(1,2)]}
+                        resp <- if(length(data_resp_rem$X1)==length(data_sub$X1)) {data_resp_rem[,c(1,2)]} else {data_sub[,c(1,2)]}
+                        
+                        
+                        ## RAW ERROR ##
+                        
+                        # create vector of point by point distances (error) between stimulus and response:
+                        raw_dist = rep(0, length(resp[,1]))
+                        for (m in 1:length(raw_dist)){
+                                raw_dist[m] = as.numeric(sqrt(((resp[m,1]-stim[m,1])^2)+((resp[m,2]-stim[m,2])^2)))
+                        }
+                        # error throughout trial:
+                        raw_error_tot <- sum(raw_dist)
+                        raw_error_mean <- mean(raw_dist)
+                        raw_error_SD <- sd(raw_dist)
+                        
+                        # pre-procrustes transform sum of squares and SD:
+                        raw_procSS <- sum(raw_dist^2)
+                        raw_procSD <- sqrt(raw_procSS/(length(raw_dist)-1))
+                        # NOTE: SD of error is NOT same as procSD — in SD you're subtracting each data point from the mean 
+                        # and squaring that. For ProcSD you just take the distance between points and square that. It just 
+                        # happens that in our error SD, the error's ARE distances between points. 
+                        
+                        
+                        ## SHAPE ERROR ##
+                        
+                        # procrustes transformation
+                        trans <- rotonto(stim, resp, 
+                                         scale = TRUE, 
+                                         signref = FALSE, 
+                                         reflection = FALSE, 
+                                         weights = NULL, 
+                                         centerweight = FALSE
+                        )
+                        
+                        #get translation
+                        translation <- sqrt((trans$transy[,1] - trans$trans[,1])^2 + (trans$transy[,2] - trans$trans[,2])^2)
+                        
+                        #get scale factor
+                        scale <- trans$bet
+                        
+                        #get rotation angle *radians* from rotation matrix
+                        rotation <- acos(trans$gamm[1,1])
+                        
+                        # create vector of point by point distances (error) between stimulus and response:
+                        shape_dist = rep(0, length(trans$Y[,1]))
+                        for (h in 1:length(shape_dist)){
+                                shape_dist[h] = as.numeric(sqrt(((trans$Y[h,1]-trans$X[h,1])^2)+((trans$Y[h,2]-trans$X[h,2])^2)))
+                        }
+                        # error throughout trial:
+                        shape_error_tot <- sum(shape_dist)
+                        shape_error_mean <- mean(shape_dist)
+                        shape_error_SD <- sd(shape_dist)
+                        
+                        # "ordinary procrustes sum of squares" and SD:
+                        shape_procSS <- sum(shape_dist^2)
+                        shape_procSD <- sqrt(shape_procSS/(length(shape_dist)-1))
+                        
+                        
+                        ### ERROR ANALYSIS — DYNAMIC TIME WARPING ###
+                        
+                        # multivariate dynamic time warping
+                        dtw <- dtw(x = resp, y = stim,
+                                   dist.method = "Euclidean",
+                                   step.pattern = symmetric1,
+                                   window.type = "none",
+                                   keep.internals = TRUE,
+                                   distance.only = FALSE,
+                                   open.end = FALSE,
+                                   open.begin = FALSE
+                        )
+                        
+                        # create response trajectory from matched points
+                        resp_dtw <- matrix(rep(0, 2*length(dtw$index1)), ncol=2)
+                        for (j in 1:nrow(resp_dtw)){
+                                resp_dtw[j,1] <- resp[dtw$index1[j], 1]
+                                resp_dtw[j,2] <- resp[dtw$index1[j], 2]
+                        }
+                        
+                        # create stimulus trajectory from matched points
+                        stim_dtw <- matrix(rep(0, 2*length(dtw$index2)), ncol=2)
+                        for (j in 1:nrow(stim_dtw)){
+                                stim_dtw[j,1] <- stim[dtw$index2[j], 1]
+                                stim_dtw[j,2] <- stim[dtw$index2[j], 2]
+                        }
+                        
+                        
+                        ## RAW ERROR — DTW ## 
+                        
+                        # create vector of point by point distances (error) between stimulus and response:
+                        raw_dist_dtw = rep(0, length(resp_dtw[,1]))
+                        for (j in 1:length(raw_dist_dtw)){
+                                raw_dist_dtw[j] = as.numeric(sqrt(((resp_dtw[j,1]-stim_dtw[j,1])^2)+((resp_dtw[j,2]-stim_dtw[j,2])^2)))
+                        }
+                        # error throughout trial:
+                        raw_dtw_error_tot <- sum(raw_dist_dtw)
+                        raw_dtw_error_mean <- mean(raw_dist_dtw)
+                        raw_dtw_error_SD <- sd(raw_dist_dtw)
+                        # pre-procrustes transform sum of squares and SD:
+                        raw_dtw_procSS <- sum(raw_dist_dtw^2)
+                        raw_dtw_procSD <- sqrt(raw_dtw_procSS/(length(raw_dist_dtw)-1))
+                        
+                        
+                        ## SHAPE ERROR — DTW ##
+                        
+                        # DTW procrustes transformation
+                        trans_dtw <- rotonto(stim_dtw, resp_dtw, scale = TRUE, signref = FALSE, reflection = FALSE, weights = NULL, centerweight = FALSE)
+                        
+                        #get translation
+                        translation_dtw <- sqrt((trans_dtw$transy[1] - trans_dtw$trans[1])^2 + (trans_dtw$transy[2] - trans_dtw$trans[2])^2)
+                        
+                        #get scale factor
+                        scale_dtw <- trans_dtw$bet
+                        
+                        #get rotation angle *radians*
+                        rotation_dtw <- acos(trans_dtw$gamm[1,1])
+                        
+                        # create vector of point by point distances (error) between stimulus and response:
+                        shape_dist_dtw = rep(0, length(trans_dtw$Y[,1]))
+                        for (j in 1:length(shape_dist_dtw)){
+                                shape_dist_dtw[j] = as.numeric(sqrt(((trans_dtw$Y[j,1]-trans_dtw$X[j,1])^2)+((trans_dtw$Y[j,2]-trans_dtw$X[j,2])^2)))
+                        }
+                        # error throughout trial:
+                        shape_dtw_error_tot <- sum(shape_dist_dtw)
+                        shape_dtw_error_mean <- mean(shape_dist_dtw)
+                        shape_dtw_error_SD <- sd(shape_dist_dtw)
+                        
+                        # "ordinary procrustes sum of squares" and SD:
+                        shape_dtw_procSS <- sum(shape_dist_dtw^2)
+                        shape_dtw_procSD <- sqrt(shape_dtw_procSS/(length(shape_dist_dtw)-1))
+                        
+                        
+                        ### path length ###
+                        
+                        # get path length of participant response 
+                        segs <- matrix()
+                        for (y in 1:NROW(data_resp_rem)) {
+                                seg_leg <- sqrt((data_resp_rem[y+1,1]-data_resp_rem[y,1])^2 + (data_resp_rem[y+1,2]-data_resp_rem[y,2])^2)
+                                segs <- rbind(segs, seg_leg)
+                        }
+                        PLresp <- sum(segs, na.rm = TRUE)
+                        
+                        # stimulus path length
+                        segs <- matrix()
+                        for (u in 1:NROW(data_stim)) {
+                                seg_leg <- sqrt((data_stim[u+1,1]-data_stim[u,1])^2 + (data_stim[u+1,2]-data_stim[u,2])^2)
+                                segs <- rbind(segs, seg_leg)
+                        }
+                        PLstim <- sum(segs, na.rm = TRUE)
+                        
+                        # get path length from bezier curves
+                        bezfig_len <- bezier::bezierArcLength(
+                                ctrl_pts_rm
+                                , deg = 2
+                        )$arc.length
+                        
+                        
+                        ### COMPLEXITY MEASURES ###
+                        
+                        ## Sinuosity
+                        # (stimulus pathlength) / (perimeter of straight lines between segment points)
+                        segs <- matrix()
+                        for (j in 1:NROW(vertices)) {
+                                seg_len <- sqrt((vertices[j+1,1]-vertices[j,1])^2 + (vertices[j+1,2]-vertices[j,2])^2)
+                                segs <- rbind(segs, seg_len)
+                        }
+                        perimeter <- sum(segs, na.rm = TRUE)
+                        pathlength <- bezfig_len
+                        sinuosity <- pathlength/perimeter
+                        
+                        
+                        ## Total Absolute Curvature
+                        
+                        # Calculate total absolute curvature of each segment and sum:
+                        # note, this essentially misses the spikes in curvature created by
+                        # segment intersections. Consider using turning angle.
+                        n_segs <- 5
+                        t <- seq(0, 1, length=300/n_segs)
+                        totabscurv <- (integrate(
+                                splinefun(
+                                        x = t, y = abs(
+                                                bcurv(t, ctrl_pts[1:3,])
+                                        )
+                                )
+                                , min(t), max(t))
+                        )$value + (integrate(
+                                splinefun(
+                                        x = t, y = abs(
+                                                bcurv(t, ctrl_pts[4:6,])
+                                        )
+                                )
+                                , min(t), max(t))
+                        )$value +(integrate(
+                                splinefun(
+                                        x = t, y = abs(
+                                                bcurv(t, ctrl_pts[7:9,])
+                                        )
+                                )
+                                , min(t), max(t))
+                        )$value +(integrate(
+                                splinefun(
+                                        x = t, y = abs(
+                                                bcurv(t, ctrl_pts[10:12,])
+                                        )
+                                )
+                                , min(t), max(t))
+                        )$value +(integrate(
+                                splinefun(
+                                        x = t, y = abs(
+                                                bcurv(t, ctrl_pts[13:15,])
+                                        )
+                                )
+                                , min(t), max(t))
+                        )$value
+                        
+                        
+                        ## approximate entropy / sample entropy ##
+                        
+                        # using bez curve without equally distant points (doesn't change values)
+                        t <- seq(0, 5, length=300) # t for five curves
+                        bez_fig <- bezier::bezier(t, ctrl_pts_rm, deg=2) # create bez fig with 300 points
+                        # create "turning angle" sequence, reducing 2D (x,y) to 1D (relative angle)
+                        # note, this is valid as stimulus trajectories move at constant velocity
+                        bez_fig_theta <- rep(0, length(bez_fig[,1])-2) # note you always lose two points
+                        for (a in 1:length(bez_fig_theta)){
+                                V1 = c(bez_fig[a+1,1],bez_fig[a+1,2]) - c(bez_fig[a,1],bez_fig[a,2])
+                                V2 = c(bez_fig[a+2,1],bez_fig[a+2,2]) - c(bez_fig[a+1,1],bez_fig[a+1,2])
+                                bez_fig_theta[a] = atan2(V2[2],V2[1]) - atan2(V1[2],V1[1])
+                                if (abs(bez_fig_theta[a]) > pi){
+                                        bez_fig_theta[a] = bez_fig_theta[a] - ((2*pi)*sign(bez_fig_theta[a]))
+                                }
+                        }
+                        ApEn <- approx_entropy(bez_fig_theta) 
+                        SampEn <- sample_entropy(bez_fig_theta)
+                        
+                        ### save variables to a row & subsequently a file ###
+                        
+                        datarow <- c(name.tlf,PLstim,sinuosity,totabscurv,ApEn,SampEn,mt_clip,PLresp,raw_error_tot,raw_error_mean,raw_error_SD,raw_procSD,translation,scale,rotation,shape_error_tot,shape_error_mean,shape_error_SD,shape_procSD,raw_dtw_error_tot,raw_dtw_error_mean,raw_dtw_error_SD,raw_dtw_procSD,translation_dtw,scale_dtw,rotation_dtw,shape_dtw_error_tot,shape_dtw_error_mean,shape_dtw_error_SD,shape_dtw_procSD,rep(NA,times=1))
+                }
         }
         return(datarow)
 }
