@@ -7,8 +7,8 @@ library(ez)
 library(rstan)
 rstan_options(auto_write = TRUE)
 
-# rm(list=setdiff(ls(), c("all_figs","all_data"))) # clear all
-rm(list=setdiff(ls(), c("all_figs","all_data","post"))) # clear all
+rm(list=setdiff(ls(), c())) # clear all
+# rm(list=setdiff(ls(), c("all_figs","all_data"))) # clear all but some
 # graphics.off() # clear figures
 # cat("\014") # clear console
 
