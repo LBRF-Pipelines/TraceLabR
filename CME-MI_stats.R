@@ -7,7 +7,7 @@ library(ez)
 library(rstan)
 rstan_options(auto_write = TRUE)
 
-rm(list=setdiff(ls(), c())) # clear all
+rm(list=setdiff(ls(), c("df"))) # clear all
 # rm(list=setdiff(ls(), c("all_figs","all_data"))) # clear all but some
 # graphics.off() # clear figures
 # cat("\014") # clear console
@@ -29,12 +29,20 @@ options(
 
 # load and check out data ----
 
-load("all_data.Rda")
-#filter unfinished participant
+# load("all_data.Rda")
+# #filter unfinished participant
+# dat <- dplyr::filter(
+#         .data = all_data
+# )
+
+# confirm model using fake data:
 dat <- dplyr::filter(
-        .data = all_data
-        #, participant_id != 18
+        .data = df
 )
+
+colnames(dat)[3] <- "session_num"
+colnames(dat)[5] <- "vresp"
+colnames(dat)[6] <- "shape_dtw_error_mean"
 
 # note: data already ordered by participant, 
 # then session, then block, then trial
