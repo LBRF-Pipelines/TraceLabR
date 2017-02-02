@@ -60,7 +60,7 @@ for(i in 1:nrow(df)){
         b = 20
         c = .002
         d = 1000 + (ifelse(df$figure_type[i] == "repeated", 500, 0)) +
-                (ifelse(df$session[i] == 5, 500, 0)) +
+                (ifelse((df$session[i] == 5) & (df$figure_type[i] == "repeated"), 500, 0)) +
                 (ifelse(df$condition[i] == "PP-VR-5", 500, 0))
         
         a = rnorm(n, a, a/20) #upper asymptote
