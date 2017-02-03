@@ -84,7 +84,7 @@ B0 = get_contrast_matrix(
         data = dat_between
         , formula = ~ condition
 )
-B = cbind(B0,B0) # copy a B0 for each group - 2 for test, 4 for real
+B = cbind(B0,B0,B0,B0)
 head(B)
 
 #package in list for Stan
@@ -109,7 +109,7 @@ post = rstan::sampling(
         , seed = 1
         , chains = 4
         , cores = 4
-        , iter = 2e3
+        , iter = 200
         , init = 0
         , refresh = 1
 )
