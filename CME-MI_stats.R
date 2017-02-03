@@ -84,7 +84,7 @@ B0 = get_contrast_matrix(
         data = dat_between
         , formula = ~ condition
 )
-B = cbind(B0,B0,B0,B0)
+B = cbind(B0,B0) # copy a B0 for each group - 2 for test, 4 for real
 head(B)
 
 #package in list for Stan
