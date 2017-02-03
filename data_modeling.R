@@ -78,6 +78,9 @@ for(i in 1:nrow(df)){
         df[i,6] = error
 }
 
+df$condition <- as.factor(df$condition)
+df$figure_type <- as.factor(df$figure_type)
+
 # PLOTS:
 
 # # plot effect of day:
