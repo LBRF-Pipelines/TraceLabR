@@ -78,16 +78,30 @@ for(i in 1:nrow(df)){
         df[i,6] = error
 }
 
-# PLOT:
+# PLOTS:
+
+# # plot effect of day:
+# ggplot(df, mapping = aes(
+#                x = speed, y = error
+#                , color = factor(session)
+#        )) + geom_point(na.rm = TRUE, alpha = .5) + 
+#         geom_smooth(na.rm = TRUE) + 
+#         theme_minimal() +
+#         facet_grid(figure_type ~ condition) +
+#         labs(title = "SAF"
+#              , x = "Velocity"
+#              , y = "Error"
+#              , color = "Session")
+
+# plot visualization of "learning" (space between random and repeat):
 ggplot(df, mapping = aes(
-               x = speed, y = error
-               , color = factor(session)
-       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+        x = speed, y = error
+        , color = factor(figure_type)
+)) + geom_point(na.rm = TRUE, alpha = .5) + 
         geom_smooth(na.rm = TRUE) + 
         theme_minimal() +
-        facet_grid(figure_type ~ condition) +
+        facet_grid(session ~ condition) +
         labs(title = "SAF"
              , x = "Velocity"
              , y = "Error"
              , color = "Session")
-
