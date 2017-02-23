@@ -1,5 +1,8 @@
 #### Rough Descriptive Stats ####
 
+# TO DO: 
+# 1. look at day 1 block 1 and day 5 block 5 — easiest to just subset at beginning.
+
 library(tidyverse)
 load("all_data.Rda")
 
