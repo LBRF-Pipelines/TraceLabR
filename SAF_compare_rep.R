@@ -80,6 +80,22 @@ ggplot(subset(all_data_sub, (figure_type == "repeated") & ((session_num == 1) | 
              , y = "Shape DTW Error"
              , color = "Session")
 
+## session 1 block 1 vs session 5 block 5
+ggplot(subset(all_data_sub, (figure_type == "repeated") & (((session_num == 1) & (block_num == 1)) | ((session_num == 5) & (block_num == 5))))
+       , mapping = aes(
+               x = vresp, y = shape_dtw_error_mean
+               , color = factor(session_num)
+       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        facet_grid(. ~ condition) +
+        labs(title = "Shape DTW Error"
+             , x = "Velocity"
+             , y = "Shape DTW Error"
+             , color = "Session")
+
+
+
 ## Absolute features DTW error against speed:
 ggplot(subset(all_data_sub, (figure_type == "repeated") & ((session_num == 1) | (session_num == 5)))
        , mapping = aes(
@@ -182,10 +198,10 @@ ggplot(subset(all_data_sub, (figure_type == "repeated") & ((session_num == 1) | 
 ## 3D plots of speed-complexity-error ##
 # library(rgl)
 
-#### PLOT FOR SEPPS ####
+#### PLOT FOR SHAUN ####
 
 ## SHAPE DTW error against speed:
-my_plot <- ggplot(subset(all_data_sub, ((condition == "PP-VR-5") | (condition == "MI-00-5"))  & (figure_type == "repeated") & ((session_num == 1) | (session_num == 5)))
+my_plot <- ggplot(subset(all_data_sub, (condition != "CC-00-5") & (figure_type == "repeated") & (((session_num == 1) & (block_num == 1)) | ((session_num == 5) & (block_num == 5))))
        , mapping = aes(
                x = vresp, y = shape_dtw_error_mean
                , color = factor(session_num)
@@ -197,8 +213,10 @@ my_plot <- ggplot(subset(all_data_sub, ((condition == "PP-VR-5") | (condition ==
              , x = "Speed"
              , y = "Shape Error"
              , color = "Session")
+print(my_plot)
+
 ggsave(
-        filename = "my_plot.png"
+        filename = "PPNFvsPPWFvsMI.png"
         , plot = my_plot
         , width = 8 #inches
         , height = 4
