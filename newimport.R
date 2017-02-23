@@ -890,7 +890,13 @@ if(nrow(trials)==0){
                 }
                 
                 out.file <- rbind(out.file, datarow)
-                print(c(i, name.tlf))
+                if(i==1){
+                        print(paste(length(newtrials),"new trials to analyze."))
+                        print(c(i, name.tlf))
+                }
+                else{
+                        print(c(i, name.tlf))
+                }
         }
         
         # change output to df
