@@ -30,16 +30,39 @@ options(
 # load and check out data ----
 
 # load("all_data.Rda")
-# #filter unfinished participant
+# # #filter unfinished participant
 # dat <- dplyr::filter(
 #         .data = all_data
 # )
+# plot visualization of "learning" (space between random and repeat):
+# ggplot(dat, mapping = aes(
+#         x = vresp, y = shape_dtw_error_mean
+#         , color = factor(figure_type)
+# )) + geom_point(na.rm = TRUE, alpha = .5) + 
+#         geom_smooth(na.rm = TRUE) + 
+#         theme_minimal() +
+#         facet_grid(session_num ~ condition) +
+#         labs(title = "SAF"
+#              , x = "Velocity"
+#              , y = "Error"
+#              , color = "Session")
+# 
+# # plot all data:
+# ggplot(dat, mapping = aes(
+#         x = vresp, y = shape_dtw_error_mean
+# )) + geom_point(na.rm = TRUE, alpha = .5) +
+#         geom_smooth(na.rm = TRUE) +
+#         theme_minimal() +
+#         labs(title = "SAF"
+#              , x = "Velocity"
+#              , y = "Error"
+#              , color = "Session")
 
-# confirm model using fake data:
+
+#confirm model using fake data:
 dat <- dplyr::filter(
         .data = df
 )
-
 colnames(dat)[3] <- "session_num"
 colnames(dat)[5] <- "vresp"
 colnames(dat)[6] <- "shape_dtw_error_mean"
@@ -65,13 +88,22 @@ dat$session_num_as_fac = factor(dat$session_num)
 dat = dat[!is.na(dat$shape_dtw_error_mean),]
 dat = dat[!is.na(dat$vresp),]
 
+# initial guesses:
+a_mean <- mean(subset(dat, dat$vresp > quantile(dat$vresp,3/4, na.rm=TRUE))$shape_dtw_error_mean, na.rm = TRUE)
+a_sd <- sd(subset(dat, dat$vresp > quantile(dat$vresp,3/4, na.rm=TRUE))$shape_dtw_error_mean, na.rm=TRUE)
+b_mean <- mean(subset(dat, dat$vresp < quantile(dat$vresp,1/4, na.rm=TRUE))$shape_dtw_error_mean, na.rm=TRUE)
+b_sd <- sd(subset(dat, dat$vresp < quantile(dat$vresp,1/4, na.rm=TRUE))$shape_dtw_error_mean, na.rm=TRUE)
+c_mean <- (a_mean - b_mean) / (max(dat$vresp, na.rm=TRUE) - min(dat$vresp, na.rm=TRUE)) #(quantile(dat$vresp,7/8, na.rm=TRUE) - quantile(dat$vresp,1/8, na.rm=TRUE))
+d_mean <- mean(subset(dat, (dat$shape_dtw_error_mean < mean(dat$shape_dtw_error_mean, na.rm=TRUE)*1.1) & (dat$shape_dtw_error_mean > mean(dat$shape_dtw_error_mean, na.rm=TRUE)*0.9))$vresp)
+inits = c(a_mean,b_mean,c_mean,d_mean,mean(a_sd, b_sd))
+
 #generate within-subjects matrix
 
 W = get_contrast_matrix(
         data = dat
         , formula = ~ session_num_as_fac*figure_type
 )
-head(W)
+#head(W)
 
 #for the between-subjects contrast matrix, first reduce data to just the subject
 # and between-subject predictors
@@ -85,9 +117,31 @@ B0 = get_contrast_matrix(
         , formula = ~ condition
 )
 B = cbind(B0,B0,B0,B0)
-head(B)
+#head(B)
 
-#package in list for Stan
+# # #package in list for simple model
+# data_for_stan1 = list(
+# 	nY = nrow(dat) # num trials total
+# 	, error = dat$shape_dtw_error_mean
+# 	, speed = dat$vresp
+# )
+# # Compile & sample the simple model
+# mod1 = rstan::stan_model('CME-MI_stats_I.stan')
+# post1 = rstan::sampling(
+# 	object = mod1
+# 	, data = data_for_stan1
+# 	, seed = 1
+# 	, chains = 4
+# 	, cores = 4
+# 	, iter = 2000
+# )
+# print(
+# 	post1
+# 	, probs = c(.025,.975)
+# 	, digits = 4
+# )
+
+#package in list for full model
 data_for_stan = list(
         nY = nrow(dat) # num trials total
         , nW = ncol(W) # num within-subject effects
@@ -96,12 +150,13 @@ data_for_stan = list(
         , B = B #between-subject contrast matrix
         , nS = length(unique(dat$participant_id)) # num subjects
         , S = as.numeric(factor(dat$participant_id)) #trick to turn ids into 1:nS
-        , error = scale(dat$shape_dtw_error_mean)[,1]
-        , speed = scale(dat$vresp)[,1]
+        , error = dat$shape_dtw_error_mean
+        , speed = dat$vresp
+        , ninits = length(inits)
+        , inits = inits
 )
 
-
-# Compile & sample the model ----
+# Compile & sample the full model ----
 mod = rstan::stan_model('CME-MI_stats.stan')
 post = rstan::sampling(
         object = mod
@@ -110,8 +165,6 @@ post = rstan::sampling(
         , chains = 4
         , cores = 4
         , iter = 200
-        , init = 0
-        , refresh = 1
 )
 # this saves object to load in R quickly: load("post.Rda")
 save(post, file = "post.Rda")
@@ -122,12 +175,12 @@ stan_summary(post,'Znoise')
 stan_ess(post, 'Zbetas')
 nW = ncol(W)
 nB = ncol(B0)
-datSD = sd(dat$shape_dtw_error_mean)
+#datSD = sd(dat$shape_dtw_error_mean)
 Zbetas = rstan::extract(post, 'Zbetas')[[1]]
-a = Zbetas[,(nB*0+1):(nB*1),(nW*0+1):(nW*1)]*datSD
-b = Zbetas[,(nB*1+1):(nB*2),(nW*1+1):(nW*2)]*datSD
-c = Zbetas[,(nB*2+1):(nB*3),(nW*2+1):(nW*3)]*datSD
-d = Zbetas[,(nB*3+1):(nB*4),(nW*3+1):(nW*4)]*datSD
+a = Zbetas[,(nB*0+1):(nB*1),(nW*0+1):(nW*1)]#*datSD
+b = Zbetas[,(nB*1+1):(nB*2),(nW*1+1):(nW*2)]#*datSD
+c = Zbetas[,(nB*2+1):(nB*3),(nW*2+1):(nW*3)]#*datSD
+d = Zbetas[,(nB*3+1):(nB*4),(nW*3+1):(nW*4)]#*datSD
 
 a_cond = get_condition_post(
         post = post

@@ -25,6 +25,10 @@ data {
 	vector[nY] speed ;
 	
 	vector[nY] error ;
+	
+	#initial guesses
+        int<lower=0> ninits;
+        vector[ninits] inits;
 
 }
 transformed data{
@@ -53,9 +57,9 @@ transformed parameters{
 model {
 
 	#priors on population parameters
-	to_vector(Zbetas) ~ normal(0, 10) ;
+	to_vector(Zbetas) ~ normal(0, 1) ;
 	ZsdsW ~ weibull(2, 1) ;
-	Znoise ~ weibull(2, 1) ;
+	Znoise ~ weibull(2, 15) ;
 	corsW ~ lkj_corr_cholesky(2) ;
         to_vector(z) ~ normal(0, 1);
 	// for (ns in 1:nS){
@@ -67,10 +71,10 @@ model {
                 vector[nY] b;
                 vector[nY] c;
                 vector[nY] d;
-                a = rows_dot_product( Svals[S,(nW*0+1):(nW*1)] , W ) ;
-                b = rows_dot_product( Svals[S,(nW*1+1):(nW*2)] , W ) ;
-                c = rows_dot_product( Svals[S,(nW*2+1):(nW*3)] , W ) ;
-                d = rows_dot_product( Svals[S,(nW*3+1):(nW*4)] , W ) ; 
+                a = inits[1] + inits[1]*0.5*rows_dot_product( Svals[S,(nW*0+1):(nW*1)] , W ) ;
+                b = inits[2] + inits[2]*0.5*rows_dot_product( Svals[S,(nW*1+1):(nW*2)] , W ) ;
+                c = inits[3] + inits[3]*0.5*rows_dot_product( Svals[S,(nW*2+1):(nW*3)] , W ) ;
+                d = inits[4] + inits[4]*0.5*rows_dot_product( Svals[S,(nW*3+1):(nW*4)] , W ) ; 
                 for(i in 1:nY){
         	        error[i] ~ normal(
         	                b[i]+((a[i]-b[i])/(1+exp(-c[i]*(speed[i]-d[i]))))
