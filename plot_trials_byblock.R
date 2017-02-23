@@ -1,16 +1,20 @@
 ##### PLOT TRIALS - BY BLOCK ##### 
 ## by Tony Ingram & Jack Solomon ##
 
-rm(list=setdiff(ls(), c())) # clear all but all_figs
-graphics.off() # clear figures
-cat("\014") # clear console
+# rm(list=setdiff(ls(), c())) # clear all but all_figs
+# graphics.off() # clear figures
+# cat("\014") # clear console
+
+library(Morpho) # for procrustes analysis
+library(plyr) # for control task analysis. *use plyr::count()
+library(tidyverse) # arranging data at end & plotting
 
 # DEFINE BLOCK OF INTEREST:
 
 # Participant number, session number, block number:
-p <- 22 
-s <- 2
-b <- 5
+p <- 9
+s <- 1
+b <- 4
 
 # code for timing this script:
 ptm <- proc.time()
