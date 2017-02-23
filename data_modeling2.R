@@ -33,15 +33,14 @@ df <- data.frame(participant_id = participant_id
 
 for(i in 1:nrow(df)){
         n = 1
-        SD = 10
+        SD = 37
         
-        a = 150 + (ifelse(df$condition[i] == "PP-VR-5", -25, 0))
-        b = 50
+        a = 114
+        b = 59
         c = .002
-        d = 1000 + (ifelse(df$session[i] == 5, 500, 0)) # +
-                # (ifelse(df$figure_type[i] == "repeated", 500, 0)) +
-                # (ifelse((df$session[i] == 5) & (df$figure_type[i] == "repeated"), 500, 0)) +
-                # (ifelse(df$condition[i] == "PP-VR-5", 500, 0))
+        d = 1916 #+ (ifelse(df$figure_type[i] == "repeated", 500, 0)) +
+                #(ifelse((df$session[i] == 5) & (df$figure_type[i] == "repeated"), 500, 0)) +
+                #(ifelse(df$condition[i] == "PP-VR-5", 500, 0))
         
         speed = sample(seq(100,6000, length.out = 1000)
                        , n, replace = TRUE
@@ -61,31 +60,31 @@ df$figure_type <- as.factor(df$figure_type)
 
 # PLOTS:
 
-# plot effect of day:
-ggplot(df, mapping = aes(
-               x = speed, y = error
-               , color = factor(session)
-       )) + geom_point(na.rm = TRUE, alpha = .5) +
-        geom_smooth(na.rm = TRUE) +
-        theme_minimal() +
-        facet_grid(figure_type ~ condition) +
-        labs(title = "SAF"
-             , x = "Velocity"
-             , y = "Error"
-             , color = "Session")
-
-# # plot visualization of "learning" (space between random and repeat):
+# # plot effect of day:
 # ggplot(df, mapping = aes(
-#         x = speed, y = error
-#         , color = factor(figure_type)
-# )) + geom_point(na.rm = TRUE, alpha = .5) + 
+#                x = speed, y = error
+#                , color = factor(session)
+#        )) + geom_point(na.rm = TRUE, alpha = .5) + 
 #         geom_smooth(na.rm = TRUE) + 
 #         theme_minimal() +
-#         facet_grid(session ~ condition) +
+#         facet_grid(figure_type ~ condition) +
 #         labs(title = "SAF"
 #              , x = "Velocity"
 #              , y = "Error"
 #              , color = "Session")
+
+# plot visualization of "learning" (space between random and repeat):
+ggplot(df, mapping = aes(
+        x = speed, y = error
+        , color = factor(figure_type)
+)) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        facet_grid(session ~ condition) +
+        labs(title = "SAF"
+             , x = "Velocity"
+             , y = "Error"
+             , color = "Session")
 
 # plot all data:
 ggplot(df, mapping = aes(
@@ -112,4 +111,4 @@ ggplot(df, mapping = aes(
 # b_sd <- sd(subset(df, df$speed < quantile(df$speed,1/4))$error)
 # c_mean <- (a_mean - b_mean) / (max(df$speed) - min(df$speed)) #(quantile(df$speed,7/8) - quantile(df$speed,1/8))
 # d_mean <- mean(subset(df, (df$error < mean(df$error)*1.1) & (df$error > mean(df$error)*0.9))$speed)
-# 
+
