@@ -1,7 +1,7 @@
 #### Rough Descriptive Stats ####
 
 # TO DO: 
-# 1. look at day 1 block 1 and day 5 block 5 — easiest to just subset at beginning.
+# 1. 
 
 library(tidyverse)
 load("all_data.Rda")
@@ -10,14 +10,23 @@ dat <- dplyr::filter(
         .data = all_data
         #, participant_id != 18
 )
+# uncomment line below if you want to just look at s1b1 to s5b5
+# dat <- subset(dat, ((session_num == 1) & (block_num == 1)) | ((session_num == 5) & (block_num == 5)))
+# dat = dat[!is.na(dat$shape_dtw_error_mean),]
+# dat = dat[!is.na(dat$vresp),]
+# NOTE VERY SMALL SAMPLE WHEN YOU DO THIS... but you must constrain speed... 
+
+
 vmed <- median(dat$vresp, na.rm = TRUE)
 vSD <- sd(dat$vresp, na.rm = TRUE)
 # vIQR <- IQR(all_data_sub$vresp, na.rm = TRUE)
 dat <- dplyr::filter(
         .data = dat
-        , vresp > vmed - (.25*vSD)
-        , vresp < vmed + (.25*vSD)
+        , vresp > (vmed - (.25*vSD))
+        , vresp < (vmed + (.25*vSD))
 )
+
+
 
 ## PPVR 
 PPVRmean_rep1 <- mean((subset(dat, (condition == "PP-VR-5") & (figure_type == "repeated") & (session_num == 1)))$shape_dtw_error_mean)
