@@ -5,7 +5,9 @@
 # 1. create a function for complexity analysis to remove redundancies? 
 # 2. note the pre-processing of control points... put right after import 
 # 3. add a measure of error for control task... just get abs(control_response - correct_response)
-# 4. think of ways to just return all the objects of interest rather than a datarow, so I can select the objects ONCE at the end of script. 
+# 4. think of ways to just return all the objects of interest rather than a datarow, so I can select the objects ONCE at the end of script.
+# 5. consider making sum(clip_index)<10 more strict: 15 or 20 — see how it changes amount of data kept
+# 6. control task analysis: not just error, but actual responses, and correct answers, see how they are distributed!!!
 
 rm(list=setdiff(ls(), c())) # clear all but all_figs
 graphics.off() # clear figures
@@ -41,6 +43,8 @@ PP_anal = function(tlf, tlt, tlfp, tlfs){
         ctrl_pts <- data.frame(matrix(as.numeric(unlist(strsplit(gsub("\\[|\\]|\\(|\\)", "", as.character(tlfs)), ", "))),ncol=2,nrow=length(tlfs)/2, byrow=TRUE)) 
         
         # detect mis-trial (less than a few points) — also see if(sum(clip_index)<10)
+        # if the length of the response (trace) file is less than 5 data points (length(tlt)<15), 
+        # just do the complexity analysis on the figure stimulus (fig) file:
         if (length(tlt)<15){
                 ### Pre-processing Trajectories ###
                 
@@ -179,6 +183,7 @@ PP_anal = function(tlf, tlt, tlfp, tlfs){
                         }
                 }
                 #decide minimum response length — if not reached, report NA's for trial
+                # sum(clip_index)<10 means there are less than 10 actual points collected
                 if(sum(clip_index)<10){
                         
                         ### Pathlength ###
