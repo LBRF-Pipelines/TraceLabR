@@ -12,9 +12,9 @@ library(tidyverse) # arranging data at end & plotting
 # DEFINE BLOCK OF INTEREST:
 
 # Participant number, session number, block number:
-p <- 9
+p <- 42
 s <- 1
-b <- 4
+b <- 1
 
 # code for timing this script:
 ptm <- proc.time()
