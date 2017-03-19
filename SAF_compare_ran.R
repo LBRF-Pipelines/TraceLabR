@@ -13,7 +13,7 @@ load("all_data.Rda")
 
 all_data_sub <- dplyr::filter(
         .data = all_data
-        , raw_dtw_error_mean < 400
+        # , raw_dtw_error_mean < 400
         # , vresp > 200
         # , scale < 2
         # , rotation < 1
