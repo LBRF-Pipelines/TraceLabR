@@ -3,6 +3,8 @@
 # TO DO: 
 # 1. 
 
+rm(list=setdiff(ls(), c("df"))) # clear all
+
 library(tidyverse)
 load("all_data.Rda")
 
@@ -16,17 +18,17 @@ dat <- dplyr::filter(
 # dat = dat[!is.na(dat$vresp),]
 # NOTE VERY SMALL SAMPLE WHEN YOU DO THIS... but you must constrain speed... 
 
-
+# constrain speed:
 vmed <- median(dat$vresp, na.rm = TRUE)
 vSD <- sd(dat$vresp, na.rm = TRUE)
 # vIQR <- IQR(all_data_sub$vresp, na.rm = TRUE)
 dat <- dplyr::filter(
         .data = dat
-        , vresp > (vmed - (.25*vSD))
+        , vresp > (vmed - (.25*vSD)) # is this tight enough?
         , vresp < (vmed + (.25*vSD))
 )
 
-
+#### EFFECT SIZES ####
 
 ## PPVR 
 PPVRmean_rep1 <- mean((subset(dat, (condition == "PP-VR-5") & (figure_type == "repeated") & (session_num == 1)))$shape_dtw_error_mean)
