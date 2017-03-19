@@ -184,7 +184,7 @@ PP_anal = function(tlf, tlt, tlfp, tlfs){
                 }
                 #decide minimum response length — if not reached, report NA's for trial
                 # sum(clip_index)<10 means there are less than 10 actual points collected
-                if(sum(clip_index)<10){
+                if(sum(clip_index)<20){
                         
                         ### Pathlength ###
                         
@@ -896,7 +896,7 @@ if(nrow(trials)==0){
                 
                 out.file <- rbind(out.file, datarow)
                 if(i==1){
-                        print(paste(length(newtrials),"new trials to analyze."))
+                        if(exists("newtrials")){print(paste(length(newtrials),"new trials to analyze."))}
                         print(c(i, name.tlf))
                 }
                 else{
