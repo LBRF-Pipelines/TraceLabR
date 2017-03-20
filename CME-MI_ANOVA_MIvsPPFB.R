@@ -1,7 +1,7 @@
 #### CME-MI ROUGH STATS: ANOVA ####
 # simple three factor ANOVA using constrained (median) speed
 
-rm(list=setdiff(ls(), c("df"))) # clear all
+rm(list=setdiff(ls(), c())) # clear all
 
 library(tidyverse)
 load("all_data.Rda")

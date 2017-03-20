@@ -1,7 +1,7 @@
 #### CME-MI ROUGH STATS: multiple regression ####
 # for just two groups (MI & PP-FB), and two days (session 1 & 5)
 
-rm(list=setdiff(ls(), c("df"))) # clear all
+rm(list=setdiff(ls(), c())) # clear all
 
 library(tidyverse)
 load("all_data.Rda")
