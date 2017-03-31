@@ -23,8 +23,7 @@ dat.anova <- subset(dat.anova, (session_num == 1) | (session_num == 5))
 # get rid of unfinished participants:
 dat.anova <- dplyr::filter(
         .data = dat.anova
-        , participant_id < 57
-        , participant_id != 55
+        , participant_id < 62
 )
 
 # quick look at data:
