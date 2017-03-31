@@ -47,6 +47,8 @@ for(i in 1:nrow(df)){
                        , n, replace = TRUE
                        , dnorm(seq(-.5,3.5,length=1000)))
         
+        SD = 10 + speed*0.01 # variable error (higher weight on speed makes some negative errors though)
+        
         error = rnorm(n
                       , (b + ((a - b) / (1 + (exp(-(c*(speed-d)))))))
                       , SD
