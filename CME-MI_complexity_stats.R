@@ -80,6 +80,19 @@ ggplot(dat.lm
              , color = "log Total Absolute Curvature") + 
         scale_colour_gradientn(colours=rev(rainbow(3)))
 
+ggplot(dat.lm
+       , mapping = aes(
+               x = (vresp*0.2715/1000), y = (shape_dtw_error_mean*0.2715)
+               , color = turnangle_sum
+       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+        # geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        facet_grid(. ~ condition) +
+        labs(title = "Effect of turnangle_sum on Error"
+             , x = "Velocity (mm / ms)"
+             , y = "Shape DTW Error (mm)"
+             , color = "turnangle_sum") + 
+        scale_colour_gradientn(colours=rev(rainbow(3)))
 
 #### 2D PLOTS - BINNED ####
 
@@ -92,6 +105,10 @@ ggplot(dat.lm
 # 
 # plot(density(log(dat.lm$totabscurv))) # take log because very skewed
 # abline(v = c(quantile(log(dat.lm$totabscurv), 1/3), quantile(log(dat.lm$totabscurv), 2/3)))
+
+# plot(density(dat.lm$turnangle_sum)) #note, mean just scales it because all values are approximated with 300 points.
+# abline(v = c(quantile(dat.lm$turnangle_sum, 1/3), quantile(dat.lm$turnangle_sum, 2/3)))
+
 
 # bin complexities (using sinuosity):
 dat.lm$sinuosityBin = dat.lm$sinuosity
@@ -126,6 +143,18 @@ for(i in 1:nrow(dat.lm)){
                 dat.lm[i,]$totabscurvBin = "medium"
         } else if(log(dat.lm[i,]$totabscurv) > quantile(log(dat.lm$totabscurv), 2/3)){
                 dat.lm[i,]$totabscurvBin = "high"
+        }
+}
+
+# bin complexities (using turnangle_sum):
+dat.lm$turnangle_sumBin = dat.lm$turnangle_sum
+for(i in 1:nrow(dat.lm)){
+        if(dat.lm[i,]$turnangle_sum <= quantile(dat.lm$turnangle_sum, 1/3)){
+                dat.lm[i,]$turnangle_sumBin = "low"
+        } else if((dat.lm[i,]$turnangle_sum > quantile(dat.lm$turnangle_sum, 1/3)) & (dat.lm[i,]$turnangle_sum <= quantile(dat.lm$turnangle_sum, 2/3))){
+                dat.lm[i,]$turnangle_sumBin = "medium"
+        } else if(dat.lm[i,]$turnangle_sum > quantile(dat.lm$turnangle_sum, 2/3)){
+                dat.lm[i,]$turnangle_sumBin = "high"
         }
 }
 
@@ -168,12 +197,24 @@ ggplot(dat.lm
              , y = "Shape DTW Error (mm)"
              , color = "log Total Absolute Curvature")
 
+ggplot(dat.lm
+       , mapping = aes(
+               x = (vresp*0.2715/1000), y = (shape_dtw_error_mean*0.2715)
+               , color = as.factor(turnangle_sumBin)
+       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        facet_grid(. ~ condition) +
+        labs(title = "Effect of turnangle_sum on Error"
+             , x = "Velocity (mm / ms)"
+             , y = "Shape DTW Error (mm)"
+             , color = "turnangle_sum")
 
 #### 3D PLOTS ####
 
 library(rgl)
 x <- dat.lm$vresp
-y <- dat.lm$ApEn
+y <- dat.lm$turnangle_sum
 z <- dat.lm$shape_dtw_error_mean
 fit <- lm(z ~ x + y)
 plot3d(x, y, z
@@ -205,6 +246,19 @@ summary(error.ApEn.lm, cor = TRUE)
 
 error.curv.lm <- lm(shape_dtw_error_mean ~ vresp * totabscurv, data=dat.lm)
 summary(error.curv.lm, cor = TRUE)
+
+error.turn.lm <- lm(shape_dtw_error_mean ~ vresp * turnangle_sum, data=dat.lm)
+summary(error.turn.lm, cor = TRUE) # interaction! 
+# interaction is interesting... look at plot. 
+# it means at lower speeds people handle complexity fine but higher speeds they don't.
+
+## might multiple regression has masking effect on main effects?
+error.turn.lm1 <- lm(shape_dtw_error_mean ~ turnangle_sum, data=dat.lm)
+summary(error.turn.lm1, cor = TRUE)
+error.speed.lm1 <- lm(shape_dtw_error_mean ~ vresp, data=dat.lm)
+summary(error.speed.lm1, cor = TRUE)
+# YES... interesting... 
+
 
 
 # # but what we really should do a "multilevel model":
