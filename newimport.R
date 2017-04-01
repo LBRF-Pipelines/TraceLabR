@@ -2,12 +2,10 @@
         ## by Tony Ingram and Jack Solomon ##
 
 # TO DO:
-# 1. create a function for complexity analysis to remove redundancies? 
-# 2. note the pre-processing of control points... put right after import 
-# 3. add a measure of error for control task... just get abs(control_response - correct_response)
-# 4. think of ways to just return all the objects of interest rather than a datarow, so I can select the objects ONCE at the end of script.
-# 5. consider making sum(clip_index)<10 more strict: 15 or 20 — see how it changes amount of data kept
-# 6. control task analysis: not just error, but actual responses, and correct answers, see how they are distributed!!!
+# 1. note the pre-processing of control points... put right after import if common for all groups
+# 2. add a measure of error for control task... just get abs(control_response - correct_response)
+# 3. think of ways to just return all the objects of interest rather than a datarow, so I can select the objects ONCE at the end of script.
+# 4. control task analysis: not just error, but actual responses, and correct answers, see how they are distributed!!!
 
 rm(list=setdiff(ls(), c())) # clear all but all_figs
 graphics.off() # clear figures
@@ -33,6 +31,93 @@ bcurv = function(t, p){
         b2y = (2 * (p[3,2] - (2 * p[2,2]) + p[1,2])) #second derivative of y
         bez_curvature <- ((b1x * b2y) - (b1y * b2x))/(((b1x^2) + (b1y^2))^(3/2)) #signed curvature
         return(bez_curvature)
+}
+
+complexity = function(vertices, bezfig_len, ctrl_pts, ctrl_pts_rm){
+        ### COMPLEXITY MEASURES ###
+        
+        ## Sinuosity
+        # (stimulus pathlength) / (perimeter of straight lines between segment points)
+        segs <- matrix()
+        for (j in 1:NROW(vertices)) {
+                seg_len <- sqrt((vertices[j+1,1]-vertices[j,1])^2 + (vertices[j+1,2]-vertices[j,2])^2)
+                segs <- rbind(segs, seg_len)
+        }
+        perimeter <- sum(segs, na.rm = TRUE)
+        pathlength <- bezfig_len
+        sinuosity <- pathlength/perimeter
+        
+        
+        ## Total Absolute Curvature
+        
+        # Calculate total absolute curvature of each segment and sum:
+        # note, this essentially misses the spikes in curvature created by
+        # segment intersections. Consider using turning angle.
+        n_segs <- 5
+        t <- seq(0, 1, length=300/n_segs)
+        totabscurv <- (integrate(
+                splinefun(
+                        x = t, y = abs(
+                                bcurv(t, ctrl_pts[1:3,])
+                        )
+                )
+                , min(t), max(t))
+        )$value + (integrate(
+                splinefun(
+                        x = t, y = abs(
+                                bcurv(t, ctrl_pts[4:6,])
+                        )
+                )
+                , min(t), max(t))
+        )$value +(integrate(
+                splinefun(
+                        x = t, y = abs(
+                                bcurv(t, ctrl_pts[7:9,])
+                        )
+                )
+                , min(t), max(t))
+        )$value +(integrate(
+                splinefun(
+                        x = t, y = abs(
+                                bcurv(t, ctrl_pts[10:12,])
+                        )
+                )
+                , min(t), max(t))
+        )$value +(integrate(
+                splinefun(
+                        x = t, y = abs(
+                                bcurv(t, ctrl_pts[13:15,])
+                        )
+                )
+                , min(t), max(t))
+        )$value
+        
+        
+        ## approximate entropy / sample entropy ##
+        
+        # using bez curve without equally distant points (doesn't change values)
+        t <- seq(0, 5, length=300) # t for five curves
+        bez_fig <- bezier::bezier(t, ctrl_pts_rm, deg=2) # create bez fig with 300 points
+        # create "turning angle" sequence, reducing 2D (x,y) to 1D (relative angle)
+        # note, this IS valid, as stimulus trajectories move at constant velocity
+        bez_fig_theta <- rep(0, length(bez_fig[,1])-2) # note you always lose two points
+        for (a in 1:length(bez_fig_theta)){
+                V1 = c(bez_fig[a+1,1],bez_fig[a+1,2]) - c(bez_fig[a,1],bez_fig[a,2])
+                V2 = c(bez_fig[a+2,1],bez_fig[a+2,2]) - c(bez_fig[a+1,1],bez_fig[a+1,2])
+                bez_fig_theta[a] = atan2(V2[2],V2[1]) - atan2(V1[2],V1[1])
+                if (abs(bez_fig_theta[a]) > pi){
+                        bez_fig_theta[a] = bez_fig_theta[a] - ((2*pi)*sign(bez_fig_theta[a]))
+                }
+        }
+        turnangle_sum <- sum(abs(bez_fig_theta))
+        turnangle_mean <- mean(abs(bez_fig_theta))
+        turnangle_SD <- sd(abs(bez_fig_theta))
+        ApEn <- approx_entropy(bez_fig_theta) 
+        SampEn <- sample_entropy(bez_fig_theta)
+        
+        complexity_measures <- c(sinuosity, totabscurv, turnangle_sum, turnangle_mean, turnangle_SD, ApEn, SampEn)
+        
+        return(complexity_measures)
 }
 
 PP_anal = function(tlf, tlt, tlfp, tlfs){
@@ -75,84 +160,16 @@ PP_anal = function(tlf, tlt, tlfp, tlfs){
                 
                 
                 ### COMPLEXITY MEASURES ###
+                complexity_measures <- complexity(vertices, bezfig_len, ctrl_pts, ctrl_pts_rm)
+                sinuosity <- complexity_measures[1]
+                totabscurv <- complexity_measures[2]
+                turnangle_sum <- complexity_measures[3]
+                turnangle_mean <- complexity_measures[4]
+                turnangle_SD <- complexity_measures[5]
+                ApEn <- complexity_measures[6]
+                SampEn <- complexity_measures[7]
                 
-                ## Sinuosity
-                # (stimulus pathlength) / (perimeter of straight lines between segment points)
-                segs <- matrix()
-                for (j in 1:NROW(vertices)) {
-                        seg_len <- sqrt((vertices[j+1,1]-vertices[j,1])^2 + (vertices[j+1,2]-vertices[j,2])^2)
-                        segs <- rbind(segs, seg_len)
-                }
-                perimeter <- sum(segs, na.rm = TRUE)
-                pathlength <- bezfig_len
-                sinuosity <- pathlength/perimeter
-                
-                
-                ## Total Absolute Curvature
-                
-                # Calculate total absolute curvature of each segment and sum:
-                # note, this essentially misses the spikes in curvature created by
-                # segment intersections. Consider using turning angle.
-                n_segs <- 5
-                t <- seq(0, 1, length=300/n_segs)
-                totabscurv <- (integrate(
-                        splinefun(
-                                x = t, y = abs(
-                                        bcurv(t, ctrl_pts[1:3,])
-                                )
-                        )
-                        , min(t), max(t))
-                )$value + (integrate(
-                        splinefun(
-                                x = t, y = abs(
-                                        bcurv(t, ctrl_pts[4:6,])
-                                )
-                        )
-                        , min(t), max(t))
-                )$value +(integrate(
-                        splinefun(
-                                x = t, y = abs(
-                                        bcurv(t, ctrl_pts[7:9,])
-                                )
-                        )
-                        , min(t), max(t))
-                )$value +(integrate(
-                        splinefun(
-                                x = t, y = abs(
-                                        bcurv(t, ctrl_pts[10:12,])
-                                )
-                        )
-                        , min(t), max(t))
-                )$value +(integrate(
-                        splinefun(
-                                x = t, y = abs(
-                                        bcurv(t, ctrl_pts[13:15,])
-                                )
-                        )
-                        , min(t), max(t))
-                )$value
-                
-                
-                ## approximate entropy / sample entropy ##
-                
-                # using bez curve without equally distant points (doesn't change values)
-                t <- seq(0, 5, length=300) # t for five curves
-                bez_fig <- bezier::bezier(t, ctrl_pts_rm, deg=2) # create bez fig with 300 points
-                # create "turning angle" sequence, reducing 2D (x,y) to 1D (relative angle)
-                # note, this is valid as stimulus trajectories move at constant velocity
-                bez_fig_theta <- rep(0, length(bez_fig[,1])-2) # note you always lose two points
-                for (a in 1:length(bez_fig_theta)){
-                        V1 = c(bez_fig[a+1,1],bez_fig[a+1,2]) - c(bez_fig[a,1],bez_fig[a,2])
-                        V2 = c(bez_fig[a+2,1],bez_fig[a+2,2]) - c(bez_fig[a+1,1],bez_fig[a+1,2])
-                        bez_fig_theta[a] = atan2(V2[2],V2[1]) - atan2(V1[2],V1[1])
-                        if (abs(bez_fig_theta[a]) > pi){
-                                bez_fig_theta[a] = bez_fig_theta[a] - ((2*pi)*sign(bez_fig_theta[a]))
-                        }
-                }
-                ApEn <- approx_entropy(bez_fig_theta) 
-                SampEn <- sample_entropy(bez_fig_theta)
-                
-                datarow=c(name.tlf,PLstim,sinuosity,totabscurv,ApEn,SampEn,rep(NA,times=25))
+                datarow=c(name.tlf,PLstim,sinuosity,totabscurv,turnangle_sum,turnangle_mean,turnangle_SD,ApEn,SampEn,rep(NA,times=25))
         }
         else {
                 ### Pre-processing Trajectories ###
@@ -203,84 +220,16 @@ PP_anal = function(tlf, tlt, tlfp, tlfs){
                         
                         
                         ### COMPLEXITY MEASURES ###
+                        complexity_measures <- complexity(vertices, bezfig_len, ctrl_pts, ctrl_pts_rm)
+                        sinuosity <- complexity_measures[1]
+                        totabscurv <- complexity_measures[2]
+                        turnangle_sum <- complexity_measures[3]
+                        turnangle_mean <- complexity_measures[4]
+                        turnangle_SD <- complexity_measures[5]
+                        ApEn <- complexity_measures[6]
+                        SampEn <- complexity_measures[7]
                         
-                        ## Sinuosity
-                        # (stimulus pathlength) / (perimeter of straight lines between segment points)
-                        segs <- matrix()
-                        for (j in 1:NROW(vertices)) {
-                                seg_len <- sqrt((vertices[j+1,1]-vertices[j,1])^2 + (vertices[j+1,2]-vertices[j,2])^2)
-                                segs <- rbind(segs, seg_len)
-                        }
-                        perimeter <- sum(segs, na.rm = TRUE)
-                        pathlength <- bezfig_len
-                        sinuosity <- pathlength/perimeter
-                        
-                        
-                        ## Total Absolute Curvature
-                        
-                        # Calculate total absolute curvature of each segment and sum:
-                        # note, this essentially misses the spikes in curvature created by
-                        # segment intersections. Consider using turning angle.
-                        n_segs <- 5
-                        t <- seq(0, 1, length=300/n_segs)
-                        totabscurv <- (integrate(
-                                splinefun(
-                                        x = t, y = abs(
-                                                bcurv(t, ctrl_pts[1:3,])
-                                        )
-                                )
-                                , min(t), max(t))
-                        )$value + (integrate(
-                                splinefun(
-                                        x = t, y = abs(
-                                                bcurv(t, ctrl_pts[4:6,])
-                                        )
-                                )
-                                , min(t), max(t))
-                        )$value +(integrate(
-                                splinefun(
-                                        x = t, y = abs(
-                                                bcurv(t, ctrl_pts[7:9,])
-                                        )
-                                )
-                                , min(t), max(t))
-                        )$value +(integrate(
-                                splinefun(
-                                        x = t, y = abs(
-                                                bcurv(t, ctrl_pts[10:12,])
-                                        )
-                                )
-                                , min(t), max(t))
-                        )$value +(integrate(
-                                splinefun(
-                                        x = t, y = abs(
-                                                bcurv(t, ctrl_pts[13:15,])
-                                        )
-                                )
-                                , min(t), max(t))
-                        )$value
-                        
-                        
-                        ## approximate entropy / sample entropy ##
-                        
-                        # using bez curve without equally distant points (doesn't change values)
-                        t <- seq(0, 5, length=300) # t for five curves
-                        bez_fig <- bezier::bezier(t, ctrl_pts_rm, deg=2) # create bez fig with 300 points
-                        # create "turning angle" sequence, reducing 2D (x,y) to 1D (relative angle)
-                        # note, this is valid as stimulus trajectories move at constant velocity
-                        bez_fig_theta <- rep(0, length(bez_fig[,1])-2) # note you always lose two points
-                        for (a in 1:length(bez_fig_theta)){
-                                V1 = c(bez_fig[a+1,1],bez_fig[a+1,2]) - c(bez_fig[a,1],bez_fig[a,2])
-                                V2 = c(bez_fig[a+2,1],bez_fig[a+2,2]) - c(bez_fig[a+1,1],bez_fig[a+1,2])
-                                bez_fig_theta[a] = atan2(V2[2],V2[1]) - atan2(V1[2],V1[1])
-                                if (abs(bez_fig_theta[a]) > pi){
-                                        bez_fig_theta[a] = bez_fig_theta[a] - ((2*pi)*sign(bez_fig_theta[a]))
-                                }
-                        }
-                        ApEn <- approx_entropy(bez_fig_theta) 
-                        SampEn <- sample_entropy(bez_fig_theta)
-                        
-                        datarow=c(name.tlf,PLstim,sinuosity,totabscurv,ApEn,SampEn,rep(NA,times=25))
+                        datarow=c(name.tlf,PLstim,sinuosity,totabscurv,turnangle_sum,turnangle_mean,turnangle_SD,ApEn,SampEn,rep(NA,times=25))
                 }
                 else{
                         ### Pre-processing Trajectories Continued ###
@@ -461,86 +410,18 @@ PP_anal = function(tlf, tlt, tlfp, tlfs){
                         
                         
                         ### COMPLEXITY MEASURES ###
-                        
-                        ## Sinuosity
-                        # (stimulus pathlength) / (perimeter of straight lines between segment points)
-                        segs <- matrix()
-                        for (j in 1:NROW(vertices)) {
-                                seg_len <- sqrt((vertices[j+1,1]-vertices[j,1])^2 + (vertices[j+1,2]-vertices[j,2])^2)
-                                segs <- rbind(segs, seg_len)
-                        }
-                        perimeter <- sum(segs, na.rm = TRUE)
-                        pathlength <- bezfig_len
-                        sinuosity <- pathlength/perimeter
-                        
-                        
-                        ## Total Absolute Curvature
-                        
-                        # Calculate total absolute curvature of each segment and sum:
-                        # note, this essentially misses the spikes in curvature created by
-                        # segment intersections. Consider using turning angle.
-                        n_segs <- 5
-                        t <- seq(0, 1, length=300/n_segs)
-                        totabscurv <- (integrate(
-                                splinefun(
-                                        x = t, y = abs(
-                                                bcurv(t, ctrl_pts[1:3,])
-                                        )
-                                )
-                                , min(t), max(t))
-                        )$value + (integrate(
-                                splinefun(
-                                        x = t, y = abs(
-                                                bcurv(t, ctrl_pts[4:6,])
-                                        )
-                                )
-                                , min(t), max(t))
-                        )$value +(integrate(
-                                splinefun(
-                                        x = t, y = abs(
-                                                bcurv(t, ctrl_pts[7:9,])
-                                        )
-                                )
-                                , min(t), max(t))
-                        )$value +(integrate(
-                                splinefun(
-                                        x = t, y = abs(
-                                                bcurv(t, ctrl_pts[10:12,])
-                                        )
-                                )
-                                , min(t), max(t))
-                        )$value +(integrate(
-                                splinefun(
-                                        x = t, y = abs(
-                                                bcurv(t, ctrl_pts[13:15,])
-                                        )
-                                )
-                                , min(t), max(t))
-                        )$value
-                        
-                        
-                        ## approximate entropy / sample entropy ##
-                        
-                        # using bez curve without equally distant points (doesn't change values)
-                        t <- seq(0, 5, length=300) # t for five curves
-                        bez_fig <- bezier::bezier(t, ctrl_pts_rm, deg=2) # create bez fig with 300 points
-                        # create "turning angle" sequence, reducing 2D (x,y) to 1D (relative angle)
-                        # note, this is valid as stimulus trajectories move at constant velocity
-                        bez_fig_theta <- rep(0, length(bez_fig[,1])-2) # note you always lose two points
-                        for (a in 1:length(bez_fig_theta)){
-                                V1 = c(bez_fig[a+1,1],bez_fig[a+1,2]) - c(bez_fig[a,1],bez_fig[a,2])
-                                V2 = c(bez_fig[a+2,1],bez_fig[a+2,2]) - c(bez_fig[a+1,1],bez_fig[a+1,2])
-                                bez_fig_theta[a] = atan2(V2[2],V2[1]) - atan2(V1[2],V1[1])
-                                if (abs(bez_fig_theta[a]) > pi){
-                                        bez_fig_theta[a] = bez_fig_theta[a] - ((2*pi)*sign(bez_fig_theta[a]))
-                                }
-                        }
-                        ApEn <- approx_entropy(bez_fig_theta) 
-                        SampEn <- sample_entropy(bez_fig_theta)
+                        complexity_measures <- complexity(vertices, bezfig_len, ctrl_pts, ctrl_pts_rm)
+                        sinuosity <- complexity_measures[1]
+                        totabscurv <- complexity_measures[2]
+                        turnangle_sum <- complexity_measures[3]
+                        turnangle_mean <- complexity_measures[4]
+                        turnangle_SD <- complexity_measures[5]
+                        ApEn <- complexity_measures[6]
+                        SampEn <- complexity_measures[7]
                         
                         ### save variables to a row & subsequently a file ###
                         
-                        datarow <- c(name.tlf,PLstim,sinuosity,totabscurv,ApEn,SampEn,mt_clip,PLresp,raw_error_tot,raw_error_mean,raw_error_SD,raw_procSD,translation,scale,rotation,shape_error_tot,shape_error_mean,shape_error_SD,shape_procSD,raw_dtw_error_tot,raw_dtw_error_mean,raw_dtw_error_SD,raw_dtw_procSD,translation_dtw,scale_dtw,rotation_dtw,shape_dtw_error_tot,shape_dtw_error_mean,shape_dtw_error_SD,shape_dtw_procSD,rep(NA,times=1))
+                        datarow <- c(name.tlf,PLstim,sinuosity,totabscurv,turnangle_sum,turnangle_mean,turnangle_SD,ApEn,SampEn,mt_clip,PLresp,raw_error_tot,raw_error_mean,raw_error_SD,raw_procSD,translation,scale,rotation,shape_error_tot,shape_error_mean,shape_error_SD,shape_procSD,raw_dtw_error_tot,raw_dtw_error_mean,raw_dtw_error_SD,raw_dtw_procSD,translation_dtw,scale_dtw,rotation_dtw,shape_dtw_error_tot,shape_dtw_error_mean,shape_dtw_error_SD,shape_dtw_procSD,rep(NA,times=1))
                 }
         }
         return(datarow)
@@ -582,84 +463,16 @@ MI_anal = function(tlf, tlfp, tlfs){
         
         
         ### COMPLEXITY MEASURES ###
+        complexity_measures <- complexity(vertices, bezfig_len, ctrl_pts, ctrl_pts_rm)
+        sinuosity <- complexity_measures[1]
+        totabscurv <- complexity_measures[2]
+        turnangle_sum <- complexity_measures[3]
+        turnangle_mean <- complexity_measures[4]
+        turnangle_SD <- complexity_measures[5]
+        ApEn <- complexity_measures[6]
+        SampEn <- complexity_measures[7]
         
-        ## Sinuosity
-        # (stimulus pathlength) / (perimeter of straight lines between segment points)
-        segs <- matrix()
-        for (j in 1:NROW(vertices)) {
-                seg_len <- sqrt((vertices[j+1,1]-vertices[j,1])^2 + (vertices[j+1,2]-vertices[j,2])^2)
-                segs <- rbind(segs, seg_len)
-        }
-        perimeter <- sum(segs, na.rm = TRUE)
-        pathlength <- bezfig_len
-        sinuosity <- pathlength/perimeter
-        
-        
-        ## Total Absolute Curvature
-        
-        # Calculate total absolute curvature of each segment and sum:
-        # note, this essentially misses the spikes in curvature created by
-        # segment intersections. Consider using turning angle.
-        n_segs <- 5
-        t <- seq(0, 1, length=300/n_segs)
-        totabscurv <- (integrate(
-                splinefun(
-                        x = t, y = abs(
-                                bcurv(t, ctrl_pts[1:3,])
-                        )
-                )
-                , min(t), max(t))
-        )$value + (integrate(
-                splinefun(
-                        x = t, y = abs(
-                                bcurv(t, ctrl_pts[4:6,])
-                        )
-                )
-                , min(t), max(t))
-        )$value +(integrate(
-                splinefun(
-                        x = t, y = abs(
-                                bcurv(t, ctrl_pts[7:9,])
-                        )
-                )
-                , min(t), max(t))
-        )$value +(integrate(
-                splinefun(
-                        x = t, y = abs(
-                                bcurv(t, ctrl_pts[10:12,])
-                        )
-                )
-                , min(t), max(t))
-        )$value +(integrate(
-                splinefun(
-                        x = t, y = abs(
-                                bcurv(t, ctrl_pts[13:15,])
-                        )
-                )
-                , min(t), max(t))
-        )$value
-        
-        
-        ## approximate entropy / sample entropy ##
-        
-        # using bez curve without equally distant points (doesn't change values)
-        t <- seq(0, 5, length=300) # t for five curves
-        bez_fig <- bezier::bezier(t, ctrl_pts_rm, deg=2) # create bez fig with 300 points
-        # create "turning angle" sequence, reducing 2D (x,y) to 1D (relative angle)
-        # note, this is valid as stimulus trajectories move at constant velocity
-        bez_fig_theta <- rep(0, length(bez_fig[,1])-2) # note you always lose two points
-        for (a in 1:length(bez_fig_theta)){
-                V1 = c(bez_fig[a+1,1],bez_fig[a+1,2]) - c(bez_fig[a,1],bez_fig[a,2])
-                V2 = c(bez_fig[a+2,1],bez_fig[a+2,2]) - c(bez_fig[a+1,1],bez_fig[a+1,2])
-                bez_fig_theta[a] = atan2(V2[2],V2[1]) - atan2(V1[2],V1[1])
-                if (abs(bez_fig_theta[a]) > pi){
-                        bez_fig_theta[a] = bez_fig_theta[a] - ((2*pi)*sign(bez_fig_theta[a]))
-                }
-        }
-        ApEn <- approx_entropy(bez_fig_theta) # note, increasing length of sequence decreases both significantly... 
-        SampEn <- sample_entropy(bez_fig_theta) # sample entropy isn't supposed to be like that... what gives? 
-        
-        datarow <- c(name.tlf,PLstim,sinuosity,totabscurv,ApEn,SampEn,rep(NA,times=25))
+        datarow <- c(name.tlf,PLstim,sinuosity,totabscurv,turnangle_sum,turnangle_mean,turnangle_SD,ApEn,SampEn,rep(NA,times=25))
         return(datarow)
 }
 
@@ -747,84 +560,16 @@ CC_anal = function(tlf, tlfp, tlfs){
         
         
         ### COMPLEXITY MEASURES ###
+        complexity_measures <- complexity(vertices, bezfig_len, ctrl_pts, ctrl_pts_rm)
+        sinuosity <- complexity_measures[1]
+        totabscurv <- complexity_measures[2]
+        turnangle_sum <- complexity_measures[3]
+        turnangle_mean <- complexity_measures[4]
+        turnangle_SD <- complexity_measures[5]
+        ApEn <- complexity_measures[6]
+        SampEn <- complexity_measures[7]
         
-        ## Sinuosity
-        # (stimulus pathlength) / (perimeter of straight lines between segment points)
-        segs <- matrix()
-        for (j in 1:NROW(vertices)) {
-                seg_len <- sqrt((vertices[j+1,1]-vertices[j,1])^2 + (vertices[j+1,2]-vertices[j,2])^2)
-                segs <- rbind(segs, seg_len)
-        }
-        perimeter <- sum(segs, na.rm = TRUE)
-        pathlength <- bezfig_len
-        sinuosity <- pathlength/perimeter
-        
-        
-        ## Total Absolute Curvature
-        
-        # Calculate total absolute curvature of each segment and sum:
-        # note, this essentially misses the spikes in curvature created by
-        # segment intersections. Consider using turning angle.
-        n_segs <- 5
-        t <- seq(0, 1, length=300/n_segs)
-        totabscurv <- (integrate(
-                splinefun(
-                        x = t, y = abs(
-                                bcurv(t, ctrl_pts[1:3,])
-                        )
-                )
-                , min(t), max(t))
-        )$value + (integrate(
-                splinefun(
-                        x = t, y = abs(
-                                bcurv(t, ctrl_pts[4:6,])
-                        )
-                )
-                , min(t), max(t))
-        )$value +(integrate(
-                splinefun(
-                        x = t, y = abs(
-                                bcurv(t, ctrl_pts[7:9,])
-                        )
-                )
-                , min(t), max(t))
-        )$value +(integrate(
-                splinefun(
-                        x = t, y = abs(
-                                bcurv(t, ctrl_pts[10:12,])
-                        )
-                )
-                , min(t), max(t))
-        )$value +(integrate(
-                splinefun(
-                        x = t, y = abs(
-                                bcurv(t, ctrl_pts[13:15,])
-                        )
-                )
-                , min(t), max(t))
-        )$value
-        
-        
-        ## approximate entropy / sample entropy ##
-        
-        # using bez curve without equally distant points (doesn't change values)
-        t <- seq(0, 5, length=300) # t for five curves
-        bez_fig <- bezier::bezier(t, ctrl_pts_rm, deg=2) # create bez fig with 300 points
-        # create "turning angle" sequence, reducing 2D (x,y) to 1D (relative angle)
-        # note, this is valid as stimulus trajectories move at constant velocity
-        bez_fig_theta <- rep(0, length(bez_fig[,1])-2) # note you always lose two points
-        for (a in 1:length(bez_fig_theta)){
-                V1 = c(bez_fig[a+1,1],bez_fig[a+1,2]) - c(bez_fig[a,1],bez_fig[a,2])
-                V2 = c(bez_fig[a+2,1],bez_fig[a+2,2]) - c(bez_fig[a+1,1],bez_fig[a+1,2])
-                bez_fig_theta[a] = atan2(V2[2],V2[1]) - atan2(V1[2],V1[1])
-                if (abs(bez_fig_theta[a]) > pi){
-                        bez_fig_theta[a] = bez_fig_theta[a] - ((2*pi)*sign(bez_fig_theta[a]))
-                }
-        }
-        ApEn <- approx_entropy(bez_fig_theta) # note, increasing length of sequence decreases both significantly... 
-        SampEn <- sample_entropy(bez_fig_theta) # sample entropy isn't supposed to be like that... what gives? 
-        
-        datarow <- c(name.tlf,PLstim,sinuosity,totabscurv,ApEn,SampEn,rep(NA,times=24), corr.resp)
+        datarow <- c(name.tlf,PLstim,sinuosity,totabscurv,turnangle_sum,turnangle_mean,turnangle_SD,ApEn,SampEn,rep(NA,times=24), corr.resp)
         return(datarow)
 }
 
@@ -906,13 +651,13 @@ if(nrow(trials)==0){
         
         # change output to df
         df.out.file <- data.frame(out.file[-1,],stringsAsFactors = FALSE)
-        colnames(df.out.file) <- c("figure_file","PLstim","sinuosity","totabscurv","ApEn","SampEn","mt_clip","PLresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSD","raw_dtw_error_tot","raw_dtw_error_mean","raw_dtw_error_SD","raw_dtw_procSD","translation_dtw","scale_dtw","rotation_dtw","shape_dtw_error_tot","shape_dtw_error_mean","shape_dtw_error_SD","shape_dtw_procSD","correct_response")
+        colnames(df.out.file) <- c("figure_file","PLstim","sinuosity","totabscurv","turnangle_sum","turnangle_mean","turnangle_SD","ApEn","SampEn","mt_clip","PLresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSD","raw_dtw_error_tot","raw_dtw_error_mean","raw_dtw_error_SD","raw_dtw_procSD","translation_dtw","scale_dtw","rotation_dtw","shape_dtw_error_tot","shape_dtw_error_mean","shape_dtw_error_SD","shape_dtw_procSD","correct_response")
         
         # combine proc_df with db
         all_data_new <- merge(trials,df.out.file,by="figure_file")
         colnames(participants)[1] <- paste("participant_id")
         all_data_new <- merge(participants[,c(1,4:6)],all_data_new,by="participant_id")
-        all_data_new <- all_data_new[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","sinuosity","totabscurv","ApEn","SampEn","trace_file","rt","it","mt","mt_clip","PLresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSD","raw_dtw_error_tot","raw_dtw_error_mean","raw_dtw_error_SD","raw_dtw_procSD","translation_dtw","scale_dtw","rotation_dtw","shape_dtw_error_tot","shape_dtw_error_mean","shape_dtw_error_SD","shape_dtw_procSD","control_question","control_response","correct_response")]
+        all_data_new <- all_data_new[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","sinuosity","totabscurv","turnangle_sum","turnangle_mean","turnangle_SD","ApEn","SampEn","trace_file","rt","it","mt","mt_clip","PLresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSD","raw_dtw_error_tot","raw_dtw_error_mean","raw_dtw_error_SD","raw_dtw_procSD","translation_dtw","scale_dtw","rotation_dtw","shape_dtw_error_tot","shape_dtw_error_mean","shape_dtw_error_SD","shape_dtw_procSD","control_question","control_response","correct_response")]
         
         # change data to numeric where appropriate #
         all_data_new$condition <- as.factor(all_data_new$condition)
@@ -920,6 +665,9 @@ if(nrow(trials)==0){
         all_data_new$PLstim <- as.numeric(all_data_new$PLstim)
         all_data_new$sinuosity <- as.numeric(all_data_new$sinuosity)
         all_data_new$totabscurv <- as.numeric(all_data_new$totabscurv)
+        all_data_new$turnangle_sum <- as.numeric(all_data_new$turnangle_sum)
+        all_data_new$turnangle_mean <- as.numeric(all_data_new$turnangle_mean)
+        all_data_new$turnangle_SD <- as.numeric(all_data_new$turnangle_SD)
         all_data_new$ApEn <- as.numeric(all_data_new$ApEn)
         all_data_new$SampEn <- as.numeric(all_data_new$SampEn)
         all_data_new$mt_clip <- as.numeric(all_data_new$mt_clip)
@@ -963,7 +711,7 @@ if(nrow(trials)==0){
                 , abs_dtw_error_mean = raw_dtw_error_mean - shape_dtw_error_mean
                 , abs_dtw_error_SD = raw_dtw_error_SD - shape_dtw_error_SD
         ) # and reorder one last time:
-        all_data_new <- all_data_new[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","sinuosity","totabscurv","ApEn","SampEn","trace_file","rt","it","mt","mt_clip","PLresp","vresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSD","raw_dtw_error_tot","raw_dtw_error_mean","raw_dtw_error_SD","raw_dtw_procSD","translation_dtw","scale_dtw","rotation_dtw","shape_dtw_error_tot","shape_dtw_error_mean","shape_dtw_error_SD","shape_dtw_procSD","abs_dtw_error_mean","abs_dtw_error_SD","control_question","control_response","correct_response")]
+        all_data_new <- all_data_new[c("participant_id","sex","age","handedness","condition","session_num","block_num","trial_num","figure","figure_type","figure_file","stimulus_gt","stimulus_mt","avg_velocity","path_length","PLstim","sinuosity","totabscurv","turnangle_sum","turnangle_mean","turnangle_SD","ApEn","SampEn","trace_file","rt","it","mt","mt_clip","PLresp","vresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSD","raw_dtw_error_tot","raw_dtw_error_mean","raw_dtw_error_SD","raw_dtw_procSD","translation_dtw","scale_dtw","rotation_dtw","shape_dtw_error_tot","shape_dtw_error_mean","shape_dtw_error_SD","shape_dtw_procSD","abs_dtw_error_mean","abs_dtw_error_SD","control_question","control_response","correct_response")]
         
         # simplify figure to random or repeat
         all_data_new$figure <- as.factor(gsub("fig1","repeated", all_data_new$figure))
