@@ -22,7 +22,7 @@ dat.lm <- subset(dat.lm, (session_num == 1) | (session_num == 5))
 # get rid of unfinished participants:
 dat.lm <- dplyr::filter(
         .data = dat.lm
-        , participant_id < 46
+        , participant_id < 62
 )
 
 ## FILL IN MI GROUP MISSING DAY 1 FROM PP(no feedback) GROUP DAY 1:
@@ -100,22 +100,22 @@ for(i in 1:nrow(dat.lm)){
         }
 }
 
-# get rid of extreme values and NA's
-dat.lm <- dplyr::filter(
-        .data = dat.lm
-        # , shape_dtw_error_mean < 300
-        , !is.na(shape_dtw_error_mean)
-)
+# # get rid of extreme values and NA's
+# dat.lm <- dplyr::filter(
+#         .data = dat.lm
+#         # , shape_dtw_error_mean < 300
+#         , !is.na(shape_dtw_error_mean)
+# )
 
 # plot to see if makes sense:
-ggplot(subset(dat.lm, (figure_type == "repeated") & ((session_num == 1) | (session_num == 5)))
+ggplot(subset(dat.lm, ((session_num == 1) | (session_num == 5)))
        , mapping = aes(
                x = vresp, y = shape_dtw_error_mean
-               , color = factor(session_num)
+               , color = factor(figure_type)
        )) + geom_point(na.rm = TRUE, alpha = .5) + 
         geom_smooth(na.rm = TRUE) + 
         theme_minimal() +
-        facet_grid(. ~ condition) +
+        facet_grid(session_num ~ condition) +
         labs(title = "Shape DTW Error"
              , x = "Velocity"
              , y = "Shape DTW Error"
