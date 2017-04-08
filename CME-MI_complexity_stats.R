@@ -66,19 +66,19 @@ ggplot(dat.lm
              , color = "ApEn") + 
         scale_colour_gradientn(colours=rev(rainbow(3)))
 
-ggplot(dat.lm
-       , mapping = aes(
-               x = (vresp*0.2715/1000), y = (shape_dtw_error_mean*0.2715)
-               , color = log(totabscurv)
-       )) + geom_point(na.rm = TRUE, alpha = .5) + 
-        # geom_smooth(na.rm = TRUE) + 
-        theme_minimal() +
-        facet_grid(. ~ condition) +
-        labs(title = "Effect of log Total Absolute Curvature on Error"
-             , x = "Velocity (mm / ms)"
-             , y = "Shape DTW Error (mm)"
-             , color = "log Total Absolute Curvature") + 
-        scale_colour_gradientn(colours=rev(rainbow(3)))
+# ggplot(dat.lm
+#        , mapping = aes(
+#                x = (vresp*0.2715/1000), y = (shape_dtw_error_mean*0.2715)
+#                , color = log(totabscurv)
+#        )) + geom_point(na.rm = TRUE, alpha = .5) + 
+#         # geom_smooth(na.rm = TRUE) + 
+#         theme_minimal() +
+#         facet_grid(. ~ condition) +
+#         labs(title = "Effect of log Total Absolute Curvature on Error"
+#              , x = "Velocity (mm / ms)"
+#              , y = "Shape DTW Error (mm)"
+#              , color = "log Total Absolute Curvature") + 
+#         scale_colour_gradientn(colours=rev(rainbow(3)))
 
 ggplot(dat.lm
        , mapping = aes(
@@ -184,18 +184,18 @@ ggplot(dat.lm
              , y = "Shape DTW Error (mm)"
              , color = "ApEn")
 
-ggplot(dat.lm
-       , mapping = aes(
-               x = (vresp*0.2715/1000), y = (shape_dtw_error_mean*0.2715)
-               , color = as.factor(totabscurvBin)
-       )) + geom_point(na.rm = TRUE, alpha = .5) + 
-        geom_smooth(na.rm = TRUE) + 
-        theme_minimal() +
-        facet_grid(. ~ condition) +
-        labs(title = "Effect of log Total Absolute Curvature on Error"
-             , x = "Velocity (mm / ms)"
-             , y = "Shape DTW Error (mm)"
-             , color = "log Total Absolute Curvature")
+# ggplot(dat.lm
+#        , mapping = aes(
+#                x = (vresp*0.2715/1000), y = (shape_dtw_error_mean*0.2715)
+#                , color = as.factor(totabscurvBin)
+#        )) + geom_point(na.rm = TRUE, alpha = .5) + 
+#         geom_smooth(na.rm = TRUE) + 
+#         theme_minimal() +
+#         facet_grid(. ~ condition) +
+#         labs(title = "Effect of log Total Absolute Curvature on Error"
+#              , x = "Velocity (mm / ms)"
+#              , y = "Shape DTW Error (mm)"
+#              , color = "log Total Absolute Curvature")
 
 ggplot(dat.lm
        , mapping = aes(
@@ -244,20 +244,20 @@ summary(error.sin.lm, cor = TRUE)
 error.ApEn.lm <- lm(shape_dtw_error_mean ~ vresp * ApEn, data=dat.lm)
 summary(error.ApEn.lm, cor = TRUE)
 
-error.curv.lm <- lm(shape_dtw_error_mean ~ vresp * totabscurv, data=dat.lm)
-summary(error.curv.lm, cor = TRUE)
+# error.curv.lm <- lm(shape_dtw_error_mean ~ vresp * totabscurv, data=dat.lm)
+# summary(error.curv.lm, cor = TRUE)
 
 error.turn.lm <- lm(shape_dtw_error_mean ~ vresp * turnangle_sum, data=dat.lm)
 summary(error.turn.lm, cor = TRUE) # interaction! 
 # interaction is interesting... look at plot. 
 # it means at lower speeds people handle complexity fine but higher speeds they don't.
 
-## might multiple regression has masking effect on main effects?
+## might multiple regression have a masking effect on main effects?
 error.turn.lm1 <- lm(shape_dtw_error_mean ~ turnangle_sum, data=dat.lm)
 summary(error.turn.lm1, cor = TRUE)
 error.speed.lm1 <- lm(shape_dtw_error_mean ~ vresp, data=dat.lm)
 summary(error.speed.lm1, cor = TRUE)
-# YES... interesting... 
+# YES... interesting... but it's ok... just stick with discussing interaction.
 
 
 
