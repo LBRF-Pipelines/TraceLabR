@@ -2,7 +2,7 @@
 
 rm(list=setdiff(ls(), c())) # clear all
 graphics.off() # clear figures
-cat("\014") # clear console
+# cat("\014") # clear console
 
 library(tidyverse)
 
@@ -117,4 +117,6 @@ ggplot(df, mapping = aes(
 # b_sd <- sd(subset(df, df$speed < quantile(df$speed,1/4))$error)
 # c_mean <- (a_mean - b_mean) / (max(df$speed) - min(df$speed)) #(quantile(df$speed,7/8) - quantile(df$speed,1/8))
 # d_mean <- mean(subset(df, (df$error < mean(df$error)*1.1) & (df$error > mean(df$error)*0.9))$speed)
-# 
+
+
+save(df, file = "df.Rda")
