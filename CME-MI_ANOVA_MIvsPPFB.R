@@ -20,11 +20,11 @@ set.seed(1)
 dat.anova <- dat
 dat.anova <- subset(dat.anova, (condition == "PP-VR-5") | (condition == "MI-00-5"))
 dat.anova <- subset(dat.anova, (session_num == 1) | (session_num == 5))
-# get rid of unfinished participants:
-dat.anova <- dplyr::filter(
-        .data = dat.anova
-        , participant_id < 62
-)
+# # get rid of unfinished participants:
+# dat.anova <- dplyr::filter(
+#         .data = dat.anova
+#         , participant_id < 62
+# )
 
 # quick look at data:
 #ezPrecis(dat.anova)
@@ -114,10 +114,10 @@ for(i in 1:nrow(dat.anova)){
 dat.anova1 <- dat.anova # back up data for filtering below
 
 # get rid of extreme values
-dat.anova <- dplyr::filter(
-        .data = dat.anova
-        , shape_dtw_error_mean < 400
-)
+# dat.anova <- dplyr::filter(
+#         .data = dat.anova
+#         , shape_dtw_error_mean < 400
+# )
 
 # plot to see if makes sense:
 ggplot(subset(dat.anova, ((session_num == 1) | (session_num == 5)))
@@ -131,7 +131,8 @@ ggplot(subset(dat.anova, ((session_num == 1) | (session_num == 5)))
         labs(title = "Shape DTW Error"
              , x = "Velocity"
              , y = "Shape DTW Error"
-             , color = "Trial Type")
+             , color = "Trial Type") +
+        lims(x = c(0, 5000), y = c(0, 300))
 
 # constrain speed:
 vmed <- median(dat.anova$vresp, na.rm = TRUE)
@@ -148,7 +149,7 @@ errorANOVA <- ezANOVA(
         data = dat.anova
         , dv = shape_dtw_error_mean
         , wid = participant_id
-        , within = .(session_num_as_fac, figure_type)
+        , within = .(session_num, figure_type)
         , between = condition
         , type = 2
 )
@@ -308,22 +309,25 @@ print(MIlearn5)
 # 
 # 
 # 
-# # participant characterization:
-# 
-# participants <- read.csv("~/Documents/RStudio/TraceLabDB/participants.csv")
-# participants <- subset(participants, (id < 44))
-# 
-# PPage_mean <- mean(participants[PPvrIDs,]$age)
-# PPage_SD <- sd(participants[PPvrIDs,]$age)
-# 
-# MIage_mean <- mean(participants[MIIDs,]$age)
-# MIage_SD <- sd(participants[MIIDs,]$age)
-# 
-# PPsex <- summary(as.factor(participants[PPvrIDs,]$sex))
-# MIsex <- summary(as.factor(participants[MIIDs,]$sex))
-# 
-# PPhand <- summary(as.factor(participants[PPvrIDs,]$handedness))
-# MIhand <- summary(as.factor(participants[MIIDs,]$handedness))
-# 
-# # PPvrIDs <- unique(subset(dat.anova, (condition == "PP-VR-5"))$participant_id)
-# # MIIDs <- unique(subset(dat.anova, (condition == "MI-00-5"))$participant_id)
+# participant characterization:
+
+participants <- read.csv("~/Documents/RStudio/TraceLabDB/participants.csv")
+#participants <- subset(participants, (id < 44))
+PPvrIDs <- unique(subset(dat.anova, (condition == "PP-VR-5"))$participant_id)
+MIIDs <- unique(subset(dat.anova, (condition == "MI-00-5"))$participant_id)
+
+PPage_mean <- mean(participants[PPvrIDs,]$age)
+PPage_SD <- sd(participants[PPvrIDs,]$age)
+
+MIage_mean <- mean(participants[MIIDs,]$age)
+MIage_SD <- sd(participants[MIIDs,]$age)
+
+PPandMIage_mean <- mean(participants[c(PPvrIDs,MIIDs),]$age)
+PPandMIage_SD <- sd(participants[c(PPvrIDs,MIIDs),]$age)
+
+PPsex <- summary(as.factor(participants[PPvrIDs,]$sex))
+MIsex <- summary(as.factor(participants[MIIDs,]$sex))
+
+PPhand <- summary(as.factor(participants[PPvrIDs,]$handedness))
+MIhand <- summary(as.factor(participants[MIIDs,]$handedness))
+
