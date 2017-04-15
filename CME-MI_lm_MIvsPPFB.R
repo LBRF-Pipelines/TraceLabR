@@ -9,7 +9,7 @@ load("all_data.Rda")
 dat <- dplyr::filter(
         .data = all_data
 )
-dat$session_num_as_fac = factor(dat$session_num)
+#dat$session_num_as_fac = factor(dat$session_num)
 
 
 #### MULTIPLE REGRESSION ####
@@ -19,11 +19,11 @@ set.seed(1)
 dat.lm <- dat
 dat.lm <- subset(dat.lm, (condition == "PP-VR-5") | (condition == "MI-00-5"))
 dat.lm <- subset(dat.lm, (session_num == 1) | (session_num == 5))
-# get rid of unfinished participants:
-dat.lm <- dplyr::filter(
-        .data = dat.lm
-        , participant_id < 62
-)
+# # get rid of unfinished participants:
+# dat.lm <- dplyr::filter(
+#         .data = dat.lm
+#         , participant_id < 62
+# )
 
 ## FILL IN MI GROUP MISSING DAY 1 FROM PP(no feedback) GROUP DAY 1:
 
@@ -108,22 +108,32 @@ for(i in 1:nrow(dat.lm)){
 # )
 
 # plot to see if makes sense:
-ggplot(subset(dat.lm, ((session_num == 1) | (session_num == 5)))
-       , mapping = aes(
-               x = vresp, y = shape_dtw_error_mean
-               , color = factor(figure_type)
-       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+PPvsMIplot <- ggplot(subset(dat.lm, ((session_num == 1) | (session_num == 5)))
+                     , mapping = aes(
+                             x = (vresp*0.2715), y = (shape_dtw_error_mean*0.2715)
+                             , color = factor(figure_type)
+                     )) + geom_point(na.rm = TRUE, alpha = .25) + 
         geom_smooth(na.rm = TRUE) + 
         theme_minimal() +
         facet_grid(session_num ~ condition) +
-        labs(title = "Shape DTW Error"
-             , x = "Velocity"
-             , y = "Shape DTW Error"
-             , color = "Session")
+        labs(title = "Shape Error"
+             , x = "Velocity (mm / s)"
+             , y = "Shape Error (mm)"
+             , color = "Figure Type") +
+        lims(x = c(0, 5000*0.2715), y = c(0, 300*0.2715))
+print(PPvsMIplot)
+
+# ggsave(
+#         filename = "PPvsMIplot.png"
+#         , plot = PPvsMIplot
+#         , width = 6 #inches
+#         , height = 6
+#         , dpi = 150
+# )
 
 # run an absolutely ridiculous multiple regression:
 
-error.lm <- lm(shape_dtw_error_mean ~ vresp * session_num_as_fac * figure_type * condition, data=dat.lm)
+error.lm <- lm(shape_dtw_error_mean ~ vresp * session_num * figure_type * condition, data=dat.lm)
 summary(error.lm)
 
 # hard to interpret... so, we really should do a "multilevel model":
@@ -131,8 +141,8 @@ summary(error.lm)
 library(lme4)
 
 # treating participant as a random effect and all others as fixed effects, with lots of interactions:
-error.multilevel.lm1 <- lmer(shape_dtw_error_mean ~ vresp * session_num_as_fac * figure_type * condition + (1 | participant_id), data=dat.lm)
-# summary(error.multilevel.lm1)
+error.multilevel.lm1 <- lmer(shape_dtw_error_mean ~ vresp * session_num * figure_type * condition + (1 | participant_id), data=dat.lm)
+summary(error.multilevel.lm1)
 # extract coefficients
 coefs1 <- data.frame(coef(summary(error.multilevel.lm1)))
 # use normal distribution to approximate p-value (not very conservative)
