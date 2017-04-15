@@ -35,13 +35,11 @@ for(i in 1:nrow(df)){
         n = 1
         SD = 10
         
-        a = 150 + (ifelse(df$condition[i] == "PP-VR-5", -25, 0))
-        b = 50
+        a = 150 + (ifelse(df$condition[i] == "PP-VR-5", -25, 0)) # feedback group does better overall regardless of anything else.
+        b = 75 + (ifelse(df$condition[i] == "PP-VR-5", -25, 0)) # as per above
         c = .002
-        d = 1000 + (ifelse(df$session[i] == 5, 500, 0)) # +
-                # (ifelse(df$figure_type[i] == "repeated", 500, 0)) +
-                # (ifelse((df$session[i] == 5) & (df$figure_type[i] == "repeated"), 500, 0)) +
-                # (ifelse(df$condition[i] == "PP-VR-5", 500, 0))
+        d = 1000 + (ifelse(df$figure_type[i] == "repeated", 500, 0)) + # repeated are better by default,
+                (ifelse(((df$session[i] == 5) & (df$figure_type[i] == "repeated")), 500, 0)) # and even better after training.
         
         speed = sample(seq(100,6000, length.out = 1000)
                        , n, replace = TRUE
@@ -53,6 +51,11 @@ for(i in 1:nrow(df)){
                       , (b + ((a - b) / (1 + (exp(-(c*(speed-d)))))))
                       , SD
                       )
+        
+        # a = upper asymptote
+        # b = lower asymptote
+        # c = steepest slope
+        # d = shift at steepest slope
         
         df[i,5] = speed
         df[i,6] = error
@@ -66,11 +69,11 @@ df$figure_type <- as.factor(df$figure_type)
 # plot effect of day:
 ggplot(df, mapping = aes(
                x = speed, y = error
-               , color = factor(session)
-       )) + geom_point(na.rm = TRUE, alpha = .5) +
+               , color = factor(figure_type)
+       )) + geom_point(na.rm = TRUE, alpha = .25) +
         geom_smooth(na.rm = TRUE) +
         theme_minimal() +
-        facet_grid(figure_type ~ condition) +
+        facet_grid(session ~ condition) +
         labs(title = "SAF"
              , x = "Velocity"
              , y = "Error"
