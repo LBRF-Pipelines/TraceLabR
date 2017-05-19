@@ -15,7 +15,7 @@ dat <- dplyr::filter(
         .data = all_data
 )
 # choose groups, and days:
-# dat <- subset(dat, (condition == "PP-VV-5") | (condition == "PP-VR-5"))
+dat <- subset(dat, (condition == "PP-VV-5") | (condition == "PP-VR-5"))
 # dat <- subset(dat, (session_num == 1) | (session_num == 5))
 dat <- dplyr::filter(
         .data = dat
@@ -3269,7 +3269,7 @@ ggplot(subset(dat, ((session_num == 1) | (session_num == 5)))
 
 
 
-#### Model 8: use all days ####
+#### Model 8: use all days, blocks, and only PP's ####
 
 # note that you have to change how much data you're using in the setup. 
 # so alter SET UP DATA above.
@@ -3311,73 +3311,39 @@ unique(subset(dat, (PPFB == 1))$participant)
 # should change them in a logical way... 1:15, 16:30 like this: 
 
 dat1 <- dat
-# CC group participants 1:15:
-dat$participant[dat1$participant==5] <- 1
-dat$participant[dat1$participant==10] <- 2
-dat$participant[dat1$participant==11] <- 3
-dat$participant[dat1$participant==12] <- 4
-dat$participant[dat1$participant==24] <- 5
-dat$participant[dat1$participant==25] <- 6
-dat$participant[dat1$participant==26] <- 7
-dat$participant[dat1$participant==27] <- 8
-dat$participant[dat1$participant==28] <- 9
-dat$participant[dat1$participant==31] <- 10
-dat$participant[dat1$participant==34] <- 11
-dat$participant[dat1$participant==38] <- 12
-dat$participant[dat1$participant==54] <- 13
-dat$participant[dat1$participant==63] <- 14
-dat$participant[dat1$participant==65] <- 15
+# PP (no feedback) group participants 1:15:
+dat$participant[dat1$participant==3] <- 1
+dat$participant[dat1$participant==8] <- 2
+dat$participant[dat1$participant==9] <- 3
+dat$participant[dat1$participant==17] <- 4
+dat$participant[dat1$participant==18] <- 5
+dat$participant[dat1$participant==20] <- 6
+dat$participant[dat1$participant==21] <- 7
+dat$participant[dat1$participant==33] <- 8
+dat$participant[dat1$participant==39] <- 9
+dat$participant[dat1$participant==40] <- 10
+dat$participant[dat1$participant==41] <- 11
+dat$participant[dat1$participant==52] <- 12
+dat$participant[dat1$participant==55] <- 13
+dat$participant[dat1$participant==59] <- 14
+dat$participant[dat1$participant==66] <- 15
 
-# MI group participants 16:30:
-dat$participant[dat1$participant==1] <- 16
-dat$participant[dat1$participant==2] <- 17
-dat$participant[dat1$participant==14] <- 18
-dat$participant[dat1$participant==16] <- 19
-dat$participant[dat1$participant==23] <- 20
-dat$participant[dat1$participant==29] <- 21
-dat$participant[dat1$participant==32] <- 22
-dat$participant[dat1$participant==37] <- 23
-dat$participant[dat1$participant==43] <- 24
-dat$participant[dat1$participant==45] <- 25
-dat$participant[dat1$participant==56] <- 26
-dat$participant[dat1$participant==58] <- 27
-dat$participant[dat1$participant==61] <- 28
-dat$participant[dat1$participant==64] <- 29
-dat$participant[dat1$participant==67] <- 30
-
-# PP (no feedback) group participants 31:45:
-dat$participant[dat1$participant==3] <- 31
-dat$participant[dat1$participant==8] <- 32
-dat$participant[dat1$participant==9] <- 33
-dat$participant[dat1$participant==17] <- 34
-dat$participant[dat1$participant==18] <- 35
-dat$participant[dat1$participant==20] <- 36
-dat$participant[dat1$participant==21] <- 37
-dat$participant[dat1$participant==33] <- 38
-dat$participant[dat1$participant==39] <- 39
-dat$participant[dat1$participant==40] <- 40
-dat$participant[dat1$participant==41] <- 41
-dat$participant[dat1$participant==52] <- 42
-dat$participant[dat1$participant==55] <- 43
-dat$participant[dat1$participant==59] <- 44
-dat$participant[dat1$participant==66] <- 45
-
-# PPFB group participants 46:60:
-dat$participant[dat1$participant==4] <- 46
-dat$participant[dat1$participant==6] <- 47
-dat$participant[dat1$participant==7] <- 48
-dat$participant[dat1$participant==13] <- 49
-dat$participant[dat1$participant==15] <- 50
-dat$participant[dat1$participant==19] <- 51
-dat$participant[dat1$participant==22] <- 52
-dat$participant[dat1$participant==30] <- 53
-dat$participant[dat1$participant==35] <- 54
-dat$participant[dat1$participant==42] <- 55
-dat$participant[dat1$participant==44] <- 56
-dat$participant[dat1$participant==53] <- 57
-dat$participant[dat1$participant==57] <- 58
-dat$participant[dat1$participant==60] <- 59
-dat$participant[dat1$participant==62] <- 60
+# PPFB group participants 16:30:
+dat$participant[dat1$participant==4] <- 16
+dat$participant[dat1$participant==6] <- 17
+dat$participant[dat1$participant==7] <- 18
+dat$participant[dat1$participant==13] <- 19
+dat$participant[dat1$participant==15] <- 20
+dat$participant[dat1$participant==19] <- 21
+dat$participant[dat1$participant==22] <- 22
+dat$participant[dat1$participant==30] <- 23
+dat$participant[dat1$participant==35] <- 24
+dat$participant[dat1$participant==42] <- 25
+dat$participant[dat1$participant==44] <- 26
+dat$participant[dat1$participant==53] <- 27
+dat$participant[dat1$participant==57] <- 28
+dat$participant[dat1$participant==60] <- 29
+dat$participant[dat1$participant==62] <- 30
 
 ## CHECK PARTICIPANT NUMBERS:
 unique(subset(dat, (CC == 1))$participant)
@@ -3391,7 +3357,7 @@ dat$Serror <- rescale(dat$shape_dtw_error_mean, to=c(0,1))
 dat$Sspeed <- rescale(dat$vresp, to=c(0,1))
 plot(dat$Sspeed,dat$Serror)
 
-saf.8.3 <- map2stan(
+saf.8 <- map2stan(
         alist(
                 # likelihood
                 Serror ~ dnorm( mu, sigma ),
@@ -3443,12 +3409,11 @@ saf.8.3 <- map2stan(
         #         a = "lower=0"
         # ),
         sample = TRUE,
-        iter = 1000,
-        warmup = 500,
+        iter = 2000,
+        warmup = 1000,
         chains = 1, 
         cores = 1 )
-save(saf.8.3, file = "saf8_3.Rda")
-saf.8 <- saf.8.3
+save(saf.8, file = "saf8.Rda")
 precis(saf.8, depth=2, digits = 4, pars=c("a","b","c","a_sigma","b_sigma")) 
 pairs(saf.8, pars=c("a","b","c","a_sigma","b_sigma"))
 dashboard(saf.8)
@@ -3467,9 +3432,6 @@ precis(saf.8, depth=2, digits = 4, pars=c("a_g","b_g","c_g",
 precis(saf.8, depth=2, digits = 4, pars=c("a_p")) 
 precis(saf.8, depth=2, digits = 4, pars=c("b_p")) 
 precis(saf.8, depth=2, digits = 4, pars=c("c_p")) 
-
-compare(saf.8,saf.8.3)
-plot(compare(saf.8,saf.8.3))
 
 #### PLOTS ####
 
@@ -3777,3 +3739,208 @@ ggplot(subset(dat, ((block_id == 1) | (block_id == 25)))
 # coord_cartesian(xlim = c(-2,2), ylim = c(-2,2))
 
 
+
+
+#### Model 9: use all days, blocks, groups ####
+
+# note that you have to change how much data you're using in the setup. 
+# so alter SET UP DATA above.
+
+library(rethinking)
+
+## SIMPLIFY VARIABLE NAMES ##
+dat$condition <- as.factor(gsub("MI-00-5","MI", dat$condition))
+dat$condition <- as.factor(gsub("CC-00-5","CC", dat$condition))
+dat$condition <- as.factor(gsub("PP-VV-5","PP", dat$condition))
+dat$condition <- as.factor(gsub("PP-VR-5","PPVR", dat$condition))
+# colnames(dat)[which(names(dat) == "vresp")] <- "speed"
+# colnames(dat)[which(names(dat) == "shape_dtw_error_mean")] <- "error"
+colnames(dat)[which(names(dat) == "participant_id")] <- "participant"
+
+## STANDARDIZE DATA ##
+dat$Zerror <- scale(dat$shape_dtw_error_mean)   # CHOOSE ERROR HERE
+dat$Zspeed <- scale(dat$vresp)                  # NOTE NAMING
+dat$session <- as.numeric(dat$session_num)
+dat$block_id <- as.integer(factor(with(dat, paste(session_num, block_num))))
+
+## DUMMY VARIABLES ##
+dat$rep <- ifelse(dat$figure_type=="repeated", 1, 0)
+dat$CC <- ifelse(dat$condition=="CC", 1, 0)
+dat$MI <- ifelse(dat$condition=="MI", 1, 0)
+dat$PP <- ifelse(dat$condition=="PP", 1, 0)
+dat$PPFB <- ifelse(dat$condition=="PPVR", 1, 0)
+
+## CATEGORICAL VARIABLES ##
+dat$group <- coerce_index(dat$condition) # CC = 1, MI = 2, PP = 3, PPVR = 4
+dat$fig_type <- coerce_index(dat$figure_type)
+
+## CHECK PARTICIPANT NUMBERS:
+unique(subset(dat, (CC == 1))$participant)
+unique(subset(dat, (MI == 1))$participant)
+unique(subset(dat, (PP == 1))$participant)
+unique(subset(dat, (PPFB == 1))$participant)
+
+# should change them in a logical way... 1:15, 16:30 like this: 
+
+dat1 <- dat
+# CC group participants 1:15:
+dat$participant[dat1$participant==5] <- 1
+dat$participant[dat1$participant==10] <- 2
+dat$participant[dat1$participant==11] <- 3
+dat$participant[dat1$participant==12] <- 4
+dat$participant[dat1$participant==24] <- 5
+dat$participant[dat1$participant==25] <- 6
+dat$participant[dat1$participant==26] <- 7
+dat$participant[dat1$participant==27] <- 8
+dat$participant[dat1$participant==28] <- 9
+dat$participant[dat1$participant==31] <- 10
+dat$participant[dat1$participant==34] <- 11
+dat$participant[dat1$participant==38] <- 12
+dat$participant[dat1$participant==54] <- 13
+dat$participant[dat1$participant==63] <- 14
+dat$participant[dat1$participant==65] <- 15
+
+# MI group participants 16:30:
+dat$participant[dat1$participant==1] <- 16
+dat$participant[dat1$participant==2] <- 17
+dat$participant[dat1$participant==14] <- 18
+dat$participant[dat1$participant==16] <- 19
+dat$participant[dat1$participant==23] <- 20
+dat$participant[dat1$participant==29] <- 21
+dat$participant[dat1$participant==32] <- 22
+dat$participant[dat1$participant==37] <- 23
+dat$participant[dat1$participant==43] <- 24
+dat$participant[dat1$participant==45] <- 25
+dat$participant[dat1$participant==56] <- 26
+dat$participant[dat1$participant==58] <- 27
+dat$participant[dat1$participant==61] <- 28
+dat$participant[dat1$participant==64] <- 29
+dat$participant[dat1$participant==67] <- 30
+
+# PP (no feedback) group participants 31:45:
+dat$participant[dat1$participant==3] <- 31
+dat$participant[dat1$participant==8] <- 32
+dat$participant[dat1$participant==9] <- 33
+dat$participant[dat1$participant==17] <- 34
+dat$participant[dat1$participant==18] <- 35
+dat$participant[dat1$participant==20] <- 36
+dat$participant[dat1$participant==21] <- 37
+dat$participant[dat1$participant==33] <- 38
+dat$participant[dat1$participant==39] <- 39
+dat$participant[dat1$participant==40] <- 40
+dat$participant[dat1$participant==41] <- 41
+dat$participant[dat1$participant==52] <- 42
+dat$participant[dat1$participant==55] <- 43
+dat$participant[dat1$participant==59] <- 44
+dat$participant[dat1$participant==66] <- 45
+
+# PPFB group participants 46:60:
+dat$participant[dat1$participant==4] <- 46
+dat$participant[dat1$participant==6] <- 47
+dat$participant[dat1$participant==7] <- 48
+dat$participant[dat1$participant==13] <- 49
+dat$participant[dat1$participant==15] <- 50
+dat$participant[dat1$participant==19] <- 51
+dat$participant[dat1$participant==22] <- 52
+dat$participant[dat1$participant==30] <- 53
+dat$participant[dat1$participant==35] <- 54
+dat$participant[dat1$participant==42] <- 55
+dat$participant[dat1$participant==44] <- 56
+dat$participant[dat1$participant==53] <- 57
+dat$participant[dat1$participant==57] <- 58
+dat$participant[dat1$participant==60] <- 59
+dat$participant[dat1$participant==62] <- 60
+
+## CHECK PARTICIPANT NUMBERS:
+unique(subset(dat, (CC == 1))$participant)
+unique(subset(dat, (MI == 1))$participant)
+unique(subset(dat, (PP == 1))$participant)
+unique(subset(dat, (PPFB == 1))$participant)
+
+## RESCALE data 0 to 1
+library(scales)
+dat$Serror <- rescale(dat$shape_dtw_error_mean, to=c(0,1))
+dat$Sspeed <- rescale(dat$vresp, to=c(0,1))
+plot(dat$Sspeed,dat$Serror)
+
+saf.9 <- map2stan(
+        alist(
+                # likelihood
+                Serror ~ dnorm( mu, sigma ),
+                
+                # model
+                mu <- inv_logit(A / (1 + (exp(-(B*(Sspeed-C)))))),
+                A <- a + a_g[group] + a_p[participant] + a_cond*rep + a_block*block_id +
+                        a_cond_g[group]*rep + a_block_g[group]*block_id + a_cond_block*rep*block_id +
+                        a_cond_block_g[group]*rep*block_id,
+                B <- b + b_g[group] + b_p[participant] + b_cond*rep + b_block*block_id +
+                        b_cond_g[group]*rep + b_block_g[group]*block_id + b_cond_block*rep*block_id +
+                        b_cond_block_g[group]*rep*block_id,
+                C <- inv_logit(c + c_g[group] + c_p[participant] + c_cond*rep + c_block*block_id +
+                                       c_cond_g[group]*rep + c_block_g[group]*block_id + c_cond_block*rep*block_id +
+                                       c_cond_block_g[group]*rep*block_id), # constrained 0 to 1 (given Sspeed)
+                
+                sigma <- inv_logit(a_sigma + b_sigma*Sspeed), # constrain 0 to 1 (given Serror)
+                
+                # adaptive priors
+                c(a_p,b_p,c_p)[participant] ~ dmvnormNC(sigma_participant,Rho_participant),
+                c(a_g,b_g,c_g,
+                  a_cond_g,b_cond_g,c_cond_g,
+                  a_block_g,b_block_g,c_block_g,
+                  a_cond_block_g,b_cond_block_g,c_cond_block_g)[group] ~ dmvnormNC(sigma_group,Rho_group),
+                
+                # fixed priors
+                c(a,b,c,
+                  a_cond, b_cond, c_cond,
+                  a_block, b_block, c_block,
+                  a_cond_block,b_cond_block,c_cond_block) ~ dnorm(0,1),
+                
+                sigma_participant~ dcauchy(0,2),
+                Rho_participant ~ dlkjcorr(2),
+                sigma_group ~ dcauchy(0,2),
+                Rho_group ~ dlkjcorr(2),
+                
+                a_sigma ~ dcauchy(0,2),
+                b_sigma ~ dnorm(0,1)
+        ) ,
+        data = dat,
+        # start = list(
+        #         a = mean(subset(dat, dat$Sspeed > quantile(dat$Sspeed,3/4))$Serror),
+        #         b = (mean(subset(dat, dat$Sspeed > quantile(dat$Sspeed,3/4))$Serror) - mean(subset(dat, dat$Sspeed < quantile(dat$Sspeed,1/4))$Serror)) / (max(dat$Sspeed) - min(dat$Sspeed)),
+        #         c = median(dat$Sspeed),
+        #         a_sigma = mean(sd(subset(dat, dat$Sspeed > quantile(dat$Sspeed,3/4))$Serror), sd(subset(dat, dat$Sspeed < quantile(dat$Sspeed,1/4))$Serror)),
+        #         b_sigma = 0.5
+        # ),
+        # constraints = list(
+        #         a = "lower=0"
+        # ),
+        sample = TRUE,
+        iter = 2000,
+        warmup = 1000,
+        chains = 1, 
+        cores = 1 )
+save(saf.9, file = "saf9.Rda")
+precis(saf.9, depth=2, digits = 4, pars=c("a","b","c","a_sigma","b_sigma")) 
+pairs(saf.9, pars=c("a","b","c","a_sigma","b_sigma"))
+dashboard(saf.9)
+plot(saf.9, pars=c("a","b","c","a_sigma","b_sigma"))
+stancode(saf.9)
+WAIC(saf.9)
+
+precis(saf.9, depth=2, digits = 4, pars=c("a","b","c","a_sigma","b_sigma",
+                                          "a_cond", "b_cond", "c_cond",
+                                          "a_block", "b_block", "c_block",
+                                          "a_cond_block","b_cond_block","c_cond_block")) 
+precis(saf.9, depth=2, digits = 4, pars=c("a_g","b_g","c_g",
+                                          "a_cond_g", "b_cond_g", "c_cond_g",
+                                          "a_block_g", "b_block_g", "c_block_g",
+                                          "a_cond_block_g","b_cond_block_g","c_cond_block_g")) 
+precis(saf.9, depth=2, digits = 4, pars=c("a_p")) 
+precis(saf.9, depth=2, digits = 4, pars=c("b_p")) 
+precis(saf.9, depth=2, digits = 4, pars=c("c_p")) 
+
+
+
+
+compare(saf.9)
+plot(compare(saf.9))
