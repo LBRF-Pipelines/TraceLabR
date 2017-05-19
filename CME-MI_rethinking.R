@@ -1695,46 +1695,51 @@ unique(subset(dat, (PP == 1))$participant)
 unique(subset(dat, (PPFB == 1))$participant)
 # should change them in a logical way... 1:15, 16:30
 
+dat1 <- dat
 # PP (no feedback) group participants 1:15:
-dat$participant[dat$participant==3] <- 1
-dat$participant[dat$participant==8] <- 2
-dat$participant[dat$participant==9] <- 3
-dat$participant[dat$participant==17] <- 4
-dat$participant[dat$participant==18] <- 5
-dat$participant[dat$participant==20] <- 6
-dat$participant[dat$participant==21] <- 7
-dat$participant[dat$participant==33] <- 8
-dat$participant[dat$participant==39] <- 9
-dat$participant[dat$participant==40] <- 10
-dat$participant[dat$participant==41] <- 11
-dat$participant[dat$participant==52] <- 12
-dat$participant[dat$participant==55] <- 13
-dat$participant[dat$participant==59] <- 14
-dat$participant[dat$participant==66] <- 15
+dat$participant[dat1$participant==3] <- 1
+dat$participant[dat1$participant==8] <- 2
+dat$participant[dat1$participant==9] <- 3
+dat$participant[dat1$participant==17] <- 4
+dat$participant[dat1$participant==18] <- 5
+dat$participant[dat1$participant==20] <- 6
+dat$participant[dat1$participant==21] <- 7
+dat$participant[dat1$participant==33] <- 8
+dat$participant[dat1$participant==39] <- 9
+dat$participant[dat1$participant==40] <- 10
+dat$participant[dat1$participant==41] <- 11
+dat$participant[dat1$participant==52] <- 12
+dat$participant[dat1$participant==55] <- 13
+dat$participant[dat1$participant==59] <- 14
+dat$participant[dat1$participant==66] <- 15
 
 # PPFB group participants 16:30:
-dat$participant[dat$participant==4] <- 16
-dat$participant[dat$participant==6] <- 17
-dat$participant[dat$participant==7] <- 18
-dat$participant[dat$participant==13] <- 19
-dat$participant[dat$participant==15] <- 20
-dat$participant[dat$participant==19] <- 21
-dat$participant[dat$participant==22] <- 22
-dat$participant[dat$participant==30] <- 23
-dat$participant[dat$participant==35] <- 24
-dat$participant[dat$participant==42] <- 25
-dat$participant[dat$participant==44] <- 26
-dat$participant[dat$participant==53] <- 27
-dat$participant[dat$participant==57] <- 28
-dat$participant[dat$participant==60] <- 29
-dat$participant[dat$participant==62] <- 30
+dat$participant[dat1$participant==4] <- 16
+dat$participant[dat1$participant==6] <- 17
+dat$participant[dat1$participant==7] <- 18
+dat$participant[dat1$participant==13] <- 19
+dat$participant[dat1$participant==15] <- 20
+dat$participant[dat1$participant==19] <- 21
+dat$participant[dat1$participant==22] <- 22
+dat$participant[dat1$participant==30] <- 23
+dat$participant[dat1$participant==35] <- 24
+dat$participant[dat1$participant==42] <- 25
+dat$participant[dat1$participant==44] <- 26
+dat$participant[dat1$participant==53] <- 27
+dat$participant[dat1$participant==57] <- 28
+dat$participant[dat1$participant==60] <- 29
+dat$participant[dat1$participant==62] <- 30
+
+## CHECK PARTICIPANT NUMBERS:
+unique(subset(dat, (PP == 1))$participant)
+unique(subset(dat, (PPFB == 1))$participant)
 
 
 ## RESCALE data 0 to 1
 library(scales)
 dat$Serror <- rescale(dat$shape_dtw_error_mean, to=c(0,1))
 dat$Sspeed <- rescale(dat$vresp, to=c(0,1))
-plot(dat$Sspeed,dat$Serror)
+# plot(dat$Sspeed,dat$Serror)
 
 saf.5 <- map2stan(
         alist(
@@ -1790,8 +1795,9 @@ saf.5 <- map2stan(
         sample = TRUE,
         iter = 2000,
         warmup = 1000,
-        chains = 1, 
-        cores = 2 )
+        chains = 10, 
+        cores = 10,
+        refresh = 100)
 save(saf.5, file = "saf5.Rda")
 precis(saf.5, depth=2, digits = 4, pars=c("a","b","c","a_sigma","b_sigma")) 
 pairs(saf.5, pars=c("a","b","c","a_sigma","b_sigma"))
