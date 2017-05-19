@@ -107,7 +107,9 @@ for(i in 1:nrow(dat.lm)){
 #         , !is.na(shape_dtw_error_mean)
 # )
 
-# plot to see if makes sense:
+# plot to see if makes sense
+
+# visualize difference between repeat and random:
 PPvsMIplot <- ggplot(subset(dat.lm, ((session_num == 1) | (session_num == 5)))
                      , mapping = aes(
                              x = (vresp*0.2715), y = (shape_dtw_error_mean*0.2715)
@@ -122,6 +124,22 @@ PPvsMIplot <- ggplot(subset(dat.lm, ((session_num == 1) | (session_num == 5)))
              , color = "Figure Type") +
         lims(x = c(0, 5000*0.2715), y = c(0, 300*0.2715))
 print(PPvsMIplot)
+
+# visualize difference across days:
+PPvsMIplot2 <- ggplot(subset(dat.lm, ((session_num == 1) | (session_num == 5)))
+                     , mapping = aes(
+                             x = (vresp*0.2715), y = (shape_dtw_error_mean*0.2715)
+                             , color = factor(session_num)
+                     )) + geom_point(na.rm = TRUE, alpha = .25) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        facet_grid(figure_type ~ condition) +
+        labs(title = "Shape Error"
+             , x = "Velocity (mm / s)"
+             , y = "Shape Error (mm)"
+             , color = "Session") +
+        lims(x = c(0, 5000*0.2715), y = c(0, 300*0.2715))
+print(PPvsMIplot2) # REMEMBER: a change in rep vs ran is the best way to look at this.
 
 # ggsave(
 #         filename = "PPvsMIplot.png"

@@ -21,10 +21,10 @@ dat.anova <- dat
 dat.anova <- subset(dat.anova, (condition == "PP-VR-5") | (condition == "MI-00-5"))
 dat.anova <- subset(dat.anova, (session_num == 1) | (session_num == 5))
 # # get rid of unfinished participants:
-# dat.anova <- dplyr::filter(
-#         .data = dat.anova
-#         , participant_id < 62
-# )
+dat.anova <- dplyr::filter(
+        .data = dat.anova
+        , participant_id < 67
+)
 
 # quick look at data:
 #ezPrecis(dat.anova)
