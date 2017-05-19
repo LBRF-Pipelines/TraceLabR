@@ -22,21 +22,7 @@ all_data_sub <- dplyr::filter(
 aggregate(!is.na(PLresp) ~ stimulus_gt, all_data, sum)
 aggregate(!is.na(PLresp) ~ stimulus_gt, all_data_sub, sum)
 
-##### SESSION TO SESSION CHANGES #####
-
-# ## RAW error against speed:
-# ggplot(subset(all_data_sub, (figure_type == "random") & ((session_num == 1) | (session_num == 5)))
-#        , mapping = aes(
-#                 x = vresp, y = raw_error_mean
-#                 , color = factor(session_num)
-# )) + geom_point(na.rm = TRUE, alpha = .5) + 
-#         geom_smooth(na.rm = TRUE) + 
-#         theme_minimal() +
-#         facet_grid(. ~ condition)
-#         labs(title = "Raw Error"
-#              , x = "Velocity"
-#              , y = "Raw Error"
-#              , color = "Session")
+#### SESSION TO SESSION CHANGES ####
 
 ## RAW DTW error against speed:
 ggplot(subset(all_data_sub, ((session_num == 1) | (session_num == 5)))
@@ -50,21 +36,7 @@ ggplot(subset(all_data_sub, ((session_num == 1) | (session_num == 5)))
         labs(title = "Raw DTW Error"
              , x = "Velocity"
              , y = "Raw DTW Error"
-             , color = "Session")
-
-# ## SHAPE error against speed:
-# ggplot(subset(all_data_sub, (figure_type == "random") & ((session_num == 1) | (session_num == 5)))
-#        , mapping = aes(
-#                x = vresp, y = shape_error_mean
-#                , color = factor(session_num)
-# )) + geom_point(na.rm = TRUE, alpha = .5) + 
-#         geom_smooth(na.rm = TRUE) + 
-#         theme_minimal() +
-#         facet_grid(. ~ condition) +
-#         labs(title = "Shape Error"
-#              , x = "Velocity"
-#              , y = "Shape Error"
-#              , color = "Session")
+             , color = "Figure Type")
 
 ## SHAPE DTW error against speed:
 ggplot(subset(all_data_sub, ((session_num == 1) | (session_num == 5)))
@@ -78,7 +50,7 @@ ggplot(subset(all_data_sub, ((session_num == 1) | (session_num == 5)))
         labs(title = "Shape DTW Error"
              , x = "Velocity"
              , y = "Shape DTW Error"
-             , color = "Session")
+             , color = "Figure Type")
 
 ## Absolute features DTW error against speed:
 ggplot(subset(all_data_sub, ((session_num == 1) | (session_num == 5)))
@@ -92,21 +64,7 @@ ggplot(subset(all_data_sub, ((session_num == 1) | (session_num == 5)))
         labs(title = "Absolute Features DTW Error"
              , x = "Velocity"
              , y = "Absolute DTW Error"
-             , color = "Session")
-
-# ## SCALE error against speed:
-# ggplot(subset(all_data_sub, (figure_type == "random") & ((session_num == 1) | (session_num == 5)))
-#        , mapping = aes(
-#                x = vresp, y = scale
-#                , color = factor(session_num)
-#        )) + geom_point(na.rm = TRUE, alpha = .5) + 
-#         geom_smooth(na.rm = TRUE) + 
-#         theme_minimal() +
-#         facet_grid(. ~ condition) +
-#         labs(title = "Scale Error"
-#              , x = "Velocity"
-#              , y = "Scale Error"
-#              , color = "Session")
+             , color = "Figure Type")
 
 ## SCALE DTW error against speed:
 ggplot(subset(all_data_sub, ((session_num == 1) | (session_num == 5)))
@@ -120,21 +78,7 @@ ggplot(subset(all_data_sub, ((session_num == 1) | (session_num == 5)))
         labs(title = "Scale DTW Error"
              , x = "Velocity"
              , y = "Scale DTW Error"
-             , color = "Session")
-
-# ## ROTATION error against speed:
-# ggplot(subset(all_data_sub, (figure_type == "random") & ((session_num == 1) | (session_num == 5)))
-#        , mapping = aes(
-#                x = vresp, y = rotation
-#                , color = factor(session_num)
-#        )) + geom_point(na.rm = TRUE, alpha = .5) + 
-#         geom_smooth(na.rm = TRUE) + 
-#         theme_minimal() +
-#         facet_grid(. ~ condition) +
-#         labs(title = "Rotation Error"
-#              , x = "Velocity"
-#              , y = "Rotation Error"
-#              , color = "Session")
+             , color = "Figure Type")
 
 ## ROTATION DTW error against speed:
 ggplot(subset(all_data_sub, ((session_num == 1) | (session_num == 5)))
@@ -148,21 +92,8 @@ ggplot(subset(all_data_sub, ((session_num == 1) | (session_num == 5)))
         labs(title = "Rotation DTW Error"
              , x = "Velocity"
              , y = "Rotation DTW Error"
-             , color = "Session")
+             , color = "Figure Type")
 
-# ## TRANSLATION error against speed:
-# ggplot(subset(all_data_sub, (figure_type == "random") & ((session_num == 1) | (session_num == 5)))
-#        , mapping = aes(
-#                x = vresp, y = translation
-#                , color = factor(session_num)
-#        )) + geom_point(na.rm = TRUE, alpha = .5) + 
-#         geom_smooth(na.rm = TRUE) + 
-#         theme_minimal() +
-#         facet_grid(. ~ condition) +
-#         labs(title = "Translation Error"
-#              , x = "Velocity"
-#              , y = "Translation Error"
-#              , color = "Session")
 
 ## TRANSLATION DTW error against speed:
 ggplot(subset(all_data_sub, ((session_num == 1) | (session_num == 5)))
@@ -176,12 +107,40 @@ ggplot(subset(all_data_sub, ((session_num == 1) | (session_num == 5)))
         labs(title = "Translation DTW Error"
              , x = "Velocity"
              , y = "Translation DTW Error"
-             , color = "Session")
+             , color = "Figure Type")
 
+#### 3D PLOTS ####
 
 ## 3D plots of speed-complexity-error ##
 # library(rgl)
 
+#### PARTICIPANT VARIABILITY ####
+
+ggplot(subset(all_data_sub, ((condition == "PP-VR-5") & (session_num == 5) & (figure_type == "random")))
+       , mapping = aes(
+               x = vresp, y = shape_dtw_error_mean
+               , color = factor(participant_id)
+       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        #facet_grid(session_num ~ condition) +
+        labs(title = "Shape DTW Error"
+             , x = "Velocity"
+             , y = "Shape DTW Error"
+             , color = "Participant")
+
+ggplot(subset(all_data_sub, ((condition == "PP-VR-5") & (session_num == 5) & (figure_type == "repeated")))
+       , mapping = aes(
+               x = vresp, y = shape_dtw_error_mean
+               , color = factor(participant_id)
+       )) + geom_point(na.rm = TRUE, alpha = .5) + 
+        geom_smooth(na.rm = TRUE) + 
+        theme_minimal() +
+        #facet_grid(session_num ~ condition) +
+        labs(title = "Shape DTW Error"
+             , x = "Velocity"
+             , y = "Shape DTW Error"
+             , color = "Participant")
 
 
 #### PLOT FOR SHAUN ####
