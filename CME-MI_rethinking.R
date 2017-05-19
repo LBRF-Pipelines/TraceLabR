@@ -3469,7 +3469,7 @@ precis(saf.8, depth=2, digits = 4, pars=c("b_p"))
 precis(saf.8, depth=2, digits = 4, pars=c("c_p")) 
 
 
-compare(saf.8,saf.8.3)
+plot(compare(saf.8,saf.8.3))
 
 #### PLOTS ####
 
