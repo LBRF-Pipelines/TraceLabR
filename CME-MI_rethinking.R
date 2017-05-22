@@ -15,7 +15,7 @@ dat <- dplyr::filter(
         .data = all_data
 )
 # choose groups, and days:
-dat <- subset(dat, (condition == "PP-VV-5") | (condition == "PP-VR-5"))
+# dat <- subset(dat, (condition == "PP-VV-5") | (condition == "PP-VR-5"))
 # dat <- subset(dat, (session_num == 1) | (session_num == 5))
 dat <- dplyr::filter(
         .data = dat
@@ -2898,7 +2898,7 @@ dat$Serror <- rescale(dat$shape_dtw_error_mean, to=c(0,1))
 dat$Sspeed <- rescale(dat$vresp, to=c(0,1))
 # plot(dat$Sspeed,dat$Serror)
 
-saf.7.1 <- map2stan(
+saf.7.2 <- map2stan(
         alist(
                 # likelihood
                 Serror ~ dnorm( mu, sigma ),
@@ -2913,7 +2913,7 @@ saf.7.1 <- map2stan(
                         b_cond_sess_g[group]*rep*session,
                 C <- inv_logit(c + c_g[group] + c_p[participant] + c_cond*rep + c_sess*session +
                         c_cond_g[group]*rep + c_sess_g[group]*session + c_cond_sess*rep*session +
-                        c_cond_sess_g[group]*rep*session), # constrained 0 to 1 (given Sspeed)
+                        c_cond_sess_g[group]*rep*session)*0.5, # constrained 0 to 0.5 (given Sspeed)
                 
                 sigma <- inv_logit(a_sigma + b_sigma*Sspeed), # constrain 0 to 1 (given Serror)
                 
@@ -2960,7 +2960,7 @@ saf.7.1 <- map2stan(
         warmup = 500,
         chains = 1, 
         cores = 1 )
-save(saf.7.1, file = "saf7_1.Rda")
+save(saf.7.2, file = "saf7_2.Rda")
 precis(saf.7.1, depth=2, pars=c("a","b","c","a_sigma","b_sigma")) 
 pairs(saf.7.1, pars=c("a","b","c","a_sigma","b_sigma"))
 dashboard(saf.7)
@@ -2968,9 +2968,11 @@ plot(saf.7, pars=c("a","b","c","a_sigma","b_sigma"))
 stancode(saf.7)
 WAIC(saf.7)
 
-## 200 iter coverges! wow
+## saf.7 - 200 iter coverges! wow
 
-## 1000 iter converges as well
+## saf.7.1 - 1000 iter converges as well
+
+## saf.7.2 - additional constraint on stuff
 
 load("saf7.Rda")
 precis(saf.7, depth=2, pars=c("a","b","c","a_sigma","b_sigma")) 
@@ -3376,7 +3378,7 @@ dat$Serror <- rescale(dat$shape_dtw_error_mean, to=c(0,1))
 dat$Sspeed <- rescale(dat$vresp, to=c(0,1))
 # plot(dat$Sspeed,dat$Serror)
 
-saf.8.1 <- map2stan(
+saf.8.3 <- map2stan(
         alist(
                 # likelihood
                 Serror ~ dnorm( mu, sigma ),
@@ -3397,21 +3399,27 @@ saf.8.1 <- map2stan(
                 
                 # adaptive priors
                 c(a_p,b_p,c_p)[participant] ~ dmvnormNC(sigma_participant,Rho_participant),
-                c(a_g,b_g,c_g,
-                  a_cond_g,b_cond_g,c_cond_g,
-                  a_block_g,b_block_g,c_block_g,
-                  a_cond_block_g,b_cond_block_g,c_cond_block_g)[group] ~ dmvnormNC(sigma_group,Rho_group),
                 
                 # fixed priors
                 c(a,b,c,
                   a_cond, b_cond, c_cond,
                   a_block, b_block, c_block,
                   a_cond_block,b_cond_block,c_cond_block) ~ dnorm(0,1),
+                a_g[group] ~ dnorm(0,1),
+                b_g[group] ~ dnorm(0,1),
+                c_g[group] ~ dnorm(0,1),
+                a_cond_g[group] ~ dnorm(0,1),
+                b_cond_g[group] ~ dnorm(0,1),
+                c_cond_g[group] ~ dnorm(0,1),
+                a_block_g[group] ~ dnorm(0,1),
+                b_block_g[group] ~ dnorm(0,1),
+                c_block_g[group] ~ dnorm(0,1),
+                a_cond_block_g[group] ~ dnorm(0,1),
+                b_cond_block_g[group] ~ dnorm(0,1),
+                c_cond_block_g[group] ~ dnorm(0,1),
                 
                 sigma_participant~ dcauchy(0,2),
                 Rho_participant ~ dlkjcorr(2),
-                sigma_group ~ dcauchy(0,2),
-                Rho_group ~ dlkjcorr(2),
                 
                 a_sigma ~ dcauchy(0,2),
                 b_sigma ~ dnorm(0,1)
@@ -3431,8 +3439,10 @@ saf.8.1 <- map2stan(
         iter = 1000,
         warmup = 500,
         chains = 1, 
-        cores = 1 )
-save(saf.8, file = "saf8.Rda")
+        cores = 1,
+        refresh = 50)
+save(saf.8.3, file = "saf8_3.Rda")
+saf.8 <- saf.8.3
 precis(saf.8, depth=2, pars=c("a","b","c","a_sigma","b_sigma")) 
 pairs(saf.8, pars=c("a","b","c","a_sigma","b_sigma"))
 dashboard(saf.8)
@@ -3452,17 +3462,21 @@ precis(saf.8, depth=2, pars=c("a_p"))
 precis(saf.8, depth=2, pars=c("b_p")) 
 precis(saf.8, depth=2, pars=c("c_p")) 
 
-## 200 iter DOES NOT converge :(
+## saf.8 = 200 iter DOES NOT converge :(
 
-## 1000 
+## saf.8.1 = 1000 sort of converges! not well... 
 
+## saf.8.2 2000 iter didn't converge... :/ wtf?
+## took 27339 seconds... 7.59 hours
 
+## saf.8.3 (turn off group shrinkage)
+## 1000 iter 
 
 #### PLOTS ####
 
 library(rethinking)
-load("saf8.Rda")
-# saf.8 <- saf.8.2
+load("saf8_1.Rda")
+saf.8 <- saf.8.2
 
 # remember to run all the code setting up model 8!
 
@@ -3472,22 +3486,22 @@ Sspeed.seq <- seq( from=0 , to=1 , length.out=1000 )
 # replace varying intercept samples with zeros
 # 1000 samples by 30 participants
 # post <- extract.samples(saf.8) # see how many samples
-a_p_zeros <- matrix(0,500,60) # works if just a multiple of replacement length?
-b_p_zeros <- matrix(0,500,60)
-c_p_zeros <- matrix(0,500,60)
+a_p_zeros <- matrix(0,1000,30) # works if just a multiple of replacement length?
+b_p_zeros <- matrix(0,1000,30)
+c_p_zeros <- matrix(0,1000,30)
 
 ## PP RAN VS REP SESSION 1 BLOCK 1:
 
 dater1 <- list(
         Sspeed = Sspeed.seq,
-        group = rep(3,length(Sspeed.seq)),
+        group = rep(1,length(Sspeed.seq)),
         participant = rep(1,length(Sspeed.seq)), # placeholder
         block_id = rep(1,length(Sspeed.seq)),
         rep = rep(0,length(Sspeed.seq))
 )
 dater2 <- list(
         Sspeed = Sspeed.seq,
-        group = rep(3,length(Sspeed.seq)),
+        group = rep(1,length(Sspeed.seq)),
         participant = rep(1,length(Sspeed.seq)), # placeholder
         block_id = rep(1,length(Sspeed.seq)),
         rep = rep(1,length(Sspeed.seq))
@@ -3512,14 +3526,14 @@ mu_pp_rep_1.HPDI <- apply( mu_pp_rep_1$mu , 2 , HPDI )
 
 dater1 <- list(
         Sspeed = Sspeed.seq,
-        group = rep(3,length(Sspeed.seq)),
+        group = rep(1,length(Sspeed.seq)),
         participant = rep(1,length(Sspeed.seq)), # placeholder
         block_id = rep(25,length(Sspeed.seq)),
         rep = rep(0,length(Sspeed.seq))
 )
 dater2 <- list(
         Sspeed = Sspeed.seq,
-        group = rep(3,length(Sspeed.seq)),
+        group = rep(1,length(Sspeed.seq)),
         participant = rep(1,length(Sspeed.seq)), # placeholder
         block_id = rep(25,length(Sspeed.seq)),
         rep = rep(1,length(Sspeed.seq))
@@ -3544,14 +3558,14 @@ mu_pp_rep_5.HPDI <- apply( mu_pp_rep_5$mu , 2 , HPDI )
 
 dater1 <- list(
         Sspeed = Sspeed.seq,
-        group = rep(4,length(Sspeed.seq)),
+        group = rep(2,length(Sspeed.seq)),
         participant = rep(1,length(Sspeed.seq)), # placeholder
         block_id = rep(1,length(Sspeed.seq)),
         rep = rep(0,length(Sspeed.seq))
 )
 dater2 <- list(
         Sspeed = Sspeed.seq,
-        group = rep(4,length(Sspeed.seq)),
+        group = rep(2,length(Sspeed.seq)),
         participant = rep(1,length(Sspeed.seq)), # placeholder
         block_id = rep(1,length(Sspeed.seq)),
         rep = rep(1,length(Sspeed.seq))
@@ -3576,14 +3590,14 @@ mu_ppfb_rep_1.HPDI <- apply( mu_ppfb_rep_1$mu , 2 , HPDI )
 
 dater1 <- list(
         Sspeed = Sspeed.seq,
-        group = rep(4,length(Sspeed.seq)),
+        group = rep(2,length(Sspeed.seq)),
         participant = rep(1,length(Sspeed.seq)), # placeholder
         block_id = rep(25,length(Sspeed.seq)),
         rep = rep(0,length(Sspeed.seq))
 )
 dater2 <- list(
         Sspeed = Sspeed.seq,
-        group = rep(4,length(Sspeed.seq)),
+        group = rep(2,length(Sspeed.seq)),
         participant = rep(1,length(Sspeed.seq)), # placeholder
         block_id = rep(25,length(Sspeed.seq)),
         rep = rep(1,length(Sspeed.seq))
@@ -3627,7 +3641,7 @@ ggplot(subset(dat, ((block_id == 1) | (block_id == 25)))
                 , ymax=postHPDI2), alpha=0.2) +
         theme_minimal() +
         facet_grid(block_id ~ condition) +
-        # geom_smooth() +
+        geom_smooth() +
         labs(title = "Shape Error"
              , x = "Velocity (scaled)"
              , y = "Shape Error (scaled)"
@@ -3758,8 +3772,10 @@ unique(subset(dat, (PPFB == 1))$participant)
 library(scales)
 dat$Serror <- rescale(dat$shape_dtw_error_mean, to=c(0,1))
 dat$Sspeed <- rescale(dat$vresp, to=c(0,1))
-plot(dat$Sspeed,dat$Serror)
+# plot(dat$Sspeed,dat$Serror)
 
+
+## REMEMBER TO TURN OFF GROUP SHRINKAGE:
 saf.9 <- map2stan(
         alist(
                 # likelihood
@@ -4144,7 +4160,190 @@ ggplot(subset(dat, ((block_id == 1) | (block_id == 25)))
         coord_cartesian(xlim = c(min(dat$Sspeed),1), ylim = c(min(dat$Serror),1))
 # coord_cartesian(xlim = c(-2,2), ylim = c(-2,2))
 
-#### Model 10: give up on saf ####
+#### Model 10: UNsimplify model! ####
+
+library(rethinking)
+
+## SIMPLIFY VARIABLE NAMES ##
+dat$condition <- as.factor(gsub("MI-00-5","MI", dat$condition))
+dat$condition <- as.factor(gsub("CC-00-5","CC", dat$condition))
+dat$condition <- as.factor(gsub("PP-VV-5","PP", dat$condition))
+dat$condition <- as.factor(gsub("PP-VR-5","PPVR", dat$condition))
+# colnames(dat)[which(names(dat) == "vresp")] <- "speed"
+# colnames(dat)[which(names(dat) == "shape_dtw_error_mean")] <- "error"
+colnames(dat)[which(names(dat) == "participant_id")] <- "participant"
+
+## STANDARDIZE DATA ##
+dat$Zerror <- scale(dat$shape_dtw_error_mean)   # CHOOSE ERROR HERE
+dat$Zspeed <- scale(dat$vresp)                  # NOTE NAMING
+dat$session <- as.numeric(dat$session_num)
+
+## DUMMY VARIABLES ##
+dat$rep <- ifelse(dat$figure_type=="repeated", 1, 0)
+dat$CC <- ifelse(dat$condition=="CC", 1, 0)
+dat$MI <- ifelse(dat$condition=="MI", 1, 0)
+dat$PP <- ifelse(dat$condition=="PP", 1, 0)
+dat$PPFB <- ifelse(dat$condition=="PPVR", 1, 0)
+
+## CATEGORICAL VARIABLES ##
+dat$group <- coerce_index(dat$condition) # CC = 1, MI = 2, PP = 3, PPVR = 4
+dat$fig_type <- coerce_index(dat$figure_type)
+
+## CHECK PARTICIPANT NUMBERS:
+unique(subset(dat, (CC == 1))$participant)
+unique(subset(dat, (MI == 1))$participant)
+unique(subset(dat, (PP == 1))$participant)
+unique(subset(dat, (PPFB == 1))$participant)
+
+# should change them in a logical way... 1:15, 16:30 like this: 
+
+dat1 <- dat
+# CC group participants 1:15:
+dat$participant[dat1$participant==5] <- 1
+dat$participant[dat1$participant==10] <- 2
+dat$participant[dat1$participant==11] <- 3
+dat$participant[dat1$participant==12] <- 4
+dat$participant[dat1$participant==24] <- 5
+dat$participant[dat1$participant==25] <- 6
+dat$participant[dat1$participant==26] <- 7
+dat$participant[dat1$participant==27] <- 8
+dat$participant[dat1$participant==28] <- 9
+dat$participant[dat1$participant==31] <- 10
+dat$participant[dat1$participant==34] <- 11
+dat$participant[dat1$participant==38] <- 12
+dat$participant[dat1$participant==54] <- 13
+dat$participant[dat1$participant==63] <- 14
+dat$participant[dat1$participant==65] <- 15
+
+# MI group participants 16:30:
+dat$participant[dat1$participant==1] <- 16
+dat$participant[dat1$participant==2] <- 17
+dat$participant[dat1$participant==14] <- 18
+dat$participant[dat1$participant==16] <- 19
+dat$participant[dat1$participant==23] <- 20
+dat$participant[dat1$participant==29] <- 21
+dat$participant[dat1$participant==32] <- 22
+dat$participant[dat1$participant==37] <- 23
+dat$participant[dat1$participant==43] <- 24
+dat$participant[dat1$participant==45] <- 25
+dat$participant[dat1$participant==56] <- 26
+dat$participant[dat1$participant==58] <- 27
+dat$participant[dat1$participant==61] <- 28
+dat$participant[dat1$participant==64] <- 29
+dat$participant[dat1$participant==67] <- 30
+
+# PP (no feedback) group participants 31:45:
+dat$participant[dat1$participant==3] <- 31
+dat$participant[dat1$participant==8] <- 32
+dat$participant[dat1$participant==9] <- 33
+dat$participant[dat1$participant==17] <- 34
+dat$participant[dat1$participant==18] <- 35
+dat$participant[dat1$participant==20] <- 36
+dat$participant[dat1$participant==21] <- 37
+dat$participant[dat1$participant==33] <- 38
+dat$participant[dat1$participant==39] <- 39
+dat$participant[dat1$participant==40] <- 40
+dat$participant[dat1$participant==41] <- 41
+dat$participant[dat1$participant==52] <- 42
+dat$participant[dat1$participant==55] <- 43
+dat$participant[dat1$participant==59] <- 44
+dat$participant[dat1$participant==66] <- 45
+
+# PPFB group participants 46:60:
+dat$participant[dat1$participant==4] <- 46
+dat$participant[dat1$participant==6] <- 47
+dat$participant[dat1$participant==7] <- 48
+dat$participant[dat1$participant==13] <- 49
+dat$participant[dat1$participant==15] <- 50
+dat$participant[dat1$participant==19] <- 51
+dat$participant[dat1$participant==22] <- 52
+dat$participant[dat1$participant==30] <- 53
+dat$participant[dat1$participant==35] <- 54
+dat$participant[dat1$participant==42] <- 55
+dat$participant[dat1$participant==44] <- 56
+dat$participant[dat1$participant==53] <- 57
+dat$participant[dat1$participant==57] <- 58
+dat$participant[dat1$participant==60] <- 59
+dat$participant[dat1$participant==62] <- 60
+
+## CHECK PARTICIPANT NUMBERS:
+unique(subset(dat, (CC == 1))$participant)
+unique(subset(dat, (MI == 1))$participant)
+unique(subset(dat, (PP == 1))$participant)
+unique(subset(dat, (PPFB == 1))$participant)
+
+## RESCALE data 0 to 1
+library(scales)
+dat$Serror <- rescale(dat$shape_dtw_error_mean, to=c(0,1))
+dat$Sspeed <- rescale(dat$vresp, to=c(0,1))
+# plot(dat$Sspeed,dat$Serror)
+
+saf.10 <- map2stan(
+        alist(
+                # likelihood
+                Serror ~ dnorm( mu, sigma ),
+                
+                # model
+                mu <- inv_logit((B + ((A - B) / (1 + (exp(-(C*(Zspeed-D)))))))),
+                A <- 1,
+                B <- 0,
+                C <- c + c_g[group] + c_p[participant] + c_cond*rep + c_sess*session +
+                        c_cond_g[group]*rep + c_sess_g[group]*session + c_cond_sess*rep*session +
+                        c_cond_sess_g[group]*rep*session,
+                D <- inv_logit(d + d_g[group] + d_p[participant] + d_cond*rep + d_sess*session +
+                        d_cond_g[group]*rep + d_sess_g[group]*session + d_cond_sess*rep*session +
+                        d_cond_sess_g[group]*rep*session)*10, # constrained 0 to 10 (given Sspeed lower limit)
+                
+                sigma <- inv_logit(a_sigma + b_sigma*Sspeed), # constrain 0 to 1 (given Serror range)
+                
+                # adaptive priors
+                c(c_p,d_p)[participant] ~ dmvnormNC(sigma_participant,Rho_participant),
+                
+                # fixed priors
+                c(c, d,
+                  c_cond, d_cond,
+                  c_sess, d_sess,
+                  c_cond_sess,d_cond_sess) ~ dnorm(0,1),
+                c_g[group] ~ dnorm(0,1),
+                d_g[group] ~ dnorm(0,1),
+                c_cond_g[group] ~ dnorm(0,1),
+                d_cond_g[group] ~ dnorm(0,1),
+                c_sess_g[group] ~ dnorm(0,1),
+                d_sess_g[group] ~ dnorm(0,1),
+                c_cond_sess_g[group] ~ dnorm(0,1),
+                d_cond_sess_g[group] ~ dnorm(0,1),
+                
+                sigma_participant~ dcauchy(0,2),
+                Rho_participant ~ dlkjcorr(2),
+                
+                a_sigma ~ dcauchy(0,2),
+                b_sigma ~ dnorm(0,1)
+        ) ,
+        data = dat,
+        start = list(
+                c = (mean(subset(dat, dat$Sspeed > quantile(dat$Sspeed,3/4))$Serror) - mean(subset(dat, dat$Sspeed < quantile(dat$Sspeed,1/4))$Serror)) / (max(dat$Sspeed) - min(dat$Sspeed)),
+                d = median(dat$Sspeed),
+                a_sigma = mean(sd(subset(dat, dat$Sspeed > quantile(dat$Sspeed,3/4))$Serror), sd(subset(dat, dat$Sspeed < quantile(dat$Sspeed,1/4))$Serror)),
+                b_sigma = 0.5
+        ),
+        # constraints = list(
+        #         a = "lower=0"
+        # ),
+        sample = TRUE,
+        iter = 100,
+        warmup = 50,
+        chains = 1, 
+        cores = 1 )
+save(saf.10, file = "saf10.Rda")
+precis(saf.10, depth=2, pars=c("a","b","c","a_sigma","b_sigma")) 
+pairs(saf.10, pars=c("a","b","c","a_sigma","b_sigma"))
+dashboard(saf.10)
+plot(saf.10, pars=c("a","b","c","a_sigma","b_sigma"))
+stancode(saf.10)
+WAIC(saf.10)
+
+
+
 
 
 
