@@ -4278,21 +4278,20 @@ dat$Serror <- rescale(dat$shape_dtw_error_mean, to=c(0,1))
 dat$Sspeed <- rescale(dat$vresp, to=c(0,1))
 # plot(dat$Sspeed,dat$Serror)
 
+#### saf.10 #### 
 saf.10 <- map2stan(
         alist(
                 # likelihood
                 Serror ~ dnorm( mu, sigma ),
                 
                 # model
-                mu <- inv_logit((B + ((A - B) / (1 + (exp(-(C*(Zspeed-D)))))))),
-                A <- 1,
-                B <- 0,
+                mu <- (1 / (1 + (exp(-(C*(Sspeed-D)))))),
                 C <- c + c_g[group] + c_p[participant] + c_cond*rep + c_sess*session +
                         c_cond_g[group]*rep + c_sess_g[group]*session + c_cond_sess*rep*session +
                         c_cond_sess_g[group]*rep*session,
                 D <- inv_logit(d + d_g[group] + d_p[participant] + d_cond*rep + d_sess*session +
                         d_cond_g[group]*rep + d_sess_g[group]*session + d_cond_sess*rep*session +
-                        d_cond_sess_g[group]*rep*session)*10, # constrained 0 to 10 (given Sspeed lower limit)
+                        d_cond_sess_g[group]*rep*session), # constrained 0 to 10 (given Sspeed lower limit)
                 
                 sigma <- inv_logit(a_sigma + b_sigma*Sspeed), # constrain 0 to 1 (given Serror range)
                 
@@ -4322,9 +4321,7 @@ saf.10 <- map2stan(
         data = dat,
         start = list(
                 c = (mean(subset(dat, dat$Sspeed > quantile(dat$Sspeed,3/4))$Serror) - mean(subset(dat, dat$Sspeed < quantile(dat$Sspeed,1/4))$Serror)) / (max(dat$Sspeed) - min(dat$Sspeed)),
-                d = median(dat$Sspeed),
-                a_sigma = mean(sd(subset(dat, dat$Sspeed > quantile(dat$Sspeed,3/4))$Serror), sd(subset(dat, dat$Sspeed < quantile(dat$Sspeed,1/4))$Serror)),
-                b_sigma = 0.5
+                d = median(dat$Sspeed)
         ),
         # constraints = list(
         #         a = "lower=0"
@@ -4335,16 +4332,625 @@ saf.10 <- map2stan(
         chains = 1, 
         cores = 1 )
 save(saf.10, file = "saf10.Rda")
-precis(saf.10, depth=2, pars=c("a","b","c","a_sigma","b_sigma")) 
-pairs(saf.10, pars=c("a","b","c","a_sigma","b_sigma"))
+precis(saf.10, depth=2, pars=c("c","d","a_sigma","b_sigma")) 
+pairs(saf.10, pars=c("c","d","a_sigma","b_sigma"))
 dashboard(saf.10)
-plot(saf.10, pars=c("a","b","c","a_sigma","b_sigma"))
+plot(saf.10, pars=c("c","d","a_sigma","b_sigma"))
 stancode(saf.10)
 WAIC(saf.10)
 
+precis(saf.10, depth=2, pars=c("c_p")) 
+precis(saf.10, depth=2, pars=c("d_p")) 
+
+precis(saf.10, depth=2, pars=c("c","c_g","c_cond","c_cond_g")) 
+precis(saf.10, depth=2, pars=c("d","d_g")) 
+
+#### saf.10.1 ####
+saf.10.1 <- map2stan(
+        alist(
+                # likelihood
+                Serror ~ dnorm( mu, sigma ),
+                
+                # model
+                mu <- (1 / (1 + (exp(-(c*(Sspeed-D)))))),
+                
+                D <- inv_logit(d + d_g[group] + d_p[participant] + d_cond*rep + d_sess*session +
+                                       d_cond_g[group]*rep + d_sess_g[group]*session + d_cond_sess*rep*session +
+                                       d_cond_sess_g[group]*rep*session), # constrained 0 to 1 (given Sspeed range)
+                
+                sigma <- inv_logit(a_sigma + b_sigma*Sspeed), # constrain 0 to 1 (given Serror range)
+                
+                # adaptive priors
+                d_p[participant] ~ dnorm(0,sigma_participant),
+                
+                # fixed priors
+                c(c, d, d_cond, d_sess, d_cond_sess) ~ dnorm(0,1),
+                d_g[group] ~ dnorm(0,1),
+                d_cond_g[group] ~ dnorm(0,1),
+                d_sess_g[group] ~ dnorm(0,1),
+                d_cond_sess_g[group] ~ dnorm(0,1),
+                
+                sigma_participant~ dcauchy(0,2),
+                
+                a_sigma ~ dcauchy(0,2),
+                b_sigma ~ dnorm(0,1)
+        ) ,
+        data = dat,
+        start = list(
+                c = (mean(subset(dat, dat$Sspeed > quantile(dat$Sspeed,3/4))$Serror) - mean(subset(dat, dat$Sspeed < quantile(dat$Sspeed,1/4))$Serror)) / (max(dat$Sspeed) - min(dat$Sspeed)),
+                d = median(dat$Sspeed)
+        ),
+        constraints = list(
+                c = "lower=0"
+        ),
+        sample = TRUE,
+        iter = 500,
+        warmup = 250,
+        chains = 1, 
+        cores = 1 )
+save(saf.10.1, file = "saf10_1.Rda")
+saf.10 <- saf.10.1
+precis(saf.10, depth=2, pars=c("c","d","a_sigma","b_sigma")) 
+pairs(saf.10, pars=c("c","d","a_sigma","b_sigma"))
+dashboard(saf.10)
+par(mfrow=c(1,1))
+plot(saf.10, pars=c("d","a_sigma","b_sigma"))
+stancode(saf.10)
+WAIC(saf.10)
+
+#### saf.10.2 ####
+saf.10.2 <- map2stan(
+        alist(
+                # likelihood
+                Serror ~ dnorm( mu, sigma ),
+                
+                # model
+                mu <- (1 / (1 + (exp(-(c*(Sspeed-D)))))),
+                
+                D <- d + d_g[group] + d_p[participant] + d_cond*rep + d_sess*session +
+                        d_cond_g[group]*rep + d_sess_g[group]*session + d_cond_sess*rep*session +
+                        d_cond_sess_g[group]*rep*session, # unconstrained
+                
+                sigma <- inv_logit(a_sigma + b_sigma*Sspeed), # constrain 0 to 1 (given Serror range)
+                
+                # adaptive priors
+                d_p[participant] ~ dnorm(0,sigma_participant),
+                
+                # fixed priors
+                c(c, d, d_cond, d_sess, d_cond_sess) ~ dnorm(0,1),
+                d_g[group] ~ dnorm(0,1),
+                d_cond_g[group] ~ dnorm(0,1),
+                d_sess_g[group] ~ dnorm(0,1),
+                d_cond_sess_g[group] ~ dnorm(0,1),
+                
+                sigma_participant~ dcauchy(0,2),
+                
+                a_sigma ~ dcauchy(0,2),
+                b_sigma ~ dnorm(0,1)
+        ) ,
+        data = dat,
+        start = list(
+                c = (mean(subset(dat, dat$Sspeed > quantile(dat$Sspeed,3/4))$Serror) - mean(subset(dat, dat$Sspeed < quantile(dat$Sspeed,1/4))$Serror)) / (max(dat$Sspeed) - min(dat$Sspeed)),
+                d = median(dat$Sspeed)
+        ),
+        constraints = list(
+                c = "lower=0"
+        ),
+        sample = TRUE,
+        iter = 500,
+        warmup = 250,
+        chains = 1, 
+        cores = 1 )
+save(saf.10.2, file = "saf10_2.Rda")
+saf.10 <- saf.10.2
+precis(saf.10, depth=2, pars=c("c","d","a_sigma","b_sigma")) 
+pairs(saf.10, pars=c("c","d","a_sigma","b_sigma"))
+dashboard(saf.10)
+par(mfrow=c(1,1))
+plot(saf.10, pars=c("c","d","a_sigma","b_sigma"))
+stancode(saf.10)
+WAIC(saf.10)
+
+#### saf.10.3 ####
+
+median(dat$Serror) # for setting constraints
+
+saf.10.3 <- map2stan(
+        alist(
+                # likelihood
+                Serror ~ dnorm( mu, sigma ),
+                
+                # model
+                mu <- (b + ((a - b) / (1 + (exp(-(c*(Sspeed-D))))))),
+                
+                D <- d + d_g[group] + d_p[participant] + d_cond*rep + d_sess*session +
+                        d_cond_g[group]*rep + d_sess_g[group]*session + d_cond_sess*rep*session +
+                        d_cond_sess_g[group]*rep*session,
+                
+                sigma <- inv_logit(a_sigma + b_sigma*Sspeed), # constrain 0 to 1 (given Serror range)
+                
+                # adaptive priors
+                d_p[participant] ~ dnorm(0,sigma_participant),
+                
+                # fixed priors
+                c(a, b, c, d, 
+                  d_cond, d_sess, d_cond_sess) ~ dnorm(0,1),
+                d_g[group] ~ dnorm(0,1),
+                d_cond_g[group] ~ dnorm(0,1),
+                d_sess_g[group] ~ dnorm(0,1),
+                d_cond_sess_g[group] ~ dnorm(0,1),
+                
+                sigma_participant~ dcauchy(0,2),
+                
+                a_sigma ~ dcauchy(0,2),
+                b_sigma ~ dnorm(0,1)
+        ) ,
+        data = dat,
+        start = list(
+                a = mean(subset(dat, dat$Sspeed > quantile(dat$Sspeed,3/4))$Serror),
+                b = mean(subset(dat, dat$Sspeed < quantile(dat$Sspeed,1/4))$Serror),
+                c = (mean(subset(dat, dat$Sspeed > quantile(dat$Sspeed,3/4))$Serror) - mean(subset(dat, dat$Sspeed < quantile(dat$Sspeed,1/4))$Serror)) / (max(dat$Sspeed) - min(dat$Sspeed)),
+                d = median(dat$Sspeed)
+        ),
+        constraints = list(
+                a = "lower = 0.15",
+                b = "upper = 0.15",
+                c = "lower = 0"
+        ),
+        sample = TRUE,
+        iter = 100,
+        warmup = 50,
+        chains = 1, 
+        cores = 1 )
+save(saf.10.3, file = "saf10_3.Rda")
+saf.10 <- saf.10.3
+precis(saf.10, depth=2, pars=c("a","b","c","d","a_sigma","b_sigma")) 
+pairs(saf.10, pars=c("c","d","a_sigma","b_sigma"))
+dashboard(saf.10)
+par(mfrow=c(1,1))
+plot(saf.10, pars=c("c","d","a_sigma","b_sigma"))
+stancode(saf.10)
+WAIC(saf.10)
+
+#### saf.10.4 ####
+
+saf.10.4 <- map2stan(
+        alist(
+                # likelihood
+                Serror ~ dnorm( mu, sigma ),
+                
+                # model
+                mu <- (a / (1 + (exp(-(c*(Sspeed-D)))))),
+                
+                D <- d + d_g[group] + d_p[participant] + d_cond*rep + d_sess*session +
+                        d_cond_g[group]*rep + d_sess_g[group]*session + d_cond_sess*rep*session +
+                        d_cond_sess_g[group]*rep*session,
+                
+                sigma <- inv_logit(a_sigma + b_sigma*Sspeed), # constrain 0 to 1 (given Serror range)
+                
+                # adaptive priors
+                d_p[participant] ~ dnorm(0.5,sigma_participant),
+                
+                # fixed priors
+                c(a, c, d, 
+                  d_cond, d_sess, d_cond_sess) ~ dnorm(0.5,1),
+                d_g[group] ~ dnorm(0.5,1),
+                d_cond_g[group] ~ dnorm(0.5,1),
+                d_sess_g[group] ~ dnorm(0.5,1),
+                d_cond_sess_g[group] ~ dnorm(0.5,1),
+                
+                sigma_participant~ dcauchy(0,2),
+                
+                a_sigma ~ dcauchy(0,2),
+                b_sigma ~ dnorm(0,1)
+        ) ,
+        data = dat,
+        start = list(
+                a = mean(subset(dat, dat$Sspeed > quantile(dat$Sspeed,3/4))$Serror),
+                c = (mean(subset(dat, dat$Sspeed > quantile(dat$Sspeed,3/4))$Serror) - mean(subset(dat, dat$Sspeed < quantile(dat$Sspeed,1/4))$Serror)) / (max(dat$Sspeed) - min(dat$Sspeed)),
+                d = median(dat$Sspeed)
+        ),
+        constraints = list(
+                c = "lower = 0"
+        ),
+        sample = TRUE,
+        iter = 100,
+        warmup = 50,
+        chains = 1, 
+        cores = 1 )
+save(saf.10.4, file = "saf10_4.Rda")
+saf.10 <- saf.10.4
+precis(saf.10, depth=2, pars=c("a","b","c","d","a_sigma","b_sigma")) 
+pairs(saf.10, pars=c("c","d","a_sigma","b_sigma"))
+dashboard(saf.10)
+par(mfrow=c(1,1))
+plot(saf.10, pars=c("c","d","a_sigma","b_sigma"))
+stancode(saf.10)
+WAIC(saf.10)
+
+#### notes on fits ####
+
+# saf.10 — 100 iter converged!!! woah --- oops, forgot to change Zspeed to Sspeed... 
+# saf.10 — 100 iter converged!!! woah again!
+# but plots make no sense... 
+
+# try without inv_logit on mu 
+# saf.10 — 100 almost kinda converges
+# but plots still not quite right... what seems to be the
+# problem is that the x axis is unconstrained... 
+# so D naturally goes to edge of constraint set.
+
+# saf.10.1 — 100 converges, but plots horrible
+# seems that a slope of 1 is not steep enough
+
+# try again, let it estimate the slope, but just a grand one.
+
+# saf.10.1 — 100 iter converges mostly
+# WOAH, now we're talking! seems the SLOPE is what has 
+# been fucking things up all this time!!!
+
+# saf.10.1 — 500 iter converges well too
+# but not as noticable differences between ran and rep
+# yet density plots look alright... for mi and cc they
+# push up against 1 though, which is likely why they look
+# a lot better on the plot for day 1... 
+
+# now try without constraining D:
+
+# saf.10.2 — 100 iter didn't converge as well
+# but plots arguably even better...
+
+# something to think about... maybe add back in other 
+# parameters of interest and just let D vary? add one
+# at a time and see if it adds value. 
+
+# saf.10.2 — 500 iter looks even better great stuff
+# and WAIC better than saf.10.1
+
+# now try allowing it to fit A and B:
+
+# saf.10.3 — 100 iter converges sometimes but fits are weird, so added constraints.
+# fits are pretty ugly because it doesn't converge well and it flattens out 
+# the rep condition again... but in the ran condition it looks so much better
+# with the curve down lower... try again and get rid of B.
+
+# saf.10.4 — didn't converge at all, actually 50 divergant, ouch!
+# but looking at plot... if it would converge, it looks great... 
+
+# load("saf10.Rda")
+# 
+# compare(saf.10,saf.10.1,saf.10.2)
+# saf.10 still wins because of course, it allows C to vary... 
+# but it is leading to the weirdness of C being almost flat
+# for the rep condition. 
+
+#### PLOTS #### 
+
+# remember to run all the code setting up model 10!
+n = 50 # number of samples in post
+# post <- extract.samples(saf.10) # see how many samples
+
+# compute percentile interval of mean
+# Sspeed.seq <- seq( from=min(dat$Sspeed, na.rm=TRUE) , to=max(dat$Sspeed, na.rm=TRUE) , length.out=1000 )
+Sspeed.seq <- seq( from=-1 , to=2 , length.out=1000 )
+# replace varying intercept samples with zeros
+# e.g. 1000 samples by 30 participants
+a_p_zeros <- matrix(0,n,60) # works if just a multiple of replacement length?
+b_p_zeros <- matrix(0,n,60)
+c_p_zeros <- matrix(0,n,60)
+
+## CC RAN VS REP SESSION 1:
+
+dater1 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(1,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(1,length(Sspeed.seq)),
+        rep = rep(0,length(Sspeed.seq))
+)
+dater2 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(1,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(1,length(Sspeed.seq)),
+        rep = rep(1,length(Sspeed.seq))
+)
+
+mu_cc_ran_1 <- link( saf.10, n=n, data=dater1,
+                     replace = list(a_p = a_p_zeros,
+                                    b_p = b_p_zeros,
+                                    c_p = c_p_zeros) )
+mu_cc_ran_1.mean <- apply( mu_cc_ran_1$mu , 2 , mean )
+mu_cc_ran_1.HPDI <- apply( mu_cc_ran_1$mu , 2 , HPDI )
+
+mu_cc_rep_1 <- link( saf.10, n=n, data=dater2,
+                     replace = list(a_p = a_p_zeros,
+                                    b_p = b_p_zeros,
+                                    c_p = c_p_zeros) )
+mu_cc_rep_1.mean <- apply( mu_cc_rep_1$mu , 2 , mean )
+mu_cc_rep_1.HPDI <- apply( mu_cc_rep_1$mu , 2 , HPDI )
 
 
+## CC RAN VS REP SESSION 5:
+
+dater1 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(1,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(5,length(Sspeed.seq)),
+        rep = rep(0,length(Sspeed.seq))
+)
+dater2 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(1,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(5,length(Sspeed.seq)),
+        rep = rep(1,length(Sspeed.seq))
+)
+
+mu_cc_ran_5 <- link( saf.10, n=n, data=dater1,
+                     replace = list(a_p = a_p_zeros,
+                                    b_p = b_p_zeros,
+                                    c_p = c_p_zeros) )
+mu_cc_ran_5.mean <- apply( mu_cc_ran_5$mu , 2 , mean )
+mu_cc_ran_5.HPDI <- apply( mu_cc_ran_5$mu , 2 , HPDI )
+
+mu_cc_rep_5 <- link( saf.10, n=n, data=dater2,
+                     replace = list(a_p = a_p_zeros,
+                                    b_p = b_p_zeros,
+                                    c_p = c_p_zeros) )
+mu_cc_rep_5.mean <- apply( mu_cc_rep_5$mu , 2 , mean )
+mu_cc_rep_5.HPDI <- apply( mu_cc_rep_5$mu , 2 , HPDI )
 
 
+## MI RAN VS REP SESSION 1:
+
+dater1 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(2,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(1,length(Sspeed.seq)),
+        rep = rep(0,length(Sspeed.seq))
+)
+dater2 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(2,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(1,length(Sspeed.seq)),
+        rep = rep(1,length(Sspeed.seq))
+)
+
+mu_mi_ran_1 <- link( saf.10, n=n, data=dater1,
+                     replace = list(a_p = a_p_zeros,
+                                    b_p = b_p_zeros,
+                                    c_p = c_p_zeros) )
+mu_mi_ran_1.mean <- apply( mu_mi_ran_1$mu , 2 , mean )
+mu_mi_ran_1.HPDI <- apply( mu_mi_ran_1$mu , 2 , HPDI )
+
+mu_mi_rep_1 <- link( saf.10, n=n, data=dater2,
+                     replace = list(a_p = a_p_zeros,
+                                    b_p = b_p_zeros,
+                                    c_p = c_p_zeros) )
+mu_mi_rep_1.mean <- apply( mu_mi_rep_1$mu , 2 , mean )
+mu_mi_rep_1.HPDI <- apply( mu_mi_rep_1$mu , 2 , HPDI )
 
 
+## MI RAN VS REP SESSION 5:
+
+dater1 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(2,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(5,length(Sspeed.seq)),
+        rep = rep(0,length(Sspeed.seq))
+)
+dater2 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(2,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(5,length(Sspeed.seq)),
+        rep = rep(1,length(Sspeed.seq))
+)
+
+mu_mi_ran_5 <- link( saf.10, n=n, data=dater1,
+                     replace = list(a_p = a_p_zeros,
+                                    b_p = b_p_zeros,
+                                    c_p = c_p_zeros) )
+mu_mi_ran_5.mean <- apply( mu_mi_ran_5$mu , 2 , mean )
+mu_mi_ran_5.HPDI <- apply( mu_mi_ran_5$mu , 2 , HPDI )
+
+mu_mi_rep_5 <- link( saf.10, n=n, data=dater2,
+                     replace = list(a_p = a_p_zeros,
+                                    b_p = b_p_zeros,
+                                    c_p = c_p_zeros) )
+mu_mi_rep_5.mean <- apply( mu_mi_rep_5$mu , 2 , mean )
+mu_mi_rep_5.HPDI <- apply( mu_mi_rep_5$mu , 2 , HPDI )
+
+
+## PP RAN VS REP SESSION 1:
+
+dater1 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(3,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(1,length(Sspeed.seq)),
+        rep = rep(0,length(Sspeed.seq))
+)
+dater2 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(3,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(1,length(Sspeed.seq)),
+        rep = rep(1,length(Sspeed.seq))
+)
+
+mu_pp_ran_1 <- link( saf.10, n=n, data=dater1,
+                     replace = list(a_p = a_p_zeros,
+                                    b_p = b_p_zeros,
+                                    c_p = c_p_zeros) )
+mu_pp_ran_1.mean <- apply( mu_pp_ran_1$mu , 2 , mean )
+mu_pp_ran_1.HPDI <- apply( mu_pp_ran_1$mu , 2 , HPDI )
+
+mu_pp_rep_1 <- link( saf.10, n=n, data=dater2,
+                     replace = list(a_p = a_p_zeros,
+                                    b_p = b_p_zeros,
+                                    c_p = c_p_zeros) )
+mu_pp_rep_1.mean <- apply( mu_pp_rep_1$mu , 2 , mean )
+mu_pp_rep_1.HPDI <- apply( mu_pp_rep_1$mu , 2 , HPDI )
+
+
+## PP RAN VS REP SESSION 5:
+
+dater1 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(3,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(5,length(Sspeed.seq)),
+        rep = rep(0,length(Sspeed.seq))
+)
+dater2 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(3,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(5,length(Sspeed.seq)),
+        rep = rep(1,length(Sspeed.seq))
+)
+
+mu_pp_ran_5 <- link( saf.10, n=n, data=dater1,
+                     replace = list(a_p = a_p_zeros,
+                                    b_p = b_p_zeros,
+                                    c_p = c_p_zeros) )
+mu_pp_ran_5.mean <- apply( mu_pp_ran_5$mu , 2 , mean )
+mu_pp_ran_5.HPDI <- apply( mu_pp_ran_5$mu , 2 , HPDI )
+
+mu_pp_rep_5 <- link( saf.10, n=n, data=dater2,
+                     replace = list(a_p = a_p_zeros,
+                                    b_p = b_p_zeros,
+                                    c_p = c_p_zeros) )
+mu_pp_rep_5.mean <- apply( mu_pp_rep_5$mu , 2 , mean )
+mu_pp_rep_5.HPDI <- apply( mu_pp_rep_5$mu , 2 , HPDI )
+
+
+## PPFB RAN VS REP SESSION 1:
+
+dater1 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(4,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(1,length(Sspeed.seq)),
+        rep = rep(0,length(Sspeed.seq))
+)
+dater2 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(4,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(1,length(Sspeed.seq)),
+        rep = rep(1,length(Sspeed.seq))
+)
+
+mu_ppfb_ran_1 <- link( saf.10, n=n, data=dater1,
+                       replace = list(a_p = a_p_zeros,
+                                      b_p = b_p_zeros,
+                                      c_p = c_p_zeros) )
+mu_ppfb_ran_1.mean <- apply( mu_ppfb_ran_1$mu , 2 , mean )
+mu_ppfb_ran_1.HPDI <- apply( mu_ppfb_ran_1$mu , 2 , HPDI )
+
+mu_ppfb_rep_1 <- link( saf.10, n=n, data=dater2,
+                       replace = list(a_p = a_p_zeros,
+                                      b_p = b_p_zeros,
+                                      c_p = c_p_zeros) )
+mu_ppfb_rep_1.mean <- apply( mu_ppfb_rep_1$mu , 2 , mean )
+mu_ppfb_rep_1.HPDI <- apply( mu_ppfb_rep_1$mu , 2 , HPDI )
+
+
+## PPFB RAN VS REP SESSION 5:
+
+dater1 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(4,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(5,length(Sspeed.seq)),
+        rep = rep(0,length(Sspeed.seq))
+)
+dater2 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(4,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(5,length(Sspeed.seq)),
+        rep = rep(1,length(Sspeed.seq))
+)
+
+mu_ppfb_ran_5 <- link( saf.10, n=n, data=dater1,
+                       replace = list(a_p = a_p_zeros,
+                                      b_p = b_p_zeros,
+                                      c_p = c_p_zeros) )
+mu_ppfb_ran_5.mean <- apply( mu_ppfb_ran_5$mu , 2 , mean )
+mu_ppfb_ran_5.HPDI <- apply( mu_ppfb_ran_5$mu , 2 , HPDI )
+
+mu_ppfb_rep_5 <- link( saf.10, n=n, data=dater2,
+                       replace = list(a_p = a_p_zeros,
+                                      b_p = b_p_zeros,
+                                      c_p = c_p_zeros) )
+mu_ppfb_rep_5.mean <- apply( mu_ppfb_rep_5$mu , 2 , mean )
+mu_ppfb_rep_5.HPDI <- apply( mu_ppfb_rep_5$mu , 2 , HPDI )
+
+## put it all in a matrix that lines up with actual data ##
+
+postmean <- c(mu_cc_ran_1.mean,mu_cc_rep_1.mean,mu_cc_ran_5.mean,mu_cc_rep_5.mean,mu_mi_ran_1.mean,mu_mi_rep_1.mean,mu_mi_ran_5.mean,mu_mi_rep_5.mean,mu_pp_ran_1.mean,mu_pp_rep_1.mean,mu_pp_ran_5.mean,mu_pp_rep_5.mean,mu_ppfb_ran_1.mean,mu_ppfb_rep_1.mean,mu_ppfb_ran_5.mean,mu_ppfb_rep_5.mean)
+Sspeed <- rep(seq( from=-1 , to=2 , length.out=1000 ),16)
+postHPDI1 <- c(mu_cc_ran_1.HPDI[1,],mu_cc_rep_1.HPDI[1,],mu_cc_ran_5.HPDI[1,],mu_cc_rep_5.HPDI[1,],mu_mi_ran_1.HPDI[1,],mu_mi_rep_1.HPDI[1,],mu_mi_ran_5.HPDI[1,],mu_mi_rep_5.HPDI[1,],mu_pp_ran_1.HPDI[1,],mu_pp_rep_1.HPDI[1,],mu_pp_ran_5.HPDI[1,],mu_pp_rep_5.HPDI[1,],mu_ppfb_ran_1.HPDI[1,],mu_ppfb_rep_1.HPDI[1,],mu_ppfb_ran_5.HPDI[1,],mu_ppfb_rep_5.HPDI[1,])
+postHPDI2 <- c(mu_cc_ran_1.HPDI[2,],mu_cc_rep_1.HPDI[2,],mu_cc_ran_5.HPDI[2,],mu_cc_rep_5.HPDI[2,],mu_mi_ran_1.HPDI[2,],mu_mi_rep_1.HPDI[2,],mu_mi_ran_5.HPDI[2,],mu_mi_rep_5.HPDI[2,],mu_pp_ran_1.HPDI[2,],mu_pp_rep_1.HPDI[2,],mu_pp_ran_5.HPDI[2,],mu_pp_rep_5.HPDI[2,],mu_ppfb_ran_1.HPDI[2,],mu_ppfb_rep_1.HPDI[2,],mu_ppfb_ran_5.HPDI[2,],mu_ppfb_rep_5.HPDI[2,])
+session_num <- rep(c(1,5,1,5,1,5,1,5),each=2000)
+condition <- as.factor(rep(c("CC","MI","PP","PPVR"),each=4000))
+figure_type <- as.factor(rep(c("random","repeated","random","repeated","random","repeated","random","repeated","random","repeated","random","repeated","random","repeated","random","repeated"),each=1000))
+post.HPDI <- data.frame(condition,session_num,figure_type,Sspeed,postmean,postHPDI1,postHPDI2)
+colnames(post.HPDI)[which(names(post.HPDI) == "postmean")] <- "Serror"
+
+ggplot(subset(dat, ((session_num == 1) | (session_num == 5)))
+       , mapping = aes(
+               x = Sspeed, y = Serror
+               , color = factor(figure_type)
+       )) + geom_point(na.rm = TRUE, alpha = .25) + 
+        geom_line(data = post.HPDI) +
+        geom_ribbon(data = post.HPDI, aes(
+                ymin=postHPDI1
+                , ymax=postHPDI2), alpha=0.2) +
+        theme_minimal() +
+        facet_grid(session_num ~ condition) +
+        # geom_smooth() +
+        labs(title = "Shape Error"
+             , x = "Velocity (scaled)"
+             , y = "Shape Error (scaled)"
+             , color = "Figure Type") +
+        coord_cartesian(xlim = c(min(dat$Sspeed),1), ylim = c(min(dat$Serror),1))
+        # coord_cartesian(xlim = c(-0.5,1.5), ylim = c(-0.5,1.5))
+
+#### Density Plots ####
+
+## SHIFT:
+
+par(mfrow=c(2,2))
+
+## CC ##
+plot(density(mu_cc_ran_1$D))
+plot(density(mu_cc_rep_1$D))
+plot(density(mu_cc_ran_5$D))
+plot(density(mu_cc_rep_5$D))
+
+## MI ##
+plot(density(mu_mi_ran_1$D))
+plot(density(mu_mi_rep_1$D))
+plot(density(mu_mi_ran_5$D))
+plot(density(mu_mi_rep_5$D))
+
+## PP ##
+plot(density(mu_pp_ran_1$D))
+plot(density(mu_pp_rep_1$D))
+plot(density(mu_pp_ran_5$D))
+plot(density(mu_pp_rep_5$D))
+
+## PPFB ##
+plot(density(mu_ppfb_ran_1$D))
+plot(density(mu_ppfb_rep_1$D))
+plot(density(mu_ppfb_ran_5$D))
+plot(density(mu_ppfb_rep_5$D))
