@@ -4522,51 +4522,77 @@ saf.10.4 <- map2stan(
                 # model
                 mu <- (a / (1 + (exp(-(c*(Sspeed-D)))))),
                 
-                D <- d + d_g[group] + d_p[participant] + d_cond*rep + d_sess*session +
+                D <- d + d_g[group] + d_p[participant]*sigma_participant + d_cond*rep + d_sess*session +
                         d_cond_g[group]*rep + d_sess_g[group]*session + d_cond_sess*rep*session +
                         d_cond_sess_g[group]*rep*session,
                 
-                sigma <- inv_logit(a_sigma + b_sigma*Sspeed), # constrain 0 to 1 (given Serror range)
+                sigma <- a_sigma + b_sigma*Sspeed,
                 
-                # adaptive priors
-                d_p[participant] ~ dnorm(0.5,sigma_participant),
+                # adaptive priors # non-centered (see sigma_participant in linear model above)
+                d_p[participant] ~ dnorm(0,1),
                 
                 # fixed priors
-                c(a, c, d, 
-                  d_cond, d_sess, d_cond_sess) ~ dnorm(0.5,1),
-                d_g[group] ~ dnorm(0.5,1),
-                d_cond_g[group] ~ dnorm(0.5,1),
-                d_sess_g[group] ~ dnorm(0.5,1),
-                d_cond_sess_g[group] ~ dnorm(0.5,1),
+                a ~ dnorm(1,1),
+                c ~ dnorm(1,1), 
+                d ~ dnorm(0.5,1), 
+                d_cond ~ dnorm(0,1), 
+                d_sess ~ dnorm(0,1), 
+                d_cond_sess ~ dnorm(0,1),
+                d_g[group] ~ dnorm(0,1),
+                d_cond_g[group] ~ dnorm(0,1),
+                d_sess_g[group] ~ dnorm(0,1),
+                d_cond_sess_g[group] ~ dnorm(0,1),
                 
-                sigma_participant~ dcauchy(0,2),
+                sigma_participant ~ dcauchy(0,2),
                 
                 a_sigma ~ dcauchy(0,2),
                 b_sigma ~ dnorm(0,1)
-        ) ,
+        ),
         data = dat,
         start = list(
-                a = mean(subset(dat, dat$Sspeed > quantile(dat$Sspeed,3/4))$Serror),
-                c = (mean(subset(dat, dat$Sspeed > quantile(dat$Sspeed,3/4))$Serror) - mean(subset(dat, dat$Sspeed < quantile(dat$Sspeed,1/4))$Serror)) / (max(dat$Sspeed) - min(dat$Sspeed)),
-                d = median(dat$Sspeed)
+                a = 1,
+                c = 1,
+                d = 0.5,
+                d_cond = 0, 
+                d_sess = 0, 
+                d_cond_sess = 0,
+                d_g[group] = c(0,0,0,0),
+                d_cond_g[group] = c(0,0,0,0),
+                d_sess_g[group] = c(0,0,0,0),
+                d_cond_sess_g[group] = c(0,0,0,0),
+                
+                sigma_participant = 1,
+                a_sigma = 1,
+                b_sigma = 0.5
         ),
         constraints = list(
-                c = "lower = 0"
+                c = "lower=0",
+                d = "lower=0",
+                
+                sigma_participant = "lower=0",
+                a_sigma = "lower=0",
+                b_sigma = "lower=0"
         ),
         sample = TRUE,
         iter = 100,
         warmup = 50,
         chains = 1, 
-        cores = 1 )
+        cores = 1 ,
+        control=list(adapt_delta=0.90)
+        )
 save(saf.10.4, file = "saf10_4.Rda")
 saf.10 <- saf.10.4
 precis(saf.10, depth=2, pars=c("a","b","c","d","a_sigma","b_sigma")) 
-pairs(saf.10, pars=c("c","d","a_sigma","b_sigma"))
+pairs(saf.10, pars=c("a","c","d","a_sigma","b_sigma"))
 dashboard(saf.10)
 par(mfrow=c(1,1))
-plot(saf.10, pars=c("c","d","a_sigma","b_sigma"))
+plot(saf.10, pars=c("a","c","d","a_sigma","b_sigma"))
 stancode(saf.10)
 WAIC(saf.10)
+
+precis(saf.10, depth=2, pars=c("d","d_cond","d_sess","d_cond_sess",
+                               "d_g","d_cond_g","d_sess_g","d_cond_sess_g")) 
+precis(saf.10, depth=2, pars=c("d_p","sigma_participant"))
 
 #### notes on fits ####
 
@@ -5081,7 +5107,7 @@ dat$Sspeed <- rescale(dat$vresp, to=c(0,1))
 # plot(dat$Sspeed,dat$Serror)
 
 #### saf.11 ####
-saf.11 <- map2stan(
+saf.11.1 <- map2stan(
         alist(
                 # likelihood
                 Serror ~ dnorm( mu, sigma ),
@@ -5116,18 +5142,20 @@ saf.11 <- map2stan(
         ) ,
         data = dat,
         start = list(
-                c = (mean(subset(dat, dat$Sspeed > quantile(dat$Sspeed,3/4))$Serror) - mean(subset(dat, dat$Sspeed < quantile(dat$Sspeed,1/4))$Serror)) / (max(dat$Sspeed) - min(dat$Sspeed)),
-                d = median(dat$Sspeed)
+                c = 1,
+                d = 0.5
         ),
         constraints = list(
-                c = "lower=0"
+                c = "lower=0",
+                d = "lower=0"
         ),
         sample = TRUE,
         iter = 200,
         warmup = 100,
         chains = 1, 
         cores = 1 )
-save(saf.11, file = "saf11.Rda")
+save(saf.11.1, file = "saf11_1.Rda")
+saf.11 <- saf.11.1
 precis(saf.11, depth=2, pars=c("c","d","a_sigma","b_sigma")) 
 pairs(saf.11, pars=c("c","d","a_sigma","b_sigma"))
 dashboard(saf.11)
@@ -5136,10 +5164,35 @@ plot(saf.11, pars=c("c","d","a_sigma","b_sigma"))
 stancode(saf.11)
 WAIC(saf.11)
 
+precis(saf.11, depth=2, pars=c("d","d_cond","d_sess","d_cond_sess",
+                               "d_g","d_cond_g","d_sess_g","d_cond_sess_g")) 
+
+
+# 100 iter did not converge
+# 200 iter worked great
+
+# 200 iter * 5 chains (server) converged for c but badly for all
+# but no divergent iterations thankfully, and plots well. 
+# how to help a model converge?
+
+# try more principled yet naive start values for c and d:
+# 200 iter * 4 chain - same results as server
+
+load("saf10_1.Rda")
+load("saf10_2.Rda")
+load("saf10_3.Rda")
+load("saf10_4.Rda")
+load("saf11.Rda")
+
+compare(saf.10.1,saf.10.2,saf.10.3,saf.10.4,saf.11)
+plot(compare(saf.10.1,saf.10.2,saf.10.3,saf.10.4,saf.11))
+
 #### PLOTS ####
 
+load("saf11.Rda")
+
 # remember to run all the code setting up model 10!
-n = 100 # number of samples in post
+n = 500 # number of samples in post
 # post <- extract.samples(saf.11) # see how many samples
 
 # compute percentile interval of mean
@@ -5437,4 +5490,35 @@ ggplot(subset(dat, ((session_num == 1) | (session_num == 5)))
         coord_cartesian(xlim = c(min(dat$Sspeed),1), ylim = c(min(dat$Serror),1))
 # coord_cartesian(xlim = c(-0.5,1.5), ylim = c(-0.5,1.5))
 
+
+
+#### Density Plots ####
+
+## SHIFT:
+
+par(mfrow=c(2,2))
+
+## CC ##
+plot(density(mu_cc_ran_1$D))
+plot(density(mu_cc_rep_1$D))
+plot(density(mu_cc_ran_5$D))
+plot(density(mu_cc_rep_5$D))
+
+## MI ##
+plot(density(mu_mi_ran_1$D))
+plot(density(mu_mi_rep_1$D))
+plot(density(mu_mi_ran_5$D))
+plot(density(mu_mi_rep_5$D))
+
+## PP ##
+plot(density(mu_pp_ran_1$D))
+plot(density(mu_pp_rep_1$D))
+plot(density(mu_pp_ran_5$D))
+plot(density(mu_pp_rep_5$D))
+
+## PPFB ##
+plot(density(mu_ppfb_ran_1$D))
+plot(density(mu_ppfb_rep_1$D))
+plot(density(mu_ppfb_ran_5$D))
+plot(density(mu_ppfb_rep_5$D))
 
