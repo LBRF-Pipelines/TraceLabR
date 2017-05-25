@@ -4644,7 +4644,7 @@ precis(saf.10, depth=2, pars=c("d_p","sigma_participant"))
 
 # saf.10.4 — 500 iter, still didn't converge, but fits look decent, but not much better
 
-# saf.10.5 — 200 almost converges now after trying some tweaks, like
+# saf.10.4 — 200 almost converges now after trying some tweaks, like
 # non-centered parameterization of varying effects, and putting in some
 # more constraints, starting points, and reasonable priors given the 0-1 scaling.
 
@@ -4991,7 +4991,7 @@ plot(density(mu_ppfb_rep_1$D))
 plot(density(mu_ppfb_ran_5$D))
 plot(density(mu_ppfb_rep_5$D))
 
-#### Model 11 — setup ####
+#### Model 11 setup ####
 
 library(rethinking)
 
@@ -5190,342 +5190,6 @@ load("saf11.Rda")
 compare(saf.10.1,saf.10.2,saf.10.3,saf.10.4,saf.11)
 plot(compare(saf.10.1,saf.10.2,saf.10.3,saf.10.4,saf.11))
 
-#### PLOTS ####
-
-load("saf11.Rda")
-
-# remember to run all the code setting up model 10!
-n = 500 # number of samples in post
-# post <- extract.samples(saf.11) # see how many samples
-
-# compute percentile interval of mean
-# Sspeed.seq <- seq( from=min(dat$Sspeed, na.rm=TRUE) , to=max(dat$Sspeed, na.rm=TRUE) , length.out=1000 )
-Sspeed.seq <- seq( from=-1 , to=2 , length.out=1000 )
-# replace varying intercept samples with zeros
-# e.g. 1000 samples by 30 participants
-a_p_zeros <- matrix(0,n,60) # works if just a multiple of replacement length?
-b_p_zeros <- matrix(0,n,60)
-c_p_zeros <- matrix(0,n,60)
-
-## CC RAN VS REP SESSION 1:
-
-dater1 <- list(
-        Sspeed = Sspeed.seq,
-        group = rep(1,length(Sspeed.seq)),
-        participant = rep(1,length(Sspeed.seq)), # placeholder
-        session = rep(1,length(Sspeed.seq)),
-        rep = rep(0,length(Sspeed.seq))
-)
-dater2 <- list(
-        Sspeed = Sspeed.seq,
-        group = rep(1,length(Sspeed.seq)),
-        participant = rep(1,length(Sspeed.seq)), # placeholder
-        session = rep(1,length(Sspeed.seq)),
-        rep = rep(1,length(Sspeed.seq))
-)
-
-mu_cc_ran_1 <- link( saf.11, n=n, data=dater1,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
-mu_cc_ran_1.mean <- apply( mu_cc_ran_1$mu , 2 , mean )
-mu_cc_ran_1.HPDI <- apply( mu_cc_ran_1$mu , 2 , HPDI )
-
-mu_cc_rep_1 <- link( saf.11, n=n, data=dater2,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
-mu_cc_rep_1.mean <- apply( mu_cc_rep_1$mu , 2 , mean )
-mu_cc_rep_1.HPDI <- apply( mu_cc_rep_1$mu , 2 , HPDI )
-
-
-## CC RAN VS REP SESSION 5:
-
-dater1 <- list(
-        Sspeed = Sspeed.seq,
-        group = rep(1,length(Sspeed.seq)),
-        participant = rep(1,length(Sspeed.seq)), # placeholder
-        session = rep(5,length(Sspeed.seq)),
-        rep = rep(0,length(Sspeed.seq))
-)
-dater2 <- list(
-        Sspeed = Sspeed.seq,
-        group = rep(1,length(Sspeed.seq)),
-        participant = rep(1,length(Sspeed.seq)), # placeholder
-        session = rep(5,length(Sspeed.seq)),
-        rep = rep(1,length(Sspeed.seq))
-)
-
-mu_cc_ran_5 <- link( saf.11, n=n, data=dater1,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
-mu_cc_ran_5.mean <- apply( mu_cc_ran_5$mu , 2 , mean )
-mu_cc_ran_5.HPDI <- apply( mu_cc_ran_5$mu , 2 , HPDI )
-
-mu_cc_rep_5 <- link( saf.11, n=n, data=dater2,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
-mu_cc_rep_5.mean <- apply( mu_cc_rep_5$mu , 2 , mean )
-mu_cc_rep_5.HPDI <- apply( mu_cc_rep_5$mu , 2 , HPDI )
-
-
-## MI RAN VS REP SESSION 1:
-
-dater1 <- list(
-        Sspeed = Sspeed.seq,
-        group = rep(2,length(Sspeed.seq)),
-        participant = rep(1,length(Sspeed.seq)), # placeholder
-        session = rep(1,length(Sspeed.seq)),
-        rep = rep(0,length(Sspeed.seq))
-)
-dater2 <- list(
-        Sspeed = Sspeed.seq,
-        group = rep(2,length(Sspeed.seq)),
-        participant = rep(1,length(Sspeed.seq)), # placeholder
-        session = rep(1,length(Sspeed.seq)),
-        rep = rep(1,length(Sspeed.seq))
-)
-
-mu_mi_ran_1 <- link( saf.11, n=n, data=dater1,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
-mu_mi_ran_1.mean <- apply( mu_mi_ran_1$mu , 2 , mean )
-mu_mi_ran_1.HPDI <- apply( mu_mi_ran_1$mu , 2 , HPDI )
-
-mu_mi_rep_1 <- link( saf.11, n=n, data=dater2,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
-mu_mi_rep_1.mean <- apply( mu_mi_rep_1$mu , 2 , mean )
-mu_mi_rep_1.HPDI <- apply( mu_mi_rep_1$mu , 2 , HPDI )
-
-
-## MI RAN VS REP SESSION 5:
-
-dater1 <- list(
-        Sspeed = Sspeed.seq,
-        group = rep(2,length(Sspeed.seq)),
-        participant = rep(1,length(Sspeed.seq)), # placeholder
-        session = rep(5,length(Sspeed.seq)),
-        rep = rep(0,length(Sspeed.seq))
-)
-dater2 <- list(
-        Sspeed = Sspeed.seq,
-        group = rep(2,length(Sspeed.seq)),
-        participant = rep(1,length(Sspeed.seq)), # placeholder
-        session = rep(5,length(Sspeed.seq)),
-        rep = rep(1,length(Sspeed.seq))
-)
-
-mu_mi_ran_5 <- link( saf.11, n=n, data=dater1,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
-mu_mi_ran_5.mean <- apply( mu_mi_ran_5$mu , 2 , mean )
-mu_mi_ran_5.HPDI <- apply( mu_mi_ran_5$mu , 2 , HPDI )
-
-mu_mi_rep_5 <- link( saf.11, n=n, data=dater2,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
-mu_mi_rep_5.mean <- apply( mu_mi_rep_5$mu , 2 , mean )
-mu_mi_rep_5.HPDI <- apply( mu_mi_rep_5$mu , 2 , HPDI )
-
-
-## PP RAN VS REP SESSION 1:
-
-dater1 <- list(
-        Sspeed = Sspeed.seq,
-        group = rep(3,length(Sspeed.seq)),
-        participant = rep(1,length(Sspeed.seq)), # placeholder
-        session = rep(1,length(Sspeed.seq)),
-        rep = rep(0,length(Sspeed.seq))
-)
-dater2 <- list(
-        Sspeed = Sspeed.seq,
-        group = rep(3,length(Sspeed.seq)),
-        participant = rep(1,length(Sspeed.seq)), # placeholder
-        session = rep(1,length(Sspeed.seq)),
-        rep = rep(1,length(Sspeed.seq))
-)
-
-mu_pp_ran_1 <- link( saf.11, n=n, data=dater1,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
-mu_pp_ran_1.mean <- apply( mu_pp_ran_1$mu , 2 , mean )
-mu_pp_ran_1.HPDI <- apply( mu_pp_ran_1$mu , 2 , HPDI )
-
-mu_pp_rep_1 <- link( saf.11, n=n, data=dater2,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
-mu_pp_rep_1.mean <- apply( mu_pp_rep_1$mu , 2 , mean )
-mu_pp_rep_1.HPDI <- apply( mu_pp_rep_1$mu , 2 , HPDI )
-
-
-## PP RAN VS REP SESSION 5:
-
-dater1 <- list(
-        Sspeed = Sspeed.seq,
-        group = rep(3,length(Sspeed.seq)),
-        participant = rep(1,length(Sspeed.seq)), # placeholder
-        session = rep(5,length(Sspeed.seq)),
-        rep = rep(0,length(Sspeed.seq))
-)
-dater2 <- list(
-        Sspeed = Sspeed.seq,
-        group = rep(3,length(Sspeed.seq)),
-        participant = rep(1,length(Sspeed.seq)), # placeholder
-        session = rep(5,length(Sspeed.seq)),
-        rep = rep(1,length(Sspeed.seq))
-)
-
-mu_pp_ran_5 <- link( saf.11, n=n, data=dater1,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
-mu_pp_ran_5.mean <- apply( mu_pp_ran_5$mu , 2 , mean )
-mu_pp_ran_5.HPDI <- apply( mu_pp_ran_5$mu , 2 , HPDI )
-
-mu_pp_rep_5 <- link( saf.11, n=n, data=dater2,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
-mu_pp_rep_5.mean <- apply( mu_pp_rep_5$mu , 2 , mean )
-mu_pp_rep_5.HPDI <- apply( mu_pp_rep_5$mu , 2 , HPDI )
-
-
-## PPFB RAN VS REP SESSION 1:
-
-dater1 <- list(
-        Sspeed = Sspeed.seq,
-        group = rep(4,length(Sspeed.seq)),
-        participant = rep(1,length(Sspeed.seq)), # placeholder
-        session = rep(1,length(Sspeed.seq)),
-        rep = rep(0,length(Sspeed.seq))
-)
-dater2 <- list(
-        Sspeed = Sspeed.seq,
-        group = rep(4,length(Sspeed.seq)),
-        participant = rep(1,length(Sspeed.seq)), # placeholder
-        session = rep(1,length(Sspeed.seq)),
-        rep = rep(1,length(Sspeed.seq))
-)
-
-mu_ppfb_ran_1 <- link( saf.11, n=n, data=dater1,
-                       replace = list(a_p = a_p_zeros,
-                                      b_p = b_p_zeros,
-                                      c_p = c_p_zeros) )
-mu_ppfb_ran_1.mean <- apply( mu_ppfb_ran_1$mu , 2 , mean )
-mu_ppfb_ran_1.HPDI <- apply( mu_ppfb_ran_1$mu , 2 , HPDI )
-
-mu_ppfb_rep_1 <- link( saf.11, n=n, data=dater2,
-                       replace = list(a_p = a_p_zeros,
-                                      b_p = b_p_zeros,
-                                      c_p = c_p_zeros) )
-mu_ppfb_rep_1.mean <- apply( mu_ppfb_rep_1$mu , 2 , mean )
-mu_ppfb_rep_1.HPDI <- apply( mu_ppfb_rep_1$mu , 2 , HPDI )
-
-
-## PPFB RAN VS REP SESSION 5:
-
-dater1 <- list(
-        Sspeed = Sspeed.seq,
-        group = rep(4,length(Sspeed.seq)),
-        participant = rep(1,length(Sspeed.seq)), # placeholder
-        session = rep(5,length(Sspeed.seq)),
-        rep = rep(0,length(Sspeed.seq))
-)
-dater2 <- list(
-        Sspeed = Sspeed.seq,
-        group = rep(4,length(Sspeed.seq)),
-        participant = rep(1,length(Sspeed.seq)), # placeholder
-        session = rep(5,length(Sspeed.seq)),
-        rep = rep(1,length(Sspeed.seq))
-)
-
-mu_ppfb_ran_5 <- link( saf.11, n=n, data=dater1,
-                       replace = list(a_p = a_p_zeros,
-                                      b_p = b_p_zeros,
-                                      c_p = c_p_zeros) )
-mu_ppfb_ran_5.mean <- apply( mu_ppfb_ran_5$mu , 2 , mean )
-mu_ppfb_ran_5.HPDI <- apply( mu_ppfb_ran_5$mu , 2 , HPDI )
-
-mu_ppfb_rep_5 <- link( saf.11, n=n, data=dater2,
-                       replace = list(a_p = a_p_zeros,
-                                      b_p = b_p_zeros,
-                                      c_p = c_p_zeros) )
-mu_ppfb_rep_5.mean <- apply( mu_ppfb_rep_5$mu , 2 , mean )
-mu_ppfb_rep_5.HPDI <- apply( mu_ppfb_rep_5$mu , 2 , HPDI )
-
-## put it all in a matrix that lines up with actual data ##
-
-postmean <- c(mu_cc_ran_1.mean,mu_cc_rep_1.mean,mu_cc_ran_5.mean,mu_cc_rep_5.mean,mu_mi_ran_1.mean,mu_mi_rep_1.mean,mu_mi_ran_5.mean,mu_mi_rep_5.mean,mu_pp_ran_1.mean,mu_pp_rep_1.mean,mu_pp_ran_5.mean,mu_pp_rep_5.mean,mu_ppfb_ran_1.mean,mu_ppfb_rep_1.mean,mu_ppfb_ran_5.mean,mu_ppfb_rep_5.mean)
-Sspeed <- rep(seq( from=-1 , to=2 , length.out=1000 ),16)
-postHPDI1 <- c(mu_cc_ran_1.HPDI[1,],mu_cc_rep_1.HPDI[1,],mu_cc_ran_5.HPDI[1,],mu_cc_rep_5.HPDI[1,],mu_mi_ran_1.HPDI[1,],mu_mi_rep_1.HPDI[1,],mu_mi_ran_5.HPDI[1,],mu_mi_rep_5.HPDI[1,],mu_pp_ran_1.HPDI[1,],mu_pp_rep_1.HPDI[1,],mu_pp_ran_5.HPDI[1,],mu_pp_rep_5.HPDI[1,],mu_ppfb_ran_1.HPDI[1,],mu_ppfb_rep_1.HPDI[1,],mu_ppfb_ran_5.HPDI[1,],mu_ppfb_rep_5.HPDI[1,])
-postHPDI2 <- c(mu_cc_ran_1.HPDI[2,],mu_cc_rep_1.HPDI[2,],mu_cc_ran_5.HPDI[2,],mu_cc_rep_5.HPDI[2,],mu_mi_ran_1.HPDI[2,],mu_mi_rep_1.HPDI[2,],mu_mi_ran_5.HPDI[2,],mu_mi_rep_5.HPDI[2,],mu_pp_ran_1.HPDI[2,],mu_pp_rep_1.HPDI[2,],mu_pp_ran_5.HPDI[2,],mu_pp_rep_5.HPDI[2,],mu_ppfb_ran_1.HPDI[2,],mu_ppfb_rep_1.HPDI[2,],mu_ppfb_ran_5.HPDI[2,],mu_ppfb_rep_5.HPDI[2,])
-session_num <- rep(c(1,5,1,5,1,5,1,5),each=2000)
-condition <- as.factor(rep(c("CC","MI","PP","PPVR"),each=4000))
-figure_type <- as.factor(rep(c("random","repeated","random","repeated","random","repeated","random","repeated","random","repeated","random","repeated","random","repeated","random","repeated"),each=1000))
-post.HPDI <- data.frame(condition,session_num,figure_type,Sspeed,postmean,postHPDI1,postHPDI2)
-colnames(post.HPDI)[which(names(post.HPDI) == "postmean")] <- "Serror"
-
-ggplot(subset(dat, ((session_num == 1) | (session_num == 5)))
-       , mapping = aes(
-               x = Sspeed, y = Serror
-               , color = factor(figure_type)
-       )) + geom_point(na.rm = TRUE, alpha = .25) + 
-        geom_line(data = post.HPDI) +
-        geom_ribbon(data = post.HPDI, aes(
-                ymin=postHPDI1
-                , ymax=postHPDI2), alpha=0.2) +
-        theme_minimal() +
-        facet_grid(session_num ~ condition) +
-        # geom_smooth() +
-        labs(title = "Shape Error"
-             , x = "Velocity (scaled)"
-             , y = "Shape Error (scaled)"
-             , color = "Figure Type") +
-        coord_cartesian(xlim = c(min(dat$Sspeed),1), ylim = c(min(dat$Serror),1))
-# coord_cartesian(xlim = c(-0.5,1.5), ylim = c(-0.5,1.5))
-
-
-
-#### Density Plots ####
-
-## SHIFT:
-
-par(mfrow=c(2,2))
-
-## CC ##
-plot(density(mu_cc_ran_1$D))
-plot(density(mu_cc_rep_1$D))
-plot(density(mu_cc_ran_5$D))
-plot(density(mu_cc_rep_5$D))
-
-## MI ##
-plot(density(mu_mi_ran_1$D))
-plot(density(mu_mi_rep_1$D))
-plot(density(mu_mi_ran_5$D))
-plot(density(mu_mi_rep_5$D))
-
-## PP ##
-plot(density(mu_pp_ran_1$D))
-plot(density(mu_pp_rep_1$D))
-plot(density(mu_pp_ran_5$D))
-plot(density(mu_pp_rep_5$D))
-
-## PPFB ##
-plot(density(mu_ppfb_ran_1$D))
-plot(density(mu_ppfb_rep_1$D))
-plot(density(mu_ppfb_ran_5$D))
-plot(density(mu_ppfb_rep_5$D))
-
-
 #### saf.11.1 ####
 saf.11.1 <- map2stan(
         alist(
@@ -5588,11 +5252,11 @@ saf.11.1 <- map2stan(
         sample = TRUE,
         iter = 1000,
         warmup = 500,
-        chains = 10, 
-        cores = 10 ,
+        chains = 1, 
+        cores = 1 ,
         control=list(adapt_delta=0.90)
 )
-save(saf.11.1, file = "saf11_1.Rda")
+# save(saf.11.1, file = "saf11_1.Rda")
 precis(saf.11.1, depth=2, pars=c("a","b","c","d","a_sigma","b_sigma")) 
 pairs(saf.11.1, pars=c("a","c","d","a_sigma","b_sigma"))
 dashboard(saf.11.1)
@@ -5607,14 +5271,15 @@ precis(saf.11.1, depth=2, pars=c("d_p","sigma_participant"))
 
 #### PLOTS ####
 
-load("saf11_1.Rda")
+# remember to run all the code setting up model 11!
+
+# load("saf11_1.Rda")
 
 # which model?
 mod <- saf.11.1
 
-# remember to run all the code setting up model 10!
-n = 500 # number of samples in post
 # post <- extract.samples(mod) # see how many samples
+n = 5000 # number of samples in post
 
 # compute percentile interval of mean
 # Sspeed.seq <- seq( from=min(dat$Sspeed, na.rm=TRUE) , to=max(dat$Sspeed, na.rm=TRUE) , length.out=1000 )
@@ -5942,5 +5607,819 @@ plot(density(mu_ppfb_ran_5$D))
 plot(density(mu_ppfb_rep_5$D))
 
 
-#### Model 12 — try imputation ####
+#### "performance" ####
 
+par(mfrow=c(1,1))
+
+# CC
+
+mu_cc_1_diff = mu_cc_rep_1$D - mu_cc_ran_1$D
+density(mu_cc_1_diff)
+plot(density(mu_cc_1_diff))
+
+mu_cc_5_diff = mu_cc_rep_5$D - mu_cc_ran_5$D
+density(mu_cc_5_diff)
+plot(density(mu_cc_5_diff))
+
+# MI
+
+mu_mi_1_diff = mu_mi_rep_1$D - mu_mi_ran_1$D
+density(mu_mi_1_diff)
+plot(density(mu_mi_1_diff))
+
+mu_mi_5_diff = mu_mi_rep_5$D - mu_mi_ran_5$D
+density(mu_mi_5_diff)
+plot(density(mu_mi_5_diff))
+
+# PP
+
+mu_pp_1_diff = mu_pp_rep_1$D - mu_pp_ran_1$D
+density(mu_pp_1_diff)
+plot(density(mu_pp_1_diff))
+
+mu_pp_5_diff = mu_pp_rep_5$D - mu_pp_ran_5$D
+density(mu_pp_5_diff)
+plot(density(mu_pp_5_diff))
+
+# PPFB
+
+mu_ppfb_1_diff = mu_ppfb_rep_1$D - mu_ppfb_ran_1$D
+density(mu_ppfb_1_diff)
+plot(density(mu_ppfb_1_diff))
+
+mu_ppfb_5_diff = mu_ppfb_rep_5$D - mu_ppfb_ran_5$D
+density(mu_ppfb_5_diff)
+plot(density(mu_ppfb_5_diff))
+
+#### "learning" ####
+
+par(mfrow=c(1,1))
+
+        ## CC 
+
+# # using CC day 1:
+# mu_cc_learn = mu_cc_5_diff - mu_cc_1_diff
+# density(mu_cc_learn)
+# plot(density(mu_cc_learn))
+
+# using PP day 1:
+mu_cc_learn = mu_cc_5_diff - mu_pp_1_diff
+density(mu_cc_learn)
+plot(density(mu_cc_learn))
+
+# ES?
+mean(mu_cc_learn)
+sd(mu_cc_learn)
+mean(mu_cc_learn)/sd(mu_cc_learn)
+
+mu_cc_learn_ES <- mu_cc_learn/sd(mu_cc_learn)
+plot(density(mu_cc_learn_ES))
+HPDI(mu_cc_learn_ES[,1], prob = .95) 
+
+
+        ## MI
+
+# # using MI day 1:
+# mu_mi_learn = mu_mi_5_diff - mu_mi_1_diff
+# density(mu_mi_learn)
+# plot(density(mu_mi_learn))
+
+# using PP day 1:
+mu_mi_learn = mu_mi_5_diff - mu_pp_1_diff
+density(mu_mi_learn)
+plot(density(mu_mi_learn))
+
+# ES?
+mean(mu_mi_learn)
+sd(mu_mi_learn)
+mean(mu_mi_learn)/sd(mu_mi_learn)
+
+mu_mi_learn_ES <- mu_mi_learn/sd(mu_mi_learn)
+plot(density(mu_mi_learn_ES))
+HPDI(mu_mi_learn_ES[,1], prob = .95) 
+
+
+        ## PP 
+
+mu_pp_learn = mu_pp_5_diff - mu_pp_1_diff
+density(mu_pp_learn)
+plot(density(mu_pp_learn))
+
+# ES?
+mean(mu_pp_learn)
+sd(mu_pp_learn)
+mean(mu_pp_learn)/sd(mu_pp_learn)
+
+mu_pp_learn_ES <- mu_pp_learn/sd(mu_pp_learn)
+plot(density(mu_pp_learn_ES))
+HPDI(mu_pp_learn_ES[,1], prob = .95) 
+
+
+        ## PPFB
+
+mu_ppfb_learn = mu_ppfb_5_diff - mu_ppfb_1_diff
+density(mu_ppfb_learn)
+plot(density(mu_ppfb_learn))
+
+# ES?
+mean(mu_ppfb_learn)
+sd(mu_ppfb_learn)
+mean(mu_ppfb_learn)/sd(mu_ppfb_learn)
+
+mu_ppfb_learn_ES <- mu_ppfb_learn/sd(mu_ppfb_learn)
+plot(density(mu_ppfb_learn_ES))
+HPDI(mu_ppfb_learn_ES[,1], prob = .95) 
+
+HPDI(mu_cc_learn_ES[,1], prob = .95) 
+HPDI(mu_mi_learn_ES[,1], prob = .95) 
+HPDI(mu_pp_learn_ES[,1], prob = .95) 
+HPDI(mu_ppfb_learn_ES[,1], prob = .95) 
+
+#### NOTES ####
+
+# so, it appears that CC gets worse, PP doesn't learn
+# MI learns, and PPFB learns the best.
+
+# I think this is due to modelling by session rather
+# than block... day one accounts for so much of the 
+# action, and we miss online vs offline effects. 
+
+
+#### Model 12: try by block again ####
+
+library(rethinking)
+
+## SIMPLIFY VARIABLE NAMES ##
+dat$condition <- as.factor(gsub("MI-00-5","MI", dat$condition))
+dat$condition <- as.factor(gsub("CC-00-5","CC", dat$condition))
+dat$condition <- as.factor(gsub("PP-VV-5","PP", dat$condition))
+dat$condition <- as.factor(gsub("PP-VR-5","PPVR", dat$condition))
+# colnames(dat)[which(names(dat) == "vresp")] <- "speed"
+# colnames(dat)[which(names(dat) == "shape_dtw_error_mean")] <- "error"
+colnames(dat)[which(names(dat) == "participant_id")] <- "participant"
+
+## STANDARDIZE DATA ##
+dat$Zerror <- scale(dat$shape_dtw_error_mean)   # CHOOSE ERROR HERE
+dat$Zspeed <- scale(dat$vresp)                  # NOTE NAMING
+dat$session <- as.numeric(dat$session_num)
+dat$block_id <- as.integer(factor(with(dat, paste(session_num, block_num))))
+
+## DUMMY VARIABLES ##
+dat$rep <- ifelse(dat$figure_type=="repeated", 1, 0)
+dat$CC <- ifelse(dat$condition=="CC", 1, 0)
+dat$MI <- ifelse(dat$condition=="MI", 1, 0)
+dat$PP <- ifelse(dat$condition=="PP", 1, 0)
+dat$PPFB <- ifelse(dat$condition=="PPVR", 1, 0)
+
+## CATEGORICAL VARIABLES ##
+dat$group <- coerce_index(dat$condition) # CC = 1, MI = 2, PP = 3, PPVR = 4
+dat$fig_type <- coerce_index(dat$figure_type)
+
+## CHECK PARTICIPANT NUMBERS:
+unique(subset(dat, (CC == 1))$participant)
+unique(subset(dat, (MI == 1))$participant)
+unique(subset(dat, (PP == 1))$participant)
+unique(subset(dat, (PPFB == 1))$participant)
+
+# should change them in a logical way... 1:15, 16:30 like this: 
+
+dat1 <- dat
+# CC group participants 1:15:
+dat$participant[dat1$participant==5] <- 1
+dat$participant[dat1$participant==10] <- 2
+dat$participant[dat1$participant==11] <- 3
+dat$participant[dat1$participant==12] <- 4
+dat$participant[dat1$participant==24] <- 5
+dat$participant[dat1$participant==25] <- 6
+dat$participant[dat1$participant==26] <- 7
+dat$participant[dat1$participant==27] <- 8
+dat$participant[dat1$participant==28] <- 9
+dat$participant[dat1$participant==31] <- 10
+dat$participant[dat1$participant==34] <- 11
+dat$participant[dat1$participant==38] <- 12
+dat$participant[dat1$participant==54] <- 13
+dat$participant[dat1$participant==63] <- 14
+dat$participant[dat1$participant==65] <- 15
+
+# MI group participants 16:30:
+dat$participant[dat1$participant==1] <- 16
+dat$participant[dat1$participant==2] <- 17
+dat$participant[dat1$participant==14] <- 18
+dat$participant[dat1$participant==16] <- 19
+dat$participant[dat1$participant==23] <- 20
+dat$participant[dat1$participant==29] <- 21
+dat$participant[dat1$participant==32] <- 22
+dat$participant[dat1$participant==37] <- 23
+dat$participant[dat1$participant==43] <- 24
+dat$participant[dat1$participant==45] <- 25
+dat$participant[dat1$participant==56] <- 26
+dat$participant[dat1$participant==58] <- 27
+dat$participant[dat1$participant==61] <- 28
+dat$participant[dat1$participant==64] <- 29
+dat$participant[dat1$participant==67] <- 30
+
+# PP (no feedback) group participants 31:45:
+dat$participant[dat1$participant==3] <- 31
+dat$participant[dat1$participant==8] <- 32
+dat$participant[dat1$participant==9] <- 33
+dat$participant[dat1$participant==17] <- 34
+dat$participant[dat1$participant==18] <- 35
+dat$participant[dat1$participant==20] <- 36
+dat$participant[dat1$participant==21] <- 37
+dat$participant[dat1$participant==33] <- 38
+dat$participant[dat1$participant==39] <- 39
+dat$participant[dat1$participant==40] <- 40
+dat$participant[dat1$participant==41] <- 41
+dat$participant[dat1$participant==52] <- 42
+dat$participant[dat1$participant==55] <- 43
+dat$participant[dat1$participant==59] <- 44
+dat$participant[dat1$participant==66] <- 45
+
+# PPFB group participants 46:60:
+dat$participant[dat1$participant==4] <- 46
+dat$participant[dat1$participant==6] <- 47
+dat$participant[dat1$participant==7] <- 48
+dat$participant[dat1$participant==13] <- 49
+dat$participant[dat1$participant==15] <- 50
+dat$participant[dat1$participant==19] <- 51
+dat$participant[dat1$participant==22] <- 52
+dat$participant[dat1$participant==30] <- 53
+dat$participant[dat1$participant==35] <- 54
+dat$participant[dat1$participant==42] <- 55
+dat$participant[dat1$participant==44] <- 56
+dat$participant[dat1$participant==53] <- 57
+dat$participant[dat1$participant==57] <- 58
+dat$participant[dat1$participant==60] <- 59
+dat$participant[dat1$participant==62] <- 60
+
+## CHECK PARTICIPANT NUMBERS:
+unique(subset(dat, (CC == 1))$participant)
+unique(subset(dat, (MI == 1))$participant)
+unique(subset(dat, (PP == 1))$participant)
+unique(subset(dat, (PPFB == 1))$participant)
+
+## RESCALE data 0 to 1
+library(scales)
+dat$Serror <- rescale(dat$shape_dtw_error_mean, to=c(0,1))
+dat$Sspeed <- rescale(dat$vresp, to=c(0,1))
+# plot(dat$Sspeed,dat$Serror)
+
+#### saf.12 ####
+
+saf.12 <- map2stan(
+        alist(
+                # likelihood
+                Serror ~ dnorm( mu, sigma ),
+                
+                # model
+                mu <- (a / (1 + (exp(-(c*(Sspeed-D)))))),
+                
+                D <- d + d_g[group] + d_p[participant]*sigma_participant + d_cond*rep + d_sess*block_id +
+                        d_cond_g[group]*rep + d_sess_g[group]*block_id + d_cond_sess*rep*block_id +
+                        d_cond_sess_g[group]*rep*block_id,
+                
+                sigma <- a_sigma + b_sigma*Sspeed,
+                
+                # adaptive priors 
+                d_p[participant] ~ dnorm(0,1), # non-centered (see sigma_participant in linear model above)
+                
+                # fixed priors
+                a ~ dnorm(1,1),
+                c ~ dnorm(1,1), 
+                d ~ dnorm(0.5,1), 
+                d_cond ~ dnorm(0,1), 
+                d_sess ~ dnorm(0,1), 
+                d_cond_sess ~ dnorm(0,1),
+                d_g[group] ~ dnorm(0,1),
+                d_cond_g[group] ~ dnorm(0,1),
+                d_sess_g[group] ~ dnorm(0,1),
+                d_cond_sess_g[group] ~ dnorm(0,1),
+                
+                sigma_participant ~ dcauchy(0,2),
+                
+                a_sigma ~ dcauchy(0,2),
+                b_sigma ~ dnorm(0,1)
+        ),
+        data = dat,
+        start = list(
+                a = 1,
+                c = 1,
+                d = 0.5,
+                d_cond = 0, 
+                d_sess = 0, 
+                d_cond_sess = 0,
+                d_g = c(0,0,0,0),
+                d_cond_g = c(0,0,0,0),
+                d_sess_g = c(0,0,0,0),
+                d_cond_sess_g = c(0,0,0,0),
+                
+                sigma_participant = 1,
+                a_sigma = 1,
+                b_sigma = 0.5
+        ),
+        constraints = list(
+                c = "lower=0",
+                
+                sigma_participant = "lower=0",
+                a_sigma = "lower=0",
+                b_sigma = "lower=0"
+        ),
+        sample = TRUE,
+        iter = 200,
+        warmup = 100,
+        chains = 1, 
+        cores = 1 ,
+        control=list(adapt_delta=0.90)
+)
+save(saf.12, file = "saf12.Rda")
+precis(saf.12, depth=2, pars=c("a","b","c","d","a_sigma","b_sigma")) 
+pairs(saf.12, pars=c("a","c","d","a_sigma","b_sigma"))
+dashboard(saf.12)
+par(mfrow=c(1,1))
+plot(saf.12, pars=c("a","c","d","a_sigma","b_sigma"))
+stancode(saf.12)
+WAIC(saf.12)
+
+precis(saf.12, depth=2, pars=c("d","d_cond","d_sess","d_cond_sess",
+                                 "d_g","d_cond_g","d_sess_g","d_cond_sess_g")) 
+precis(saf.12, depth=2, pars=c("d_p","sigma_participant"))
+
+# 200 iter actually did decently well... plot that shit!!!
+
+#### PLOTS ####
+
+# remember to run all the code setting up model 11!
+
+# load("saf11_1.Rda")
+
+# which model?
+mod <- saf.12
+
+# post <- extract.samples(mod) # see how many samples
+n = 50 # number of samples in post
+
+# which blocks?
+b1 = 1
+b2 = 25
+
+# compute percentile interval of mean
+# Sspeed.seq <- seq( from=min(dat$Sspeed, na.rm=TRUE) , to=max(dat$Sspeed, na.rm=TRUE) , length.out=1000 )
+Sspeed.seq <- seq( from=-1 , to=2 , length.out=1000 )
+# replace varying intercept samples with zeros
+# e.g. 1000 samples by 30 participants
+a_p_zeros <- matrix(0,n,60) # works if just a multiple of replacement length?
+b_p_zeros <- matrix(0,n,60)
+c_p_zeros <- matrix(0,n,60)
+
+## CC RAN VS REP SESSION 1:
+
+dater1 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(1,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        block_id = rep(b1,length(Sspeed.seq)),
+        rep = rep(0,length(Sspeed.seq))
+)
+dater2 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(1,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        block_id = rep(b1,length(Sspeed.seq)),
+        rep = rep(1,length(Sspeed.seq))
+)
+
+mu_cc_ran_1 <- link( mod, n=n, data=dater1,
+                     replace = list(a_p = a_p_zeros,
+                                    b_p = b_p_zeros,
+                                    c_p = c_p_zeros) )
+mu_cc_ran_1.mean <- apply( mu_cc_ran_1$mu , 2 , mean )
+mu_cc_ran_1.HPDI <- apply( mu_cc_ran_1$mu , 2 , HPDI )
+
+mu_cc_rep_1 <- link( mod, n=n, data=dater2,
+                     replace = list(a_p = a_p_zeros,
+                                    b_p = b_p_zeros,
+                                    c_p = c_p_zeros) )
+mu_cc_rep_1.mean <- apply( mu_cc_rep_1$mu , 2 , mean )
+mu_cc_rep_1.HPDI <- apply( mu_cc_rep_1$mu , 2 , HPDI )
+
+
+## CC RAN VS REP SESSION 5:
+
+dater1 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(1,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        block_id = rep(b2,length(Sspeed.seq)),
+        rep = rep(0,length(Sspeed.seq))
+)
+dater2 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(1,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        block_id = rep(b2,length(Sspeed.seq)),
+        rep = rep(1,length(Sspeed.seq))
+)
+
+mu_cc_ran_5 <- link( mod, n=n, data=dater1,
+                     replace = list(a_p = a_p_zeros,
+                                    b_p = b_p_zeros,
+                                    c_p = c_p_zeros) )
+mu_cc_ran_5.mean <- apply( mu_cc_ran_5$mu , 2 , mean )
+mu_cc_ran_5.HPDI <- apply( mu_cc_ran_5$mu , 2 , HPDI )
+
+mu_cc_rep_5 <- link( mod, n=n, data=dater2,
+                     replace = list(a_p = a_p_zeros,
+                                    b_p = b_p_zeros,
+                                    c_p = c_p_zeros) )
+mu_cc_rep_5.mean <- apply( mu_cc_rep_5$mu , 2 , mean )
+mu_cc_rep_5.HPDI <- apply( mu_cc_rep_5$mu , 2 , HPDI )
+
+
+## MI RAN VS REP SESSION 1:
+
+dater1 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(2,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        block_id = rep(b1,length(Sspeed.seq)),
+        rep = rep(0,length(Sspeed.seq))
+)
+dater2 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(2,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        block_id = rep(b1,length(Sspeed.seq)),
+        rep = rep(1,length(Sspeed.seq))
+)
+
+mu_mi_ran_1 <- link( mod, n=n, data=dater1,
+                     replace = list(a_p = a_p_zeros,
+                                    b_p = b_p_zeros,
+                                    c_p = c_p_zeros) )
+mu_mi_ran_1.mean <- apply( mu_mi_ran_1$mu , 2 , mean )
+mu_mi_ran_1.HPDI <- apply( mu_mi_ran_1$mu , 2 , HPDI )
+
+mu_mi_rep_1 <- link( mod, n=n, data=dater2,
+                     replace = list(a_p = a_p_zeros,
+                                    b_p = b_p_zeros,
+                                    c_p = c_p_zeros) )
+mu_mi_rep_1.mean <- apply( mu_mi_rep_1$mu , 2 , mean )
+mu_mi_rep_1.HPDI <- apply( mu_mi_rep_1$mu , 2 , HPDI )
+
+
+## MI RAN VS REP SESSION 5:
+
+dater1 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(2,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        block_id = rep(b2,length(Sspeed.seq)),
+        rep = rep(0,length(Sspeed.seq))
+)
+dater2 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(2,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        block_id = rep(b2,length(Sspeed.seq)),
+        rep = rep(1,length(Sspeed.seq))
+)
+
+mu_mi_ran_5 <- link( mod, n=n, data=dater1,
+                     replace = list(a_p = a_p_zeros,
+                                    b_p = b_p_zeros,
+                                    c_p = c_p_zeros) )
+mu_mi_ran_5.mean <- apply( mu_mi_ran_5$mu , 2 , mean )
+mu_mi_ran_5.HPDI <- apply( mu_mi_ran_5$mu , 2 , HPDI )
+
+mu_mi_rep_5 <- link( mod, n=n, data=dater2,
+                     replace = list(a_p = a_p_zeros,
+                                    b_p = b_p_zeros,
+                                    c_p = c_p_zeros) )
+mu_mi_rep_5.mean <- apply( mu_mi_rep_5$mu , 2 , mean )
+mu_mi_rep_5.HPDI <- apply( mu_mi_rep_5$mu , 2 , HPDI )
+
+
+## PP RAN VS REP SESSION 1:
+
+dater1 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(3,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        block_id = rep(b1,length(Sspeed.seq)),
+        rep = rep(0,length(Sspeed.seq))
+)
+dater2 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(3,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        block_id = rep(b1,length(Sspeed.seq)),
+        rep = rep(1,length(Sspeed.seq))
+)
+
+mu_pp_ran_1 <- link( mod, n=n, data=dater1,
+                     replace = list(a_p = a_p_zeros,
+                                    b_p = b_p_zeros,
+                                    c_p = c_p_zeros) )
+mu_pp_ran_1.mean <- apply( mu_pp_ran_1$mu , 2 , mean )
+mu_pp_ran_1.HPDI <- apply( mu_pp_ran_1$mu , 2 , HPDI )
+
+mu_pp_rep_1 <- link( mod, n=n, data=dater2,
+                     replace = list(a_p = a_p_zeros,
+                                    b_p = b_p_zeros,
+                                    c_p = c_p_zeros) )
+mu_pp_rep_1.mean <- apply( mu_pp_rep_1$mu , 2 , mean )
+mu_pp_rep_1.HPDI <- apply( mu_pp_rep_1$mu , 2 , HPDI )
+
+
+## PP RAN VS REP SESSION 5:
+
+dater1 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(3,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        block_id = rep(b2,length(Sspeed.seq)),
+        rep = rep(0,length(Sspeed.seq))
+)
+dater2 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(3,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        block_id = rep(b2,length(Sspeed.seq)),
+        rep = rep(1,length(Sspeed.seq))
+)
+
+mu_pp_ran_5 <- link( mod, n=n, data=dater1,
+                     replace = list(a_p = a_p_zeros,
+                                    b_p = b_p_zeros,
+                                    c_p = c_p_zeros) )
+mu_pp_ran_5.mean <- apply( mu_pp_ran_5$mu , 2 , mean )
+mu_pp_ran_5.HPDI <- apply( mu_pp_ran_5$mu , 2 , HPDI )
+
+mu_pp_rep_5 <- link( mod, n=n, data=dater2,
+                     replace = list(a_p = a_p_zeros,
+                                    b_p = b_p_zeros,
+                                    c_p = c_p_zeros) )
+mu_pp_rep_5.mean <- apply( mu_pp_rep_5$mu , 2 , mean )
+mu_pp_rep_5.HPDI <- apply( mu_pp_rep_5$mu , 2 , HPDI )
+
+
+## PPFB RAN VS REP SESSION 1:
+
+dater1 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(4,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        block_id = rep(b1,length(Sspeed.seq)),
+        rep = rep(0,length(Sspeed.seq))
+)
+dater2 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(4,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        block_id = rep(b1,length(Sspeed.seq)),
+        rep = rep(1,length(Sspeed.seq))
+)
+
+mu_ppfb_ran_1 <- link( mod, n=n, data=dater1,
+                       replace = list(a_p = a_p_zeros,
+                                      b_p = b_p_zeros,
+                                      c_p = c_p_zeros) )
+mu_ppfb_ran_1.mean <- apply( mu_ppfb_ran_1$mu , 2 , mean )
+mu_ppfb_ran_1.HPDI <- apply( mu_ppfb_ran_1$mu , 2 , HPDI )
+
+mu_ppfb_rep_1 <- link( mod, n=n, data=dater2,
+                       replace = list(a_p = a_p_zeros,
+                                      b_p = b_p_zeros,
+                                      c_p = c_p_zeros) )
+mu_ppfb_rep_1.mean <- apply( mu_ppfb_rep_1$mu , 2 , mean )
+mu_ppfb_rep_1.HPDI <- apply( mu_ppfb_rep_1$mu , 2 , HPDI )
+
+
+## PPFB RAN VS REP SESSION 5:
+
+dater1 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(4,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        block_id = rep(b2,length(Sspeed.seq)),
+        rep = rep(0,length(Sspeed.seq))
+)
+dater2 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(4,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        block_id = rep(b2,length(Sspeed.seq)),
+        rep = rep(1,length(Sspeed.seq))
+)
+
+mu_ppfb_ran_5 <- link( mod, n=n, data=dater1,
+                       replace = list(a_p = a_p_zeros,
+                                      b_p = b_p_zeros,
+                                      c_p = c_p_zeros) )
+mu_ppfb_ran_5.mean <- apply( mu_ppfb_ran_5$mu , 2 , mean )
+mu_ppfb_ran_5.HPDI <- apply( mu_ppfb_ran_5$mu , 2 , HPDI )
+
+mu_ppfb_rep_5 <- link( mod, n=n, data=dater2,
+                       replace = list(a_p = a_p_zeros,
+                                      b_p = b_p_zeros,
+                                      c_p = c_p_zeros) )
+mu_ppfb_rep_5.mean <- apply( mu_ppfb_rep_5$mu , 2 , mean )
+mu_ppfb_rep_5.HPDI <- apply( mu_ppfb_rep_5$mu , 2 , HPDI )
+
+## put it all in a matrix that lines up with actual data ##
+
+postmean <- c(mu_cc_ran_1.mean,mu_cc_rep_1.mean,mu_cc_ran_5.mean,mu_cc_rep_5.mean,mu_mi_ran_1.mean,mu_mi_rep_1.mean,mu_mi_ran_5.mean,mu_mi_rep_5.mean,mu_pp_ran_1.mean,mu_pp_rep_1.mean,mu_pp_ran_5.mean,mu_pp_rep_5.mean,mu_ppfb_ran_1.mean,mu_ppfb_rep_1.mean,mu_ppfb_ran_5.mean,mu_ppfb_rep_5.mean)
+Sspeed <- rep(seq( from=-1 , to=2 , length.out=1000 ),16)
+postHPDI1 <- c(mu_cc_ran_1.HPDI[1,],mu_cc_rep_1.HPDI[1,],mu_cc_ran_5.HPDI[1,],mu_cc_rep_5.HPDI[1,],mu_mi_ran_1.HPDI[1,],mu_mi_rep_1.HPDI[1,],mu_mi_ran_5.HPDI[1,],mu_mi_rep_5.HPDI[1,],mu_pp_ran_1.HPDI[1,],mu_pp_rep_1.HPDI[1,],mu_pp_ran_5.HPDI[1,],mu_pp_rep_5.HPDI[1,],mu_ppfb_ran_1.HPDI[1,],mu_ppfb_rep_1.HPDI[1,],mu_ppfb_ran_5.HPDI[1,],mu_ppfb_rep_5.HPDI[1,])
+postHPDI2 <- c(mu_cc_ran_1.HPDI[2,],mu_cc_rep_1.HPDI[2,],mu_cc_ran_5.HPDI[2,],mu_cc_rep_5.HPDI[2,],mu_mi_ran_1.HPDI[2,],mu_mi_rep_1.HPDI[2,],mu_mi_ran_5.HPDI[2,],mu_mi_rep_5.HPDI[2,],mu_pp_ran_1.HPDI[2,],mu_pp_rep_1.HPDI[2,],mu_pp_ran_5.HPDI[2,],mu_pp_rep_5.HPDI[2,],mu_ppfb_ran_1.HPDI[2,],mu_ppfb_rep_1.HPDI[2,],mu_ppfb_ran_5.HPDI[2,],mu_ppfb_rep_5.HPDI[2,])
+block_id <- rep(c(b1,b2,b1,b2,b1,b2,b1,b2),each=2000)
+condition <- as.factor(rep(c("CC","MI","PP","PPVR"),each=4000))
+figure_type <- as.factor(rep(c("random","repeated","random","repeated","random","repeated","random","repeated","random","repeated","random","repeated","random","repeated","random","repeated"),each=1000))
+post.HPDI <- data.frame(condition,block_id,figure_type,Sspeed,postmean,postHPDI1,postHPDI2)
+colnames(post.HPDI)[which(names(post.HPDI) == "postmean")] <- "Serror"
+
+ggplot(subset(dat, ((block_id == b1) | (block_id == b2)))
+       , mapping = aes(
+               x = Sspeed, y = Serror
+               , color = factor(figure_type)
+       )) + geom_point(na.rm = TRUE, alpha = .25) + 
+        geom_line(data = post.HPDI) +
+        geom_ribbon(data = post.HPDI, aes(
+                ymin=postHPDI1
+                , ymax=postHPDI2), alpha=0.2) +
+        theme_minimal() +
+        facet_grid(block_id ~ condition) +
+        # geom_smooth() +
+        labs(title = "Shape Error"
+             , x = "Velocity (scaled)"
+             , y = "Shape Error (scaled)"
+             , color = "Figure Type") +
+        coord_cartesian(xlim = c(0,1), ylim = c(0,1))
+# coord_cartesian(xlim = c(-0.5,1.5), ylim = c(-0.5,1.5))
+
+
+
+#### Density Plots ####
+
+## SHIFT:
+
+par(mfrow=c(2,2))
+
+## CC ##
+plot(density(mu_cc_ran_1$D))
+plot(density(mu_cc_rep_1$D))
+plot(density(mu_cc_ran_5$D))
+plot(density(mu_cc_rep_5$D))
+
+## MI ##
+plot(density(mu_mi_ran_1$D))
+plot(density(mu_mi_rep_1$D))
+plot(density(mu_mi_ran_5$D))
+plot(density(mu_mi_rep_5$D))
+
+## PP ##
+plot(density(mu_pp_ran_1$D))
+plot(density(mu_pp_rep_1$D))
+plot(density(mu_pp_ran_5$D))
+plot(density(mu_pp_rep_5$D))
+
+## PPFB ##
+plot(density(mu_ppfb_ran_1$D))
+plot(density(mu_ppfb_rep_1$D))
+plot(density(mu_ppfb_ran_5$D))
+plot(density(mu_ppfb_rep_5$D))
+
+
+#### "performance" ####
+
+par(mfrow=c(1,1))
+
+# CC
+
+mu_cc_1_diff = mu_cc_rep_1$D - mu_cc_ran_1$D
+density(mu_cc_1_diff)
+plot(density(mu_cc_1_diff))
+
+mu_cc_5_diff = mu_cc_rep_5$D - mu_cc_ran_5$D
+density(mu_cc_5_diff)
+plot(density(mu_cc_5_diff))
+
+# MI
+
+mu_mi_1_diff = mu_mi_rep_1$D - mu_mi_ran_1$D
+density(mu_mi_1_diff)
+plot(density(mu_mi_1_diff))
+
+mu_mi_5_diff = mu_mi_rep_5$D - mu_mi_ran_5$D
+density(mu_mi_5_diff)
+plot(density(mu_mi_5_diff))
+
+# PP
+
+mu_pp_1_diff = mu_pp_rep_1$D - mu_pp_ran_1$D
+density(mu_pp_1_diff)
+plot(density(mu_pp_1_diff))
+
+mu_pp_5_diff = mu_pp_rep_5$D - mu_pp_ran_5$D
+density(mu_pp_5_diff)
+plot(density(mu_pp_5_diff))
+
+# PPFB
+
+mu_ppfb_1_diff = mu_ppfb_rep_1$D - mu_ppfb_ran_1$D
+density(mu_ppfb_1_diff)
+plot(density(mu_ppfb_1_diff))
+
+mu_ppfb_5_diff = mu_ppfb_rep_5$D - mu_ppfb_ran_5$D
+density(mu_ppfb_5_diff)
+plot(density(mu_ppfb_5_diff))
+
+#### "learning" ####
+
+par(mfrow=c(1,1))
+
+## CC 
+
+# # using CC day 1:
+# mu_cc_learn = mu_cc_5_diff - mu_cc_1_diff
+# density(mu_cc_learn)
+# plot(density(mu_cc_learn))
+
+# using PP day 1:
+mu_cc_learn = mu_cc_5_diff - mu_pp_1_diff
+density(mu_cc_learn)
+plot(density(mu_cc_learn))
+
+# ES?
+mean(mu_cc_learn)
+sd(mu_cc_learn)
+mean(mu_cc_learn)/sd(mu_cc_learn)
+
+mu_cc_learn_ES <- mu_cc_learn/sd(mu_cc_learn)
+plot(density(mu_cc_learn_ES))
+HPDI(mu_cc_learn_ES[,1], prob = .95) 
+
+
+## MI
+
+# # using MI day 1:
+# mu_mi_learn = mu_mi_5_diff - mu_mi_1_diff
+# density(mu_mi_learn)
+# plot(density(mu_mi_learn))
+
+# using PP day 1:
+mu_mi_learn = mu_mi_5_diff - mu_pp_1_diff
+density(mu_mi_learn)
+plot(density(mu_mi_learn))
+
+# ES?
+mean(mu_mi_learn)
+sd(mu_mi_learn)
+mean(mu_mi_learn)/sd(mu_mi_learn)
+
+mu_mi_learn_ES <- mu_mi_learn/sd(mu_mi_learn)
+plot(density(mu_mi_learn_ES))
+HPDI(mu_mi_learn_ES[,1], prob = .95) 
+
+
+## PP 
+
+mu_pp_learn = mu_pp_5_diff - mu_pp_1_diff
+density(mu_pp_learn)
+plot(density(mu_pp_learn))
+
+# ES?
+mean(mu_pp_learn)
+sd(mu_pp_learn)
+mean(mu_pp_learn)/sd(mu_pp_learn)
+
+mu_pp_learn_ES <- mu_pp_learn/sd(mu_pp_learn)
+plot(density(mu_pp_learn_ES))
+HPDI(mu_pp_learn_ES[,1], prob = .95) 
+
+
+## PPFB
+
+mu_ppfb_learn = mu_ppfb_5_diff - mu_ppfb_1_diff
+density(mu_ppfb_learn)
+plot(density(mu_ppfb_learn))
+
+# ES?
+mean(mu_ppfb_learn)
+sd(mu_ppfb_learn)
+mean(mu_ppfb_learn)/sd(mu_ppfb_learn)
+
+mu_ppfb_learn_ES <- mu_ppfb_learn/sd(mu_ppfb_learn)
+plot(density(mu_ppfb_learn_ES))
+HPDI(mu_ppfb_learn_ES[,1], prob = .95) 
+
+HPDI(mu_cc_learn_ES[,1], prob = .95) 
+HPDI(mu_mi_learn_ES[,1], prob = .95) 
+HPDI(mu_pp_learn_ES[,1], prob = .95) 
+HPDI(mu_ppfb_learn_ES[,1], prob = .95) 
+
+#### NOTES ####
+
+# interestingly... doing by block doesn't seem to help much. 
+# note that this models a block_id "slope" which would mask
+# any offline gains. 
