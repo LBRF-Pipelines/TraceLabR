@@ -5273,7 +5273,7 @@ precis(saf.11.1, depth=2, pars=c("d_p","sigma_participant"))
 
 # remember to run all the code setting up model 11!
 
-# load("saf11_1.Rda")
+# load("saf11_1_10000.Rda")
 
 # which model?
 mod <- saf.11.1
@@ -5284,11 +5284,20 @@ n = 5000 # number of samples in post
 # compute percentile interval of mean
 # Sspeed.seq <- seq( from=min(dat$Sspeed, na.rm=TRUE) , to=max(dat$Sspeed, na.rm=TRUE) , length.out=1000 )
 Sspeed.seq <- seq( from=-1 , to=2 , length.out=1000 )
+
+# what interval of HPDI? e.g. prob = 0.89  # 0.9973  # 0.9545  # 0.6827
+interval = 0.95
+
 # replace varying intercept samples with zeros
-# e.g. 1000 samples by 30 participants
-a_p_zeros <- matrix(0,n,60) # works if just a multiple of replacement length?
-b_p_zeros <- matrix(0,n,60)
-c_p_zeros <- matrix(0,n,60)
+# e.g. number of samples by 60 participants
+d_p_zeros <- matrix(0,n,60) 
+
+# replace varying intercept samples with simulations
+post <- extract.samples(mod)
+d_p_sims <- rnorm(n*60,0,sd(post$d_p))
+d_p_sims <- matrix(d_p_sims,n,60)
+
+replacer <- d_p_zeros
 
 ## CC RAN VS REP SESSION 1:
 
@@ -5308,18 +5317,14 @@ dater2 <- list(
 )
 
 mu_cc_ran_1 <- link( mod, n=n, data=dater1,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
+                     replace = list(d_p = replacer) )
 mu_cc_ran_1.mean <- apply( mu_cc_ran_1$mu , 2 , mean )
-mu_cc_ran_1.HPDI <- apply( mu_cc_ran_1$mu , 2 , HPDI )
+mu_cc_ran_1.HPDI <- apply( mu_cc_ran_1$mu , 2 , HPDI, prob = interval )
 
 mu_cc_rep_1 <- link( mod, n=n, data=dater2,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
+                     replace = list(d_p = replacer) )
 mu_cc_rep_1.mean <- apply( mu_cc_rep_1$mu , 2 , mean )
-mu_cc_rep_1.HPDI <- apply( mu_cc_rep_1$mu , 2 , HPDI )
+mu_cc_rep_1.HPDI <- apply( mu_cc_rep_1$mu , 2 , HPDI, prob = interval )
 
 
 ## CC RAN VS REP SESSION 5:
@@ -5340,18 +5345,14 @@ dater2 <- list(
 )
 
 mu_cc_ran_5 <- link( mod, n=n, data=dater1,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
+                     replace = list(d_p = replacer) )
 mu_cc_ran_5.mean <- apply( mu_cc_ran_5$mu , 2 , mean )
-mu_cc_ran_5.HPDI <- apply( mu_cc_ran_5$mu , 2 , HPDI )
+mu_cc_ran_5.HPDI <- apply( mu_cc_ran_5$mu , 2 , HPDI, prob = interval )
 
 mu_cc_rep_5 <- link( mod, n=n, data=dater2,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
+                     replace = list(d_p = replacer) )
 mu_cc_rep_5.mean <- apply( mu_cc_rep_5$mu , 2 , mean )
-mu_cc_rep_5.HPDI <- apply( mu_cc_rep_5$mu , 2 , HPDI )
+mu_cc_rep_5.HPDI <- apply( mu_cc_rep_5$mu , 2 , HPDI, prob = interval )
 
 
 ## MI RAN VS REP SESSION 1:
@@ -5372,18 +5373,14 @@ dater2 <- list(
 )
 
 mu_mi_ran_1 <- link( mod, n=n, data=dater1,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
+                     replace = list(d_p = replacer) )
 mu_mi_ran_1.mean <- apply( mu_mi_ran_1$mu , 2 , mean )
-mu_mi_ran_1.HPDI <- apply( mu_mi_ran_1$mu , 2 , HPDI )
+mu_mi_ran_1.HPDI <- apply( mu_mi_ran_1$mu , 2 , HPDI, prob = interval )
 
 mu_mi_rep_1 <- link( mod, n=n, data=dater2,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
+                     replace = list(d_p = replacer) )
 mu_mi_rep_1.mean <- apply( mu_mi_rep_1$mu , 2 , mean )
-mu_mi_rep_1.HPDI <- apply( mu_mi_rep_1$mu , 2 , HPDI )
+mu_mi_rep_1.HPDI <- apply( mu_mi_rep_1$mu , 2 , HPDI, prob = interval )
 
 
 ## MI RAN VS REP SESSION 5:
@@ -5404,18 +5401,14 @@ dater2 <- list(
 )
 
 mu_mi_ran_5 <- link( mod, n=n, data=dater1,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
+                     replace = list(d_p = replacer) )
 mu_mi_ran_5.mean <- apply( mu_mi_ran_5$mu , 2 , mean )
-mu_mi_ran_5.HPDI <- apply( mu_mi_ran_5$mu , 2 , HPDI )
+mu_mi_ran_5.HPDI <- apply( mu_mi_ran_5$mu , 2 , HPDI, prob = interval )
 
 mu_mi_rep_5 <- link( mod, n=n, data=dater2,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
+                     replace = list(d_p = replacer) )
 mu_mi_rep_5.mean <- apply( mu_mi_rep_5$mu , 2 , mean )
-mu_mi_rep_5.HPDI <- apply( mu_mi_rep_5$mu , 2 , HPDI )
+mu_mi_rep_5.HPDI <- apply( mu_mi_rep_5$mu , 2 , HPDI, prob = interval )
 
 
 ## PP RAN VS REP SESSION 1:
@@ -5436,18 +5429,14 @@ dater2 <- list(
 )
 
 mu_pp_ran_1 <- link( mod, n=n, data=dater1,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
+                     replace = list(d_p = replacer) )
 mu_pp_ran_1.mean <- apply( mu_pp_ran_1$mu , 2 , mean )
-mu_pp_ran_1.HPDI <- apply( mu_pp_ran_1$mu , 2 , HPDI )
+mu_pp_ran_1.HPDI <- apply( mu_pp_ran_1$mu , 2 , HPDI, prob = interval )
 
 mu_pp_rep_1 <- link( mod, n=n, data=dater2,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
+                     replace = list(d_p = replacer) )
 mu_pp_rep_1.mean <- apply( mu_pp_rep_1$mu , 2 , mean )
-mu_pp_rep_1.HPDI <- apply( mu_pp_rep_1$mu , 2 , HPDI )
+mu_pp_rep_1.HPDI <- apply( mu_pp_rep_1$mu , 2 , HPDI, prob = interval )
 
 
 ## PP RAN VS REP SESSION 5:
@@ -5468,18 +5457,14 @@ dater2 <- list(
 )
 
 mu_pp_ran_5 <- link( mod, n=n, data=dater1,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
+                     replace = list(d_p = replacer) )
 mu_pp_ran_5.mean <- apply( mu_pp_ran_5$mu , 2 , mean )
-mu_pp_ran_5.HPDI <- apply( mu_pp_ran_5$mu , 2 , HPDI )
+mu_pp_ran_5.HPDI <- apply( mu_pp_ran_5$mu , 2 , HPDI, prob = interval )
 
 mu_pp_rep_5 <- link( mod, n=n, data=dater2,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
+                     replace = list(d_p = replacer) )
 mu_pp_rep_5.mean <- apply( mu_pp_rep_5$mu , 2 , mean )
-mu_pp_rep_5.HPDI <- apply( mu_pp_rep_5$mu , 2 , HPDI )
+mu_pp_rep_5.HPDI <- apply( mu_pp_rep_5$mu , 2 , HPDI, prob = interval )
 
 
 ## PPFB RAN VS REP SESSION 1:
@@ -5500,18 +5485,14 @@ dater2 <- list(
 )
 
 mu_ppfb_ran_1 <- link( mod, n=n, data=dater1,
-                       replace = list(a_p = a_p_zeros,
-                                      b_p = b_p_zeros,
-                                      c_p = c_p_zeros) )
+                       replace = list(d_p = replacer) )
 mu_ppfb_ran_1.mean <- apply( mu_ppfb_ran_1$mu , 2 , mean )
-mu_ppfb_ran_1.HPDI <- apply( mu_ppfb_ran_1$mu , 2 , HPDI )
+mu_ppfb_ran_1.HPDI <- apply( mu_ppfb_ran_1$mu , 2 , HPDI, prob = interval )
 
 mu_ppfb_rep_1 <- link( mod, n=n, data=dater2,
-                       replace = list(a_p = a_p_zeros,
-                                      b_p = b_p_zeros,
-                                      c_p = c_p_zeros) )
+                       replace = list(d_p = replacer) )
 mu_ppfb_rep_1.mean <- apply( mu_ppfb_rep_1$mu , 2 , mean )
-mu_ppfb_rep_1.HPDI <- apply( mu_ppfb_rep_1$mu , 2 , HPDI )
+mu_ppfb_rep_1.HPDI <- apply( mu_ppfb_rep_1$mu , 2 , HPDI, prob = interval )
 
 
 ## PPFB RAN VS REP SESSION 5:
@@ -5532,18 +5513,14 @@ dater2 <- list(
 )
 
 mu_ppfb_ran_5 <- link( mod, n=n, data=dater1,
-                       replace = list(a_p = a_p_zeros,
-                                      b_p = b_p_zeros,
-                                      c_p = c_p_zeros) )
+                       replace = list(d_p = replacer) )
 mu_ppfb_ran_5.mean <- apply( mu_ppfb_ran_5$mu , 2 , mean )
-mu_ppfb_ran_5.HPDI <- apply( mu_ppfb_ran_5$mu , 2 , HPDI )
+mu_ppfb_ran_5.HPDI <- apply( mu_ppfb_ran_5$mu , 2 , HPDI, prob = interval )
 
 mu_ppfb_rep_5 <- link( mod, n=n, data=dater2,
-                       replace = list(a_p = a_p_zeros,
-                                      b_p = b_p_zeros,
-                                      c_p = c_p_zeros) )
+                       replace = list(d_p = replacer) )
 mu_ppfb_rep_5.mean <- apply( mu_ppfb_rep_5$mu , 2 , mean )
-mu_ppfb_rep_5.HPDI <- apply( mu_ppfb_rep_5$mu , 2 , HPDI )
+mu_ppfb_rep_5.HPDI <- apply( mu_ppfb_rep_5$mu , 2 , HPDI, prob = interval )
 
 ## put it all in a matrix that lines up with actual data ##
 
@@ -5925,8 +5902,8 @@ saf.12 <- map2stan(
                 b_sigma = "lower=0"
         ),
         sample = TRUE,
-        iter = 200,
-        warmup = 100,
+        iter = 1000,
+        warmup = 500,
         chains = 1, 
         cores = 1 ,
         control=list(adapt_delta=0.90)
@@ -5945,18 +5922,20 @@ precis(saf.12, depth=2, pars=c("d","d_cond","d_sess","d_cond_sess",
 precis(saf.12, depth=2, pars=c("d_p","sigma_participant"))
 
 # 200 iter actually did decently well... plot that shit!!!
+# 1000 iter converged less well... weird. fuck these models.
+
 
 #### PLOTS ####
 
 # remember to run all the code setting up model 11!
 
-# load("saf11_1.Rda")
+# load("saf12.Rda")
 
 # which model?
 mod <- saf.12
 
 # post <- extract.samples(mod) # see how many samples
-n = 50 # number of samples in post
+n = 500 # number of samples in post
 
 # which blocks?
 b1 = 1
@@ -5965,11 +5944,20 @@ b2 = 25
 # compute percentile interval of mean
 # Sspeed.seq <- seq( from=min(dat$Sspeed, na.rm=TRUE) , to=max(dat$Sspeed, na.rm=TRUE) , length.out=1000 )
 Sspeed.seq <- seq( from=-1 , to=2 , length.out=1000 )
+
+# what interval of HPDI? e.g. prob = 0.89  # 0.9973  # 0.9545  # 0.6827
+interval = 0.6827
+
 # replace varying intercept samples with zeros
-# e.g. 1000 samples by 30 participants
-a_p_zeros <- matrix(0,n,60) # works if just a multiple of replacement length?
-b_p_zeros <- matrix(0,n,60)
-c_p_zeros <- matrix(0,n,60)
+# e.g. number of samples by 60 participants
+d_p_zeros <- matrix(0,n,60) 
+
+# replace varying intercept samples with simulations
+post <- extract.samples(mod)
+d_p_sims <- rnorm(n*60,0,sd(post$d_p))
+d_p_sims <- matrix(d_p_sims,n,60)
+
+replacer <- d_p_zeros
 
 ## CC RAN VS REP SESSION 1:
 
@@ -5989,18 +5977,14 @@ dater2 <- list(
 )
 
 mu_cc_ran_1 <- link( mod, n=n, data=dater1,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
+                     replace = list(d_p = replacer) )
 mu_cc_ran_1.mean <- apply( mu_cc_ran_1$mu , 2 , mean )
-mu_cc_ran_1.HPDI <- apply( mu_cc_ran_1$mu , 2 , HPDI )
+mu_cc_ran_1.HPDI <- apply( mu_cc_ran_1$mu , 2 , HPDI, prob = interval )
 
 mu_cc_rep_1 <- link( mod, n=n, data=dater2,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
+                     replace = list(d_p = replacer) )
 mu_cc_rep_1.mean <- apply( mu_cc_rep_1$mu , 2 , mean )
-mu_cc_rep_1.HPDI <- apply( mu_cc_rep_1$mu , 2 , HPDI )
+mu_cc_rep_1.HPDI <- apply( mu_cc_rep_1$mu , 2 , HPDI, prob = interval )
 
 
 ## CC RAN VS REP SESSION 5:
@@ -6021,18 +6005,14 @@ dater2 <- list(
 )
 
 mu_cc_ran_5 <- link( mod, n=n, data=dater1,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
+                     replace = list(d_p = replacer) )
 mu_cc_ran_5.mean <- apply( mu_cc_ran_5$mu , 2 , mean )
-mu_cc_ran_5.HPDI <- apply( mu_cc_ran_5$mu , 2 , HPDI )
+mu_cc_ran_5.HPDI <- apply( mu_cc_ran_5$mu , 2 , HPDI, prob = interval )
 
 mu_cc_rep_5 <- link( mod, n=n, data=dater2,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
+                     replace = list(d_p = replacer) )
 mu_cc_rep_5.mean <- apply( mu_cc_rep_5$mu , 2 , mean )
-mu_cc_rep_5.HPDI <- apply( mu_cc_rep_5$mu , 2 , HPDI )
+mu_cc_rep_5.HPDI <- apply( mu_cc_rep_5$mu , 2 , HPDI, prob = interval )
 
 
 ## MI RAN VS REP SESSION 1:
@@ -6053,18 +6033,14 @@ dater2 <- list(
 )
 
 mu_mi_ran_1 <- link( mod, n=n, data=dater1,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
+                     replace = list(d_p = replacer) )
 mu_mi_ran_1.mean <- apply( mu_mi_ran_1$mu , 2 , mean )
-mu_mi_ran_1.HPDI <- apply( mu_mi_ran_1$mu , 2 , HPDI )
+mu_mi_ran_1.HPDI <- apply( mu_mi_ran_1$mu , 2 , HPDI, prob = interval )
 
 mu_mi_rep_1 <- link( mod, n=n, data=dater2,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
+                     replace = list(d_p = replacer) )
 mu_mi_rep_1.mean <- apply( mu_mi_rep_1$mu , 2 , mean )
-mu_mi_rep_1.HPDI <- apply( mu_mi_rep_1$mu , 2 , HPDI )
+mu_mi_rep_1.HPDI <- apply( mu_mi_rep_1$mu , 2 , HPDI, prob = interval )
 
 
 ## MI RAN VS REP SESSION 5:
@@ -6085,18 +6061,14 @@ dater2 <- list(
 )
 
 mu_mi_ran_5 <- link( mod, n=n, data=dater1,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
+                     replace = list(d_p = replacer) )
 mu_mi_ran_5.mean <- apply( mu_mi_ran_5$mu , 2 , mean )
-mu_mi_ran_5.HPDI <- apply( mu_mi_ran_5$mu , 2 , HPDI )
+mu_mi_ran_5.HPDI <- apply( mu_mi_ran_5$mu , 2 , HPDI, prob = interval )
 
 mu_mi_rep_5 <- link( mod, n=n, data=dater2,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
+                     replace = list(d_p = replacer) )
 mu_mi_rep_5.mean <- apply( mu_mi_rep_5$mu , 2 , mean )
-mu_mi_rep_5.HPDI <- apply( mu_mi_rep_5$mu , 2 , HPDI )
+mu_mi_rep_5.HPDI <- apply( mu_mi_rep_5$mu , 2 , HPDI, prob = interval )
 
 
 ## PP RAN VS REP SESSION 1:
@@ -6117,18 +6089,14 @@ dater2 <- list(
 )
 
 mu_pp_ran_1 <- link( mod, n=n, data=dater1,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
+                     replace = list(d_p = replacer) )
 mu_pp_ran_1.mean <- apply( mu_pp_ran_1$mu , 2 , mean )
-mu_pp_ran_1.HPDI <- apply( mu_pp_ran_1$mu , 2 , HPDI )
+mu_pp_ran_1.HPDI <- apply( mu_pp_ran_1$mu , 2 , HPDI, prob = interval )
 
 mu_pp_rep_1 <- link( mod, n=n, data=dater2,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
+                     replace = list(d_p = replacer) )
 mu_pp_rep_1.mean <- apply( mu_pp_rep_1$mu , 2 , mean )
-mu_pp_rep_1.HPDI <- apply( mu_pp_rep_1$mu , 2 , HPDI )
+mu_pp_rep_1.HPDI <- apply( mu_pp_rep_1$mu , 2 , HPDI, prob = interval )
 
 
 ## PP RAN VS REP SESSION 5:
@@ -6149,18 +6117,14 @@ dater2 <- list(
 )
 
 mu_pp_ran_5 <- link( mod, n=n, data=dater1,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
+                     replace = list(d_p = replacer) )
 mu_pp_ran_5.mean <- apply( mu_pp_ran_5$mu , 2 , mean )
-mu_pp_ran_5.HPDI <- apply( mu_pp_ran_5$mu , 2 , HPDI )
+mu_pp_ran_5.HPDI <- apply( mu_pp_ran_5$mu , 2 , HPDI, prob = interval )
 
 mu_pp_rep_5 <- link( mod, n=n, data=dater2,
-                     replace = list(a_p = a_p_zeros,
-                                    b_p = b_p_zeros,
-                                    c_p = c_p_zeros) )
+                     replace = list(d_p = replacer) )
 mu_pp_rep_5.mean <- apply( mu_pp_rep_5$mu , 2 , mean )
-mu_pp_rep_5.HPDI <- apply( mu_pp_rep_5$mu , 2 , HPDI )
+mu_pp_rep_5.HPDI <- apply( mu_pp_rep_5$mu , 2 , HPDI, prob = interval )
 
 
 ## PPFB RAN VS REP SESSION 1:
@@ -6181,18 +6145,14 @@ dater2 <- list(
 )
 
 mu_ppfb_ran_1 <- link( mod, n=n, data=dater1,
-                       replace = list(a_p = a_p_zeros,
-                                      b_p = b_p_zeros,
-                                      c_p = c_p_zeros) )
+                       replace = list(d_p = replacer) )
 mu_ppfb_ran_1.mean <- apply( mu_ppfb_ran_1$mu , 2 , mean )
-mu_ppfb_ran_1.HPDI <- apply( mu_ppfb_ran_1$mu , 2 , HPDI )
+mu_ppfb_ran_1.HPDI <- apply( mu_ppfb_ran_1$mu , 2 , HPDI, prob = interval )
 
 mu_ppfb_rep_1 <- link( mod, n=n, data=dater2,
-                       replace = list(a_p = a_p_zeros,
-                                      b_p = b_p_zeros,
-                                      c_p = c_p_zeros) )
+                       replace = list(d_p = replacer) )
 mu_ppfb_rep_1.mean <- apply( mu_ppfb_rep_1$mu , 2 , mean )
-mu_ppfb_rep_1.HPDI <- apply( mu_ppfb_rep_1$mu , 2 , HPDI )
+mu_ppfb_rep_1.HPDI <- apply( mu_ppfb_rep_1$mu , 2 , HPDI, prob = interval )
 
 
 ## PPFB RAN VS REP SESSION 5:
@@ -6213,18 +6173,14 @@ dater2 <- list(
 )
 
 mu_ppfb_ran_5 <- link( mod, n=n, data=dater1,
-                       replace = list(a_p = a_p_zeros,
-                                      b_p = b_p_zeros,
-                                      c_p = c_p_zeros) )
+                       replace = list(d_p = replacer) )
 mu_ppfb_ran_5.mean <- apply( mu_ppfb_ran_5$mu , 2 , mean )
-mu_ppfb_ran_5.HPDI <- apply( mu_ppfb_ran_5$mu , 2 , HPDI )
+mu_ppfb_ran_5.HPDI <- apply( mu_ppfb_ran_5$mu , 2 , HPDI, prob = interval )
 
 mu_ppfb_rep_5 <- link( mod, n=n, data=dater2,
-                       replace = list(a_p = a_p_zeros,
-                                      b_p = b_p_zeros,
-                                      c_p = c_p_zeros) )
+                       replace = list(d_p = replacer) )
 mu_ppfb_rep_5.mean <- apply( mu_ppfb_rep_5$mu , 2 , mean )
-mu_ppfb_rep_5.HPDI <- apply( mu_ppfb_rep_5$mu , 2 , HPDI )
+mu_ppfb_rep_5.HPDI <- apply( mu_ppfb_rep_5$mu , 2 , HPDI, prob = interval )
 
 ## put it all in a matrix that lines up with actual data ##
 
@@ -6421,5 +6377,620 @@ HPDI(mu_ppfb_learn_ES[,1], prob = .95)
 #### NOTES ####
 
 # interestingly... doing by block doesn't seem to help much. 
+
 # note that this models a block_id "slope" which would mask
-# any offline gains. 
+# any offline gains, and make the first to last block 
+# difference look smaller! 
+
+#### saf 12.1 ####
+
+# glimmer(Serror ~ group * rep * session_num * block_num, dat)
+# ugh this is awful
+
+saf.12.1 <- map2stan(
+        alist(
+                # likelihood
+                Serror ~ dnorm( mu, sigma ),
+                
+                # model
+                mu <- (a / (1 + (exp(-(c*(Sspeed-D)))))),
+                
+                D <- d + d_g[group] + d_cond*rep + d_sess*session + d_block*block_num +
+                        d_cond_g[group]*rep + d_sess_g[group]*session + d_block_g[group]*block_num + d_cond_block*rep*block_num + d_cond_sess*rep*session + d_sess_block*session*block_num + 
+                        d_cond_sess_g[group]*rep*session + d_cond_block_g[group]*rep*block_num + d_sess_block_g[group]*session*block_num + d_cond_sess_block*rep*session*block_num +
+                        d_cond_sess_block_g[group]*rep*session*block_num + 
+                        d_p[participant]*sigma_participant,
+                
+                sigma <- a_sigma + b_sigma*Sspeed,
+                
+                # adaptive priors 
+                d_p[participant] ~ dnorm(0,1), # non-centered (see sigma_participant in linear model above)
+                
+                # fixed priors
+                a ~ dnorm(1,1),
+                c ~ dnorm(1,1), 
+                d ~ dnorm(0.5,1), 
+                d_cond ~ dnorm(0,1), 
+                d_sess ~ dnorm(0,1), 
+                d_block ~ dnorm(0,1),
+                d_g[group] ~ dnorm(0,1),
+                d_cond_sess ~ dnorm(0,1),
+                d_cond_block ~ dnorm(0,1),
+                d_sess_block ~ dnorm(0,1),
+                d_cond_g[group] ~ dnorm(0,1),
+                d_sess_g[group] ~ dnorm(0,1),
+                d_block_g[group] ~ dnorm(0,1),
+                d_cond_sess_block ~ dnorm(0,1),
+                d_cond_sess_g[group] ~ dnorm(0,1),
+                d_cond_block_g[group] ~ dnorm(0,1),
+                d_sess_block_g[group] ~ dnorm(0,1),
+                d_cond_sess_block_g[group] ~ dnorm(0,1),
+                
+                sigma_participant ~ dcauchy(0,2),
+                
+                a_sigma ~ dcauchy(0,2),
+                b_sigma ~ dnorm(0,1)
+        ),
+        data = dat,
+        start = list(
+                a = 1,
+                c = 1,
+                d = 0.5,
+                d_cond = 0, 
+                d_sess = 0, 
+                d_block = 0,
+                d_g = c(0,0,0,0),
+                d_cond_sess = 0,
+                d_cond_block = 0,
+                d_sess_block = 0,
+                d_cond_g = c(0,0,0,0),
+                d_sess_g = c(0,0,0,0),
+                d_block_g = c(0,0,0,0),
+                d_cond_sess_block = 0,
+                d_cond_sess_g = c(0,0,0,0),
+                d_cond_block_g = c(0,0,0,0),
+                d_sess_block_g = c(0,0,0,0),
+                d_cond_sess_block_g = c(0,0,0,0),
+                
+                sigma_participant = 1,
+                a_sigma = 1,
+                b_sigma = 0.5
+        ),
+        constraints = list(
+                c = "lower=0",
+                
+                sigma_participant = "lower=0",
+                a_sigma = "lower=0",
+                b_sigma = "lower=0"
+        ),
+        sample = TRUE,
+        iter = 1000,
+        warmup = 500,
+        chains = 1, 
+        cores = 1 ,
+        control=list(adapt_delta=0.90)
+)
+save(saf.12.1, file = "saf12_1_1000.Rda")
+precis(saf.12.1, depth=2, pars=c("a","b","c","d","a_sigma","b_sigma")) 
+pairs(saf.12.1, pars=c("a","c","d","a_sigma","b_sigma"))
+dashboard(saf.12.1)
+par(mfrow=c(1,1))
+plot(saf.12.1, pars=c("a","c","d","a_sigma","b_sigma"))
+stancode(saf.12.1)
+WAIC(saf.12.1)
+
+# add new parameters
+precis(saf.12.1, depth=2, pars=c("d","d_cond","d_sess","d_cond_sess",
+                               "d_g","d_cond_g","d_sess_g","d_cond_sess_g")) 
+precis(saf.12.1, depth=2, pars=c("d_p","sigma_participant"))
+
+#### PLOTS ####
+
+# remember to run all the code setting up model 11!
+
+# load("saf12_1.Rda")
+
+# which model?
+mod <- saf.12.1
+
+# post <- extract.samples(mod) # see how many samples
+n = 500 # number of samples in post
+
+# which sessions and blocks?
+s1 = 1
+s2 = 5
+b1 = 1
+b2 = 5
+
+# compute percentile interval of mean
+# Sspeed.seq <- seq( from=min(dat$Sspeed, na.rm=TRUE) , to=max(dat$Sspeed, na.rm=TRUE) , length.out=1000 )
+Sspeed.seq <- seq( from=-1 , to=2 , length.out=1000 )
+
+# what interval of HPDI? e.g. prob = 0.89  # 0.9973  # 0.9545  # 0.6827
+interval = 0.95
+
+# replace varying intercept samples with zeros
+# e.g. number of samples by 60 participants
+d_p_zeros <- matrix(0,n,60) 
+
+# replace varying intercept samples with simulations
+post <- extract.samples(mod)
+d_p_sims <- rnorm(n*60,0,sd(post$d_p))
+d_p_sims <- matrix(d_p_sims,n,60)
+
+replacer <- d_p_zeros
+
+## CC RAN VS REP SESSION 1:
+
+dater1 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(1,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(s1,length(Sspeed.seq)),
+        block_num = rep(b1,length(Sspeed.seq)),
+        rep = rep(0,length(Sspeed.seq))
+)
+dater2 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(1,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(s1,length(Sspeed.seq)),
+        block_num = rep(b1,length(Sspeed.seq)),
+        rep = rep(1,length(Sspeed.seq))
+)
+
+mu_cc_ran_1 <- link( mod, n=n, data=dater1,
+                     replace = list(d_p = replacer) )
+mu_cc_ran_1.mean <- apply( mu_cc_ran_1$mu , 2 , mean )
+mu_cc_ran_1.HPDI <- apply( mu_cc_ran_1$mu , 2 , HPDI, prob = interval )
+
+mu_cc_rep_1 <- link( mod, n=n, data=dater2,
+                     replace = list(d_p = replacer) )
+mu_cc_rep_1.mean <- apply( mu_cc_rep_1$mu , 2 , mean )
+mu_cc_rep_1.HPDI <- apply( mu_cc_rep_1$mu , 2 , HPDI, prob = interval )
+
+
+## CC RAN VS REP SESSION 5:
+
+dater1 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(1,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(s2,length(Sspeed.seq)),
+        block_num = rep(b2,length(Sspeed.seq)),
+        rep = rep(0,length(Sspeed.seq))
+)
+dater2 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(1,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(s2,length(Sspeed.seq)),
+        block_num = rep(b2,length(Sspeed.seq)),
+        rep = rep(1,length(Sspeed.seq))
+)
+
+mu_cc_ran_5 <- link( mod, n=n, data=dater1,
+                     replace = list(d_p = replacer) )
+mu_cc_ran_5.mean <- apply( mu_cc_ran_5$mu , 2 , mean )
+mu_cc_ran_5.HPDI <- apply( mu_cc_ran_5$mu , 2 , HPDI, prob = interval )
+
+mu_cc_rep_5 <- link( mod, n=n, data=dater2,
+                     replace = list(d_p = replacer) )
+mu_cc_rep_5.mean <- apply( mu_cc_rep_5$mu , 2 , mean )
+mu_cc_rep_5.HPDI <- apply( mu_cc_rep_5$mu , 2 , HPDI, prob = interval )
+
+
+## MI RAN VS REP SESSION 1:
+
+dater1 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(2,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(s1,length(Sspeed.seq)),
+        block_num = rep(b1,length(Sspeed.seq)),
+        rep = rep(0,length(Sspeed.seq))
+)
+dater2 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(2,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(s1,length(Sspeed.seq)),
+        block_num = rep(b1,length(Sspeed.seq)),
+        rep = rep(1,length(Sspeed.seq))
+)
+
+mu_mi_ran_1 <- link( mod, n=n, data=dater1,
+                     replace = list(d_p = replacer) )
+mu_mi_ran_1.mean <- apply( mu_mi_ran_1$mu , 2 , mean )
+mu_mi_ran_1.HPDI <- apply( mu_mi_ran_1$mu , 2 , HPDI, prob = interval )
+
+mu_mi_rep_1 <- link( mod, n=n, data=dater2,
+                     replace = list(d_p = replacer) )
+mu_mi_rep_1.mean <- apply( mu_mi_rep_1$mu , 2 , mean )
+mu_mi_rep_1.HPDI <- apply( mu_mi_rep_1$mu , 2 , HPDI, prob = interval )
+
+
+## MI RAN VS REP SESSION 5:
+
+dater1 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(2,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(s2,length(Sspeed.seq)),
+        block_num = rep(b2,length(Sspeed.seq)),
+        rep = rep(0,length(Sspeed.seq))
+)
+dater2 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(2,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(s2,length(Sspeed.seq)),
+        block_num = rep(b2,length(Sspeed.seq)),
+        rep = rep(1,length(Sspeed.seq))
+)
+
+mu_mi_ran_5 <- link( mod, n=n, data=dater1,
+                     replace = list(d_p = replacer) )
+mu_mi_ran_5.mean <- apply( mu_mi_ran_5$mu , 2 , mean )
+mu_mi_ran_5.HPDI <- apply( mu_mi_ran_5$mu , 2 , HPDI, prob = interval )
+
+mu_mi_rep_5 <- link( mod, n=n, data=dater2,
+                     replace = list(d_p = replacer) )
+mu_mi_rep_5.mean <- apply( mu_mi_rep_5$mu , 2 , mean )
+mu_mi_rep_5.HPDI <- apply( mu_mi_rep_5$mu , 2 , HPDI, prob = interval )
+
+
+## PP RAN VS REP SESSION 1:
+
+dater1 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(3,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(s1,length(Sspeed.seq)),
+        block_num = rep(b1,length(Sspeed.seq)),
+        rep = rep(0,length(Sspeed.seq))
+)
+dater2 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(3,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(s1,length(Sspeed.seq)),
+        block_num = rep(b1,length(Sspeed.seq)),
+        rep = rep(1,length(Sspeed.seq))
+)
+
+mu_pp_ran_1 <- link( mod, n=n, data=dater1,
+                     replace = list(d_p = replacer) )
+mu_pp_ran_1.mean <- apply( mu_pp_ran_1$mu , 2 , mean )
+mu_pp_ran_1.HPDI <- apply( mu_pp_ran_1$mu , 2 , HPDI, prob = interval )
+
+mu_pp_rep_1 <- link( mod, n=n, data=dater2,
+                     replace = list(d_p = replacer) )
+mu_pp_rep_1.mean <- apply( mu_pp_rep_1$mu , 2 , mean )
+mu_pp_rep_1.HPDI <- apply( mu_pp_rep_1$mu , 2 , HPDI, prob = interval )
+
+
+## PP RAN VS REP SESSION 5:
+
+dater1 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(3,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(s2,length(Sspeed.seq)),
+        block_num = rep(b2,length(Sspeed.seq)),
+        rep = rep(0,length(Sspeed.seq))
+)
+dater2 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(3,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(s2,length(Sspeed.seq)),
+        block_num = rep(b2,length(Sspeed.seq)),
+        rep = rep(1,length(Sspeed.seq))
+)
+
+mu_pp_ran_5 <- link( mod, n=n, data=dater1,
+                     replace = list(d_p = replacer) )
+mu_pp_ran_5.mean <- apply( mu_pp_ran_5$mu , 2 , mean )
+mu_pp_ran_5.HPDI <- apply( mu_pp_ran_5$mu , 2 , HPDI, prob = interval )
+
+mu_pp_rep_5 <- link( mod, n=n, data=dater2,
+                     replace = list(d_p = replacer) )
+mu_pp_rep_5.mean <- apply( mu_pp_rep_5$mu , 2 , mean )
+mu_pp_rep_5.HPDI <- apply( mu_pp_rep_5$mu , 2 , HPDI, prob = interval )
+
+
+## PPFB RAN VS REP SESSION 1:
+
+dater1 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(4,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(s1,length(Sspeed.seq)),
+        block_num = rep(b1,length(Sspeed.seq)),
+        rep = rep(0,length(Sspeed.seq))
+)
+dater2 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(4,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(s1,length(Sspeed.seq)),
+        block_num = rep(b1,length(Sspeed.seq)),
+        rep = rep(1,length(Sspeed.seq))
+)
+
+mu_ppfb_ran_1 <- link( mod, n=n, data=dater1,
+                       replace = list(d_p = replacer) )
+mu_ppfb_ran_1.mean <- apply( mu_ppfb_ran_1$mu , 2 , mean )
+mu_ppfb_ran_1.HPDI <- apply( mu_ppfb_ran_1$mu , 2 , HPDI, prob = interval )
+
+mu_ppfb_rep_1 <- link( mod, n=n, data=dater2,
+                       replace = list(d_p = replacer) )
+mu_ppfb_rep_1.mean <- apply( mu_ppfb_rep_1$mu , 2 , mean )
+mu_ppfb_rep_1.HPDI <- apply( mu_ppfb_rep_1$mu , 2 , HPDI, prob = interval )
+
+
+## PPFB RAN VS REP SESSION 5:
+
+dater1 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(4,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(s2,length(Sspeed.seq)),
+        block_num = rep(b2,length(Sspeed.seq)),
+        rep = rep(0,length(Sspeed.seq))
+)
+dater2 <- list(
+        Sspeed = Sspeed.seq,
+        group = rep(4,length(Sspeed.seq)),
+        participant = rep(1,length(Sspeed.seq)), # placeholder
+        session = rep(s2,length(Sspeed.seq)),
+        block_num = rep(b2,length(Sspeed.seq)),
+        rep = rep(1,length(Sspeed.seq))
+)
+
+mu_ppfb_ran_5 <- link( mod, n=n, data=dater1,
+                       replace = list(d_p = replacer) )
+mu_ppfb_ran_5.mean <- apply( mu_ppfb_ran_5$mu , 2 , mean )
+mu_ppfb_ran_5.HPDI <- apply( mu_ppfb_ran_5$mu , 2 , HPDI, prob = interval )
+
+mu_ppfb_rep_5 <- link( mod, n=n, data=dater2,
+                       replace = list(d_p = replacer) )
+mu_ppfb_rep_5.mean <- apply( mu_ppfb_rep_5$mu , 2 , mean )
+mu_ppfb_rep_5.HPDI <- apply( mu_ppfb_rep_5$mu , 2 , HPDI, prob = interval )
+
+## put it all in a matrix that lines up with actual data ##
+
+postmean <- c(mu_cc_ran_1.mean,mu_cc_rep_1.mean,mu_cc_ran_5.mean,mu_cc_rep_5.mean,mu_mi_ran_1.mean,mu_mi_rep_1.mean,mu_mi_ran_5.mean,mu_mi_rep_5.mean,mu_pp_ran_1.mean,mu_pp_rep_1.mean,mu_pp_ran_5.mean,mu_pp_rep_5.mean,mu_ppfb_ran_1.mean,mu_ppfb_rep_1.mean,mu_ppfb_ran_5.mean,mu_ppfb_rep_5.mean)
+Sspeed <- rep(seq( from=-1 , to=2 , length.out=1000 ),16)
+postHPDI1 <- c(mu_cc_ran_1.HPDI[1,],mu_cc_rep_1.HPDI[1,],mu_cc_ran_5.HPDI[1,],mu_cc_rep_5.HPDI[1,],mu_mi_ran_1.HPDI[1,],mu_mi_rep_1.HPDI[1,],mu_mi_ran_5.HPDI[1,],mu_mi_rep_5.HPDI[1,],mu_pp_ran_1.HPDI[1,],mu_pp_rep_1.HPDI[1,],mu_pp_ran_5.HPDI[1,],mu_pp_rep_5.HPDI[1,],mu_ppfb_ran_1.HPDI[1,],mu_ppfb_rep_1.HPDI[1,],mu_ppfb_ran_5.HPDI[1,],mu_ppfb_rep_5.HPDI[1,])
+postHPDI2 <- c(mu_cc_ran_1.HPDI[2,],mu_cc_rep_1.HPDI[2,],mu_cc_ran_5.HPDI[2,],mu_cc_rep_5.HPDI[2,],mu_mi_ran_1.HPDI[2,],mu_mi_rep_1.HPDI[2,],mu_mi_ran_5.HPDI[2,],mu_mi_rep_5.HPDI[2,],mu_pp_ran_1.HPDI[2,],mu_pp_rep_1.HPDI[2,],mu_pp_ran_5.HPDI[2,],mu_pp_rep_5.HPDI[2,],mu_ppfb_ran_1.HPDI[2,],mu_ppfb_rep_1.HPDI[2,],mu_ppfb_ran_5.HPDI[2,],mu_ppfb_rep_5.HPDI[2,])
+session_num <- rep(c(s1,s2,s1,s2,s1,s2,s1,s2),each=2000)
+block_num <- rep(c(b1,b2,b1,b2,b1,b2,b1,b2),each=2000)
+condition <- as.factor(rep(c("CC","MI","PP","PPVR"),each=4000))
+figure_type <- as.factor(rep(c("random","repeated","random","repeated","random","repeated","random","repeated","random","repeated","random","repeated","random","repeated","random","repeated"),each=1000))
+post.HPDI <- data.frame(condition,session_num,block_num,figure_type,Sspeed,postmean,postHPDI1,postHPDI2)
+colnames(post.HPDI)[which(names(post.HPDI) == "postmean")] <- "Serror"
+
+ggplot(subset(dat, ((session_num == s1) | (session_num == s2)) & ((block_num == b1) | (block_num == b2)))
+       , mapping = aes(
+               x = Sspeed, y = Serror
+               , color = factor(figure_type)
+       )) + geom_point(na.rm = TRUE, alpha = .25) + 
+        geom_line(data = post.HPDI) +
+        geom_ribbon(data = post.HPDI, aes(
+                ymin=postHPDI1
+                , ymax=postHPDI2), alpha=0.2) +
+        theme_minimal() +
+        facet_grid(session_num ~ condition) +
+        # geom_smooth() +
+        labs(title = "Shape Error"
+             , x = "Velocity (scaled)"
+             , y = "Shape Error (scaled)"
+             , color = "Figure Type") +
+        coord_cartesian(xlim = c(0,1), ylim = c(0,1))
+# coord_cartesian(xlim = c(-0.5,1.5), ylim = c(-0.5,1.5))
+
+
+#### Density Plots ####
+
+## SHIFT:
+
+par(mfrow=c(2,2))
+
+## CC ##
+plot(density(mu_cc_ran_1$D))
+plot(density(mu_cc_rep_1$D))
+plot(density(mu_cc_ran_5$D))
+plot(density(mu_cc_rep_5$D))
+
+## MI ##
+plot(density(mu_mi_ran_1$D))
+plot(density(mu_mi_rep_1$D))
+plot(density(mu_mi_ran_5$D))
+plot(density(mu_mi_rep_5$D))
+
+## PP ##
+plot(density(mu_pp_ran_1$D))
+plot(density(mu_pp_rep_1$D))
+plot(density(mu_pp_ran_5$D))
+plot(density(mu_pp_rep_5$D))
+
+## PPFB ##
+plot(density(mu_ppfb_ran_1$D))
+plot(density(mu_ppfb_rep_1$D))
+plot(density(mu_ppfb_ran_5$D))
+plot(density(mu_ppfb_rep_5$D))
+
+
+#### "performance" ####
+
+par(mfrow=c(1,1))
+
+# CC
+
+mu_cc_1_diff = mu_cc_rep_1$D - mu_cc_ran_1$D
+density(mu_cc_1_diff)
+plot(density(mu_cc_1_diff))
+
+mu_cc_5_diff = mu_cc_rep_5$D - mu_cc_ran_5$D
+density(mu_cc_5_diff)
+plot(density(mu_cc_5_diff))
+
+# MI
+
+mu_mi_1_diff = mu_mi_rep_1$D - mu_mi_ran_1$D
+density(mu_mi_1_diff)
+plot(density(mu_mi_1_diff))
+
+mu_mi_5_diff = mu_mi_rep_5$D - mu_mi_ran_5$D
+density(mu_mi_5_diff)
+plot(density(mu_mi_5_diff))
+
+# PP
+
+mu_pp_1_diff = mu_pp_rep_1$D - mu_pp_ran_1$D
+density(mu_pp_1_diff)
+plot(density(mu_pp_1_diff))
+
+mu_pp_5_diff = mu_pp_rep_5$D - mu_pp_ran_5$D
+density(mu_pp_5_diff)
+plot(density(mu_pp_5_diff))
+
+# PPFB
+
+mu_ppfb_1_diff = mu_ppfb_rep_1$D - mu_ppfb_ran_1$D
+density(mu_ppfb_1_diff)
+plot(density(mu_ppfb_1_diff))
+
+mu_ppfb_5_diff = mu_ppfb_rep_5$D - mu_ppfb_ran_5$D
+density(mu_ppfb_5_diff)
+plot(density(mu_ppfb_5_diff))
+
+#### "learning" ####
+
+par(mfrow=c(1,1))
+
+## CC 
+
+# # using CC day 1:
+# mu_cc_learn = mu_cc_5_diff - mu_cc_1_diff
+# density(mu_cc_learn)
+# plot(density(mu_cc_learn))
+
+# using PP day 1:
+mu_cc_learn = mu_cc_5_diff - mu_pp_1_diff
+density(mu_cc_learn)
+plot(density(mu_cc_learn))
+
+# ES?
+mean(mu_cc_learn)
+sd(mu_cc_learn)
+mean(mu_cc_learn)/sd(mu_cc_learn)
+
+mu_cc_learn_ES <- mu_cc_learn/sd(mu_cc_learn)
+plot(density(mu_cc_learn_ES))
+HPDI(mu_cc_learn_ES[,1], prob = .95) 
+
+
+## MI
+
+# # using MI day 1:
+# mu_mi_learn = mu_mi_5_diff - mu_mi_1_diff
+# density(mu_mi_learn)
+# plot(density(mu_mi_learn))
+
+# using PP day 1:
+mu_mi_learn = mu_mi_5_diff - mu_pp_1_diff
+density(mu_mi_learn)
+plot(density(mu_mi_learn))
+
+# ES?
+mean(mu_mi_learn)
+sd(mu_mi_learn)
+mean(mu_mi_learn)/sd(mu_mi_learn)
+
+mu_mi_learn_ES <- mu_mi_learn/sd(mu_mi_learn)
+plot(density(mu_mi_learn_ES))
+HPDI(mu_mi_learn_ES[,1], prob = .95) 
+
+
+## PP 
+
+mu_pp_learn = mu_pp_5_diff - mu_pp_1_diff
+density(mu_pp_learn)
+plot(density(mu_pp_learn))
+
+# ES?
+mean(mu_pp_learn)
+sd(mu_pp_learn)
+mean(mu_pp_learn)/sd(mu_pp_learn)
+
+mu_pp_learn_ES <- mu_pp_learn/sd(mu_pp_learn)
+plot(density(mu_pp_learn_ES))
+HPDI(mu_pp_learn_ES[,1], prob = .95) 
+
+
+## PPFB
+
+mu_ppfb_learn = mu_ppfb_5_diff - mu_ppfb_1_diff
+density(mu_ppfb_learn)
+plot(density(mu_ppfb_learn))
+
+# ES?
+mean(mu_ppfb_learn)
+sd(mu_ppfb_learn)
+mean(mu_ppfb_learn)/sd(mu_ppfb_learn)
+
+mu_ppfb_learn_ES <- mu_ppfb_learn/sd(mu_ppfb_learn)
+plot(density(mu_ppfb_learn_ES))
+HPDI(mu_ppfb_learn_ES[,1], prob = .95) 
+
+HPDI(mu_cc_learn_ES[,1], prob = .95) 
+HPDI(mu_mi_learn_ES[,1], prob = .95) 
+HPDI(mu_pp_learn_ES[,1], prob = .95) 
+HPDI(mu_ppfb_learn_ES[,1], prob = .95) 
+
+#### NOTES ####
+
+# 200 iter... well... it actually seems to have worked... 
+# and now instead of CC getting WORSE, it now just doesn't
+# get better... and pp doesn't get better either
+# MI get's better similarly, and PPFB get's much better
+
+# better predictions?
+load("saf11_1.Rda")
+load("saf12_1000.Rda")
+load("saf12_1.Rda")
+
+compare(saf.11.1, saf.12, saf.12.1)
+plot(compare(saf.11.1, saf.12, saf.12.1))
+# not significant... gotta THINK!
+
+#### "learning" over time ####
+
+# plot D over time... 
+
+mean(mu_cc_1_diff) # note: do you want to use pp?
+sd(mu_cc_1_diff)
+mean(mu_cc_5_diff)
+sd(mu_cc_5_diff)
+
+mean(mu_mi_1_diff) # note: do you want to use pp?
+sd(mu_cc_1_diff)
+mean(mu_cc_5_diff)
+sd(mu_mi_5_diff)
+
+mean(mu_pp_1_diff)
+sd(mu_pp_1_diff)
+mean(mu_pp_5_diff)
+sd(mu_pp_5_diff)
+
+mean(mu_ppfb_1_diff)
+sd(mu_ppfb_1_diff)
+mean(mu_ppfb_5_diff)
+sd(mu_ppfb_5_diff)
+
+
+
+
