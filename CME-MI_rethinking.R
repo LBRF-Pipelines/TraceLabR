@@ -6464,13 +6464,14 @@ saf.12.1 <- map2stan(
                 b_sigma = "lower=0"
         ),
         sample = TRUE,
-        iter = 1000,
-        warmup = 500,
-        chains = 1, 
-        cores = 1 ,
-        control=list(adapt_delta=0.90)
+        iter = 10000,
+        warmup = 1000,
+        chains = 10, 
+        cores = 10 ,
+        refresh = 100,
+        control=list(adapt_delta = 0.90)
 )
-save(saf.12.1, file = "saf12_1_1000.Rda")
+save(saf.12.1, file = "saf12_1_100000.Rda")
 precis(saf.12.1, depth=2, pars=c("a","b","c","d","a_sigma","b_sigma")) 
 pairs(saf.12.1, pars=c("a","c","d","a_sigma","b_sigma"))
 dashboard(saf.12.1)
