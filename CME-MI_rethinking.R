@@ -8,7 +8,7 @@ graphics.off() # clear figures
 
 library(tidyverse)
 library(ez)
-set.seed(1)
+set.seed(1) 
 
 load("all_data.Rda")
 dat <- dplyr::filter(
