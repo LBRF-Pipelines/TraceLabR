@@ -6479,22 +6479,27 @@ plot(saf.12.1, pars=c("a","c","d","a_sigma","b_sigma"))
 stancode(saf.12.1)
 WAIC(saf.12.1)
 
-# add new parameters
-precis(saf.12.1, depth=2, pars=c("d","d_cond","d_sess","d_cond_sess",
-                               "d_g","d_cond_g","d_sess_g","d_cond_sess_g")) 
+precis(saf.12.1, depth=2, pars=c("d","d_cond","d_sess","d_block", "d_g")) 
+
+precis(saf.12.1, depth=2, pars=c("d_cond_sess","d_cond_block","d_sess_block","d_cond_g","d_sess_g","d_block_g")) 
+
+precis(saf.12.1, depth=2, pars=c("d_cond_sess_block","d_cond_sess_g","d_cond_block_g","d_sess_block_g","d_cond_sess_block_g")) 
+
 precis(saf.12.1, depth=2, pars=c("d_p","sigma_participant"))
+
+precis(saf.12.1, depth=2, pars=c("sigma_participant","d_p"))
 
 #### PLOTS ####
 
 # remember to run all the code setting up model 11!
 
-# load("saf12_1.Rda")
+# load("saf12_1_1000.Rda")
 
 # which model?
 mod <- saf.12.1
 
 # post <- extract.samples(mod) # see how many samples
-n = 500 # number of samples in post
+n = 10000 # number of samples in post
 
 # which sessions and blocks?
 s1 = 1
@@ -6507,7 +6512,7 @@ b2 = 5
 Sspeed.seq <- seq( from=-1 , to=2 , length.out=1000 )
 
 # what interval of HPDI? e.g. prob = 0.89  # 0.9973  # 0.9545  # 0.6827
-interval = 0.95
+interval = 0.9545
 
 # replace varying intercept samples with zeros
 # e.g. number of samples by 60 participants
@@ -6830,42 +6835,42 @@ par(mfrow=c(1,1))
 # CC
 
 mu_cc_1_diff = mu_cc_rep_1$D - mu_cc_ran_1$D
-density(mu_cc_1_diff)
-plot(density(mu_cc_1_diff))
+# density(mu_cc_1_diff)
+# plot(density(mu_cc_1_diff))
 
 mu_cc_5_diff = mu_cc_rep_5$D - mu_cc_ran_5$D
-density(mu_cc_5_diff)
-plot(density(mu_cc_5_diff))
+# density(mu_cc_5_diff)
+# plot(density(mu_cc_5_diff))
 
 # MI
 
 mu_mi_1_diff = mu_mi_rep_1$D - mu_mi_ran_1$D
-density(mu_mi_1_diff)
-plot(density(mu_mi_1_diff))
+# density(mu_mi_1_diff)
+# plot(density(mu_mi_1_diff))
 
 mu_mi_5_diff = mu_mi_rep_5$D - mu_mi_ran_5$D
-density(mu_mi_5_diff)
-plot(density(mu_mi_5_diff))
+# density(mu_mi_5_diff)
+# plot(density(mu_mi_5_diff))
 
 # PP
 
 mu_pp_1_diff = mu_pp_rep_1$D - mu_pp_ran_1$D
-density(mu_pp_1_diff)
-plot(density(mu_pp_1_diff))
+# density(mu_pp_1_diff)
+# plot(density(mu_pp_1_diff))
 
 mu_pp_5_diff = mu_pp_rep_5$D - mu_pp_ran_5$D
-density(mu_pp_5_diff)
-plot(density(mu_pp_5_diff))
+# density(mu_pp_5_diff)
+# plot(density(mu_pp_5_diff))
 
 # PPFB
 
 mu_ppfb_1_diff = mu_ppfb_rep_1$D - mu_ppfb_ran_1$D
-density(mu_ppfb_1_diff)
-plot(density(mu_ppfb_1_diff))
+# density(mu_ppfb_1_diff)
+# plot(density(mu_ppfb_1_diff))
 
 mu_ppfb_5_diff = mu_ppfb_rep_5$D - mu_ppfb_ran_5$D
-density(mu_ppfb_5_diff)
-plot(density(mu_ppfb_5_diff))
+# density(mu_ppfb_5_diff)
+# plot(density(mu_ppfb_5_diff))
 
 #### "learning" ####
 
@@ -6880,13 +6885,13 @@ par(mfrow=c(1,1))
 
 # using PP day 1:
 mu_cc_learn = mu_cc_5_diff - mu_pp_1_diff
-density(mu_cc_learn)
-plot(density(mu_cc_learn))
+# density(mu_cc_learn)
+# plot(density(mu_cc_learn))
 
 # ES?
-mean(mu_cc_learn)
-sd(mu_cc_learn)
-mean(mu_cc_learn)/sd(mu_cc_learn)
+# mean(mu_cc_learn)
+# sd(mu_cc_learn)
+# mean(mu_cc_learn)/sd(mu_cc_learn)
 
 mu_cc_learn_ES <- mu_cc_learn/sd(mu_cc_learn)
 plot(density(mu_cc_learn_ES))
@@ -6902,13 +6907,13 @@ HPDI(mu_cc_learn_ES[,1], prob = .95)
 
 # using PP day 1:
 mu_mi_learn = mu_mi_5_diff - mu_pp_1_diff
-density(mu_mi_learn)
-plot(density(mu_mi_learn))
+# density(mu_mi_learn)
+# plot(density(mu_mi_learn))
 
 # ES?
-mean(mu_mi_learn)
-sd(mu_mi_learn)
-mean(mu_mi_learn)/sd(mu_mi_learn)
+# mean(mu_mi_learn)
+# sd(mu_mi_learn)
+# mean(mu_mi_learn)/sd(mu_mi_learn)
 
 mu_mi_learn_ES <- mu_mi_learn/sd(mu_mi_learn)
 plot(density(mu_mi_learn_ES))
@@ -6918,13 +6923,13 @@ HPDI(mu_mi_learn_ES[,1], prob = .95)
 ## PP 
 
 mu_pp_learn = mu_pp_5_diff - mu_pp_1_diff
-density(mu_pp_learn)
-plot(density(mu_pp_learn))
+# density(mu_pp_learn)
+# plot(density(mu_pp_learn))
 
 # ES?
-mean(mu_pp_learn)
-sd(mu_pp_learn)
-mean(mu_pp_learn)/sd(mu_pp_learn)
+# mean(mu_pp_learn)
+# sd(mu_pp_learn)
+# mean(mu_pp_learn)/sd(mu_pp_learn)
 
 mu_pp_learn_ES <- mu_pp_learn/sd(mu_pp_learn)
 plot(density(mu_pp_learn_ES))
@@ -6934,13 +6939,13 @@ HPDI(mu_pp_learn_ES[,1], prob = .95)
 ## PPFB
 
 mu_ppfb_learn = mu_ppfb_5_diff - mu_ppfb_1_diff
-density(mu_ppfb_learn)
-plot(density(mu_ppfb_learn))
+# density(mu_ppfb_learn)
+# plot(density(mu_ppfb_learn))
 
 # ES?
-mean(mu_ppfb_learn)
-sd(mu_ppfb_learn)
-mean(mu_ppfb_learn)/sd(mu_ppfb_learn)
+# mean(mu_ppfb_learn)
+# sd(mu_ppfb_learn)
+# mean(mu_ppfb_learn)/sd(mu_ppfb_learn)
 
 mu_ppfb_learn_ES <- mu_ppfb_learn/sd(mu_ppfb_learn)
 plot(density(mu_ppfb_learn_ES))
@@ -6969,28 +6974,93 @@ plot(compare(saf.11.1, saf.12, saf.12.1))
 
 #### "learning" over time ####
 
-# plot D over time... 
+# load("saf12_1_1000.Rda")
 
-mean(mu_cc_1_diff) # note: do you want to use pp?
-sd(mu_cc_1_diff)
-mean(mu_cc_5_diff)
-sd(mu_cc_5_diff)
+# which model?
+mod <- saf.12.1
 
-mean(mu_mi_1_diff) # note: do you want to use pp?
-sd(mu_cc_1_diff)
-mean(mu_cc_5_diff)
-sd(mu_mi_5_diff)
+# post <- extract.samples(mod) # see how many samples
+n = 500 # number of samples in post
 
-mean(mu_pp_1_diff)
-sd(mu_pp_1_diff)
-mean(mu_pp_5_diff)
-sd(mu_pp_5_diff)
+# compute percentile interval of mean
+# Sspeed.seq <- seq( from=min(dat$Sspeed, na.rm=TRUE) , to=max(dat$Sspeed, na.rm=TRUE) , length.out=1000 )
+Sspeed.seq <- seq( from=-1 , to=2 , length.out=1000 )
 
-mean(mu_ppfb_1_diff)
-sd(mu_ppfb_1_diff)
-mean(mu_ppfb_5_diff)
-sd(mu_ppfb_5_diff)
+# replace varying intercept samples with zeros
+# e.g. number of samples by 60 participants
+d_p_zeros <- matrix(0,n,60) 
 
+# replace varying intercept samples with simulations
+# post <- extract.samples(mod)
+d_p_sims <- rnorm(n*60,0,sd(post$d_p))
+d_p_sims <- matrix(d_p_sims,n,60)
 
+replacer <- d_p_sims
 
+# generative modelling:
 
+mat <- array(rep(0, n*5*5*4), dim=c(n, 5, 5, 4))
+
+for(g in 1:4){
+        for(i in 1:5){
+                for(j in 1:5){
+                        dat_ran <- list(
+                                Sspeed = Sspeed.seq,
+                                group = rep(g,length(Sspeed.seq)),
+                                participant = rep(1,length(Sspeed.seq)), # placeholder
+                                session = rep(i,length(Sspeed.seq)),
+                                block_num = rep(j,length(Sspeed.seq)),
+                                rep = rep(0,length(Sspeed.seq))
+                        )
+                        dat_rep <- list(
+                                Sspeed = Sspeed.seq,
+                                group = rep(g,length(Sspeed.seq)),
+                                participant = rep(1,length(Sspeed.seq)), # placeholder
+                                session = rep(i,length(Sspeed.seq)),
+                                block_num = rep(j,length(Sspeed.seq)),
+                                rep = rep(1,length(Sspeed.seq))
+                        )
+                        
+                        gen.ran <- link( mod, n=n, data=dat_ran,
+                                         replace = list(d_p = replacer) )
+                        gen.rep <- link( mod, n=n, data=dat_rep,
+                                         replace = list(d_p = replacer) )
+                        
+                        D.gen = gen.rep$D - gen.ran$D
+                        
+                        mat[,i,j,g] <- D.gen[,1]
+                        print(paste("group",g,"session",i,"block",j))
+                }
+        }
+}
+save(mat, file = "mat.Rda")
+
+grp <- rep(c(1,2,3,4),each=25)
+sess <- rep(rep(c(1,2,3,4,5),each=5), 4)
+blk <- rep(c(1,2,3,4,5),20)
+blkid <- rep(seq(from=1, to=25),4)
+means <- rep(0,100)
+SDs <- rep(0,100)
+learning <- data.frame(grp,sess,blk,blkid,means,SDs)
+
+for(g in 1:4){
+        for(i in 1:5){
+                for(j in 1:5){
+                        learning[learning$grp==g & learning$sess==i & learning$blk==j,5] <- mean(mat[,i,j,g])
+                        learning[learning$grp==g & learning$sess==i & learning$blk==j,6] <- sd(mat[,i,j,g])
+                }
+        }
+}
+
+learning$grp <- as.factor(gsub(1,"CC", learning$grp))
+learning$grp <- as.factor(gsub(2,"MI", learning$grp))
+learning$grp <- as.factor(gsub(3,"PP", learning$grp))
+learning$grp <- as.factor(gsub(4,"PPFB", learning$grp))
+
+ggplot(learning, aes(x=blkid, y=means, group=grp, color=grp)) + 
+        geom_pointrange(aes(ymin=means-SDs, ymax=means+SDs)) +
+        lims(x = c(0, 25), y = c(0.05, .35)) +
+        theme_minimal() +
+        labs(title="Performance across time", x="Block", y = "Performance")
+
+# write.csv(learning, file = "CME-MI_learning.csv", row.names = FALSE)
