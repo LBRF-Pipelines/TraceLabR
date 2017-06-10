@@ -575,10 +575,10 @@ CC_anal = function(tlf, tlfp, tlfs){
 
 #### GATHER INFORMATION FROM DATABASE AND LOCATE DATA ####
 
-participants <- read.csv("~/Documents/RStudio/TraceLabDB/participants.csv")
+participants <- read.csv("~/Documents/RStudio/TraceLabR/participants.csv")
 colnames(participants)[1] <- paste("participant_id")
-trials <- read.csv("~/Documents/RStudio/TraceLabDB/trials.csv", stringsAsFactors = FALSE)
-path <- "~/TraceLab/ExpAssets/Data"
+trials <- read.csv("~/Documents/RStudio/TraceLabR/trials.csv", stringsAsFactors = FALSE)
+path <- "~/Documents/RStudio/TraceLabR/Data"
 file.names <- dir(path, recursive = TRUE, full.names = TRUE,pattern="\\.zip$")
 
 #### LOAD EXISTING DATA AND IDENTIFY NEW DATA TO BE ANALYZED ####
