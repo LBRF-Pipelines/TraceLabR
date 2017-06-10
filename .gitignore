@@ -13,13 +13,14 @@
 *.DS_Store
 .README.md.icloud
 
+# Data
+Data/**
+participants.csv
+trials.csv
+
 # Output data
 *.Rda
 *.pdf
 *.csv
 *.html
 *.rds
-
-# Project specific
-participants.csv
-trials.csv
