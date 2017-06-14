@@ -17,6 +17,7 @@
 Data/**
 participants.csv
 trials.csv
+assignment.txt
 
 # Output data
 *.Rda
