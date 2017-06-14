@@ -6500,7 +6500,7 @@ precis(saf.12.1, depth=2, pars=c("sigma_participant","d_p"))
 mod <- saf.12.1
 
 # post <- extract.samples(mod) # see how many samples
-n = 10000 # number of samples in post
+n = 50000 # number of samples in post
 
 # which sessions and blocks?
 s1 = 1
@@ -6829,128 +6829,68 @@ plot(density(mu_ppfb_ran_5$D))
 plot(density(mu_ppfb_rep_5$D))
 
 
-#### "performance" ####
-
-par(mfrow=c(1,1))
-
-# CC
-
-mu_cc_1_diff = mu_cc_rep_1$D - mu_cc_ran_1$D
-# density(mu_cc_1_diff)
-# plot(density(mu_cc_1_diff))
-
-mu_cc_5_diff = mu_cc_rep_5$D - mu_cc_ran_5$D
-# density(mu_cc_5_diff)
-# plot(density(mu_cc_5_diff))
-
-# MI
-
-mu_mi_1_diff = mu_mi_rep_1$D - mu_mi_ran_1$D
-# density(mu_mi_1_diff)
-# plot(density(mu_mi_1_diff))
-
-mu_mi_5_diff = mu_mi_rep_5$D - mu_mi_ran_5$D
-# density(mu_mi_5_diff)
-# plot(density(mu_mi_5_diff))
-
-# PP
-
-mu_pp_1_diff = mu_pp_rep_1$D - mu_pp_ran_1$D
-# density(mu_pp_1_diff)
-# plot(density(mu_pp_1_diff))
-
-mu_pp_5_diff = mu_pp_rep_5$D - mu_pp_ran_5$D
-# density(mu_pp_5_diff)
-# plot(density(mu_pp_5_diff))
-
-# PPFB
-
-mu_ppfb_1_diff = mu_ppfb_rep_1$D - mu_ppfb_ran_1$D
-# density(mu_ppfb_1_diff)
-# plot(density(mu_ppfb_1_diff))
-
-mu_ppfb_5_diff = mu_ppfb_rep_5$D - mu_ppfb_ran_5$D
-# density(mu_ppfb_5_diff)
-# plot(density(mu_ppfb_5_diff))
-
 #### "learning" ####
 
 par(mfrow=c(1,1))
 
 ## CC 
 
-# # using CC day 1:
+mu_cc_1_diff = mu_cc_rep_1$D - mu_cc_ran_1$D
+mu_cc_5_diff = mu_cc_rep_5$D - mu_cc_ran_5$D
+
+# using CC day 1:
 # mu_cc_learn = mu_cc_5_diff - mu_cc_1_diff
-# density(mu_cc_learn)
-# plot(density(mu_cc_learn))
 
 # using PP day 1:
 mu_cc_learn = mu_cc_5_diff - mu_pp_1_diff
-# density(mu_cc_learn)
 # plot(density(mu_cc_learn))
 
-# ES?
-# mean(mu_cc_learn)
-# sd(mu_cc_learn)
-# mean(mu_cc_learn)/sd(mu_cc_learn)
-
 mu_cc_learn_ES <- mu_cc_learn/sd(mu_cc_learn)
-plot(density(mu_cc_learn_ES))
-HPDI(mu_cc_learn_ES[,1], prob = .95) 
+# plot(density(mu_cc_learn_ES))
+# HPDI(mu_cc_learn_ES[,1], prob = .95) 
 
 
 ## MI
 
+mu_mi_1_diff = mu_mi_rep_1$D - mu_mi_ran_1$D
+mu_mi_5_diff = mu_mi_rep_5$D - mu_mi_ran_5$D
+
 # # using MI day 1:
 # mu_mi_learn = mu_mi_5_diff - mu_mi_1_diff
-# density(mu_mi_learn)
-# plot(density(mu_mi_learn))
 
 # using PP day 1:
 mu_mi_learn = mu_mi_5_diff - mu_pp_1_diff
-# density(mu_mi_learn)
 # plot(density(mu_mi_learn))
 
-# ES?
-# mean(mu_mi_learn)
-# sd(mu_mi_learn)
-# mean(mu_mi_learn)/sd(mu_mi_learn)
-
 mu_mi_learn_ES <- mu_mi_learn/sd(mu_mi_learn)
-plot(density(mu_mi_learn_ES))
-HPDI(mu_mi_learn_ES[,1], prob = .95) 
+# plot(density(mu_mi_learn_ES))
+# HPDI(mu_mi_learn_ES[,1], prob = .95) 
 
 
 ## PP 
 
+mu_pp_1_diff = mu_pp_rep_1$D - mu_pp_ran_1$D
+mu_pp_5_diff = mu_pp_rep_5$D - mu_pp_ran_5$D
+
 mu_pp_learn = mu_pp_5_diff - mu_pp_1_diff
-# density(mu_pp_learn)
 # plot(density(mu_pp_learn))
 
-# ES?
-# mean(mu_pp_learn)
-# sd(mu_pp_learn)
-# mean(mu_pp_learn)/sd(mu_pp_learn)
-
 mu_pp_learn_ES <- mu_pp_learn/sd(mu_pp_learn)
-plot(density(mu_pp_learn_ES))
-HPDI(mu_pp_learn_ES[,1], prob = .95) 
+# plot(density(mu_pp_learn_ES))
+# HPDI(mu_pp_learn_ES[,1], prob = .95) 
 
 
 ## PPFB
 
+mu_ppfb_1_diff = mu_ppfb_rep_1$D - mu_ppfb_ran_1$D
+mu_ppfb_5_diff = mu_ppfb_rep_5$D - mu_ppfb_ran_5$D
+
 mu_ppfb_learn = mu_ppfb_5_diff - mu_ppfb_1_diff
-# density(mu_ppfb_learn)
 # plot(density(mu_ppfb_learn))
 
-# ES?
-# mean(mu_ppfb_learn)
-# sd(mu_ppfb_learn)
-# mean(mu_ppfb_learn)/sd(mu_ppfb_learn)
-
 mu_ppfb_learn_ES <- mu_ppfb_learn/sd(mu_ppfb_learn)
-plot(density(mu_ppfb_learn_ES))
-HPDI(mu_ppfb_learn_ES[,1], prob = .95) 
+# plot(density(mu_ppfb_learn_ES))
+# HPDI(mu_ppfb_learn_ES[,1], prob = .95) 
 
 HPDI(mu_cc_learn_ES[,1], prob = .95) 
 HPDI(mu_mi_learn_ES[,1], prob = .95) 
@@ -6981,7 +6921,7 @@ plot(compare(saf.11.1, saf.12, saf.12.1))
 mod <- saf.12.1
 
 # post <- extract.samples(mod) # see how many samples
-n = 500 # number of samples in post
+n = 50000 # number of samples in post
 
 # compute percentile interval of mean
 # Sspeed.seq <- seq( from=min(dat$Sspeed, na.rm=TRUE) , to=max(dat$Sspeed, na.rm=TRUE) , length.out=1000 )
