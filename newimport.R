@@ -199,9 +199,18 @@ PP_anal = function(tlf, tlt, tlfp, tlfs){
                                 clip_index[j] <- 0
                         }
                 }
-                #decide minimum response length — if not reached, report NA's for trial
+                
+                #remove all repeated response points (when person not moving)
+                data_resp_clip <- cbind(data_resp_rem,clip_index)
+                data_resp_clip <- data_resp_clip[!(data_resp_clip$clip_index==0),1:3]
+                data_resp_rem <- data_resp_clip
+                
+                ratio <- nrow(data_resp_rem) / nrow(data_stim)
+                
+                # decide minimum response length — if not reached, report NA's for trial
                 # sum(clip_index)<10 means there are less than 10 actual points collected
-                if(sum(clip_index)<20){
+                # ratio = how many response points needed with respect to stim points
+                if(sum(clip_index)<20 | (ratio < 0.5) | (ratio > 2.5)){
                         
                         ### Pathlength ###
                         
@@ -233,11 +242,6 @@ PP_anal = function(tlf, tlt, tlfp, tlfs){
                 }
                 else{
                         ### Pre-processing Trajectories Continued ###
-                        
-                        #remove all repeated response points (when person not moving)
-                        data_resp_clip <- cbind(data_resp_rem,clip_index)
-                        data_resp_clip <- data_resp_clip[!(data_resp_clip$clip_index==0),1:3]
-                        data_resp_rem <- data_resp_clip
                         
                         #get new MT 
                         mt_clip <- max(data_resp_rem$X3)
