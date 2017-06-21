@@ -8,11 +8,12 @@ graphics.off() # clear figures
 #### LOAD & INSPECT DATA ####
 
 library(tidyverse)
+library(ggthemes)
 devtools::install_github("mike-lawrence/ezStan")
 library(ezStan)
 set.seed(1)
 
-load("all_data.Rda")
+load("all_data (.5 to 2.5).Rda")
 dat <- dplyr::filter(
         .data = all_data
         , participant_id != 36
@@ -55,7 +56,7 @@ library(rethinking)
 dat$condition <- as.factor(gsub("MI-00-5","MI", dat$condition))
 dat$condition <- as.factor(gsub("CC-00-5","CC", dat$condition))
 dat$condition <- as.factor(gsub("PP-VV-5","PP", dat$condition))
-dat$condition <- as.factor(gsub("PP-VR-5","PPVR", dat$condition))
+dat$condition <- as.factor(gsub("PP-VR-5","PPFB", dat$condition))
 # colnames(dat)[which(names(dat) == "vresp")] <- "speed"
 # colnames(dat)[which(names(dat) == "shape_dtw_error_mean")] <- "error"
 colnames(dat)[which(names(dat) == "participant_id")] <- "participant"
@@ -71,10 +72,10 @@ dat$rep <- ifelse(dat$figure_type=="repeated", 1, 0)
 dat$CC <- ifelse(dat$condition=="CC", 1, 0)
 dat$MI <- ifelse(dat$condition=="MI", 1, 0)
 dat$PP <- ifelse(dat$condition=="PP", 1, 0)
-dat$PPFB <- ifelse(dat$condition=="PPVR", 1, 0)
+dat$PPFB <- ifelse(dat$condition=="PPFB", 1, 0)
 
 ## CATEGORICAL VARIABLES ##
-dat$group <- coerce_index(dat$condition) # CC = 1, MI = 2, PP = 3, PPVR = 4
+dat$group <- coerce_index(dat$condition) # CC = 1, MI = 2, PP = 3, PPFB = 4
 dat$fig_type <- coerce_index(dat$figure_type)
 
 ## CHECK PARTICIPANT NUMBERS:
@@ -252,7 +253,7 @@ mod.1 <- map2stan(
         cores = 1 ,
         control=list(adapt_delta=0.90)
 )
-save(mod.1, file = "mod1_1_5.Rda")
+# save(mod.1, file = "mod1_1_5.Rda")
 precis(mod.1, depth=2, pars=c("a","c","d","a_sigma","b_sigma")) 
 pairs(mod.1, pars=c("a","c","d","a_sigma","b_sigma"))
 dashboard(mod.1)
@@ -485,13 +486,13 @@ plot(compare(mod.1,mod.3))
 
 # remember to run all the code setting up model 11!
 
-# load("saf12_1_1000.Rda")
+# load("mod1_2_5.Rda")
 
 # which model?
 mod <- mod.1
 
 # post <- extract.samples(mod) # see how many samples
-n = 500 # number of samples in post
+n = 1000 # number of samples in post
 
 # which sessions and blocks?
 s1 = 1
@@ -504,7 +505,7 @@ b2 = 5
 Sspeed.seq <- seq( from=-1 , to=2 , length.out=1000 )
 
 # what interval of HPDI? e.g. prob = 0.89  # 0.9973  # 0.9545  # 0.6827
-interval = 0.9545
+interval = 0.99
 
 # replace varying intercept samples with zeros
 # e.g. number of samples by 60 participants
@@ -764,29 +765,41 @@ postHPDI1 <- c(mu_cc_ran_1.HPDI[1,],mu_cc_rep_1.HPDI[1,],mu_cc_ran_5.HPDI[1,],mu
 postHPDI2 <- c(mu_cc_ran_1.HPDI[2,],mu_cc_rep_1.HPDI[2,],mu_cc_ran_5.HPDI[2,],mu_cc_rep_5.HPDI[2,],mu_mi_ran_1.HPDI[2,],mu_mi_rep_1.HPDI[2,],mu_mi_ran_5.HPDI[2,],mu_mi_rep_5.HPDI[2,],mu_pp_ran_1.HPDI[2,],mu_pp_rep_1.HPDI[2,],mu_pp_ran_5.HPDI[2,],mu_pp_rep_5.HPDI[2,],mu_ppfb_ran_1.HPDI[2,],mu_ppfb_rep_1.HPDI[2,],mu_ppfb_ran_5.HPDI[2,],mu_ppfb_rep_5.HPDI[2,])
 session_num <- rep(c(s1,s2,s1,s2,s1,s2,s1,s2),each=2000)
 block_num <- rep(c(b1,b2,b1,b2,b1,b2,b1,b2),each=2000)
-condition <- as.factor(rep(c("CC","MI","PP","PPVR"),each=4000))
+condition <- as.factor(rep(c("CC","MI","PP","PPFB"),each=4000))
 figure_type <- as.factor(rep(c("random","repeated","random","repeated","random","repeated","random","repeated","random","repeated","random","repeated","random","repeated","random","repeated"),each=1000))
 post.HPDI <- data.frame(condition,session_num,block_num,figure_type,Sspeed,postmean,postHPDI1,postHPDI2)
 colnames(post.HPDI)[which(names(post.HPDI) == "postmean")] <- "Serror"
 
-ggplot(subset(dat, ((session_num == s1) | (session_num == s2)) & ((block_num == b1) | (block_num == b2)))
+SAFs <- ggplot(subset(dat, ((session_num == s1) | (session_num == s2)) & ((block_num == b1) | (block_num == b2)))
        , mapping = aes(
-               x = Sspeed, y = Serror
+               x = ((Sspeed * (max(dat$vresp) - min(dat$vresp)) + min(dat$vresp)))*0.2715*0.001
+               , y = ((Serror * (max(dat$shape_dtw_error_mean) - min(dat$shape_dtw_error_mean)) + min(dat$shape_dtw_error_mean)))*0.2715
                , color = factor(figure_type)
        )) + geom_point(na.rm = TRUE, alpha = .25) + 
         geom_line(data = post.HPDI) +
+        # scale_color_manual(values=c(rgb(204,121,167,max=255), rgb(0,158,115,max=255))) +
         geom_ribbon(data = post.HPDI, aes(
-                ymin=postHPDI1
-                , ymax=postHPDI2), alpha=0.2) +
-        theme_minimal() +
+                ymin=0.2715*(postHPDI1 * (max(dat$shape_dtw_error_mean) - min(dat$shape_dtw_error_mean)) + min(dat$shape_dtw_error_mean))
+                , ymax=0.2715*(postHPDI2 * (max(dat$shape_dtw_error_mean) - min(dat$shape_dtw_error_mean)) + min(dat$shape_dtw_error_mean)))
+                , alpha=0.2, linetype = 0) +
+        theme_tufte() +
         facet_grid(session_num ~ condition) +
         # geom_smooth() +
-        labs(title = "Shape Error"
-             , x = "Velocity (scaled)"
-             , y = "Shape Error (scaled)"
-             , color = "Figure Type") +
-        coord_cartesian(xlim = c(0,1), ylim = c(0,1))
-# coord_cartesian(xlim = c(-0.5,1.5), ylim = c(-0.5,1.5))
+        labs(# title = "Fitted Speed Error Functions" ,
+             x = "Velocity (mm / ms)" ,
+             y = "Error (mm)" ,
+             color = "Figure Type") +
+        coord_cartesian(xlim = c(0,max(dat$vresp)*0.2715*0.001), ylim = c(0,300*0.2715))
+
+print(SAFs)
+
+ggsave(
+        filename = "SAFs.png"
+        , plot = SAFs
+        , width = 6 #inches
+        , height = 4
+        , dpi = 300
+)
 
 #### EFFECT SIZES: "learning" (first to last block) ####
 
@@ -880,7 +893,7 @@ HPDI(mu_ppfb_learn_ES[,1], prob = .95)
 mod <- mod.1
 
 # post <- extract.samples(mod) # see how many samples
-n = 500 # number of samples in post
+n = 1000 # number of samples in post
 
 # compute percentile interval of mean
 # Sspeed.seq <- seq( from=min(dat$Sspeed, na.rm=TRUE) , to=max(dat$Sspeed, na.rm=TRUE) , length.out=1000 )
@@ -951,18 +964,29 @@ for(g in 1:4){
                 }
         }
 }
+# write.csv(learning, file = "CME-MI_learning.csv", row.names = FALSE)
 
 learning$grp <- as.factor(gsub(1,"CC", learning$grp))
 learning$grp <- as.factor(gsub(2,"MI", learning$grp))
 learning$grp <- as.factor(gsub(3,"PP", learning$grp))
 learning$grp <- as.factor(gsub(4,"PPFB", learning$grp))
 
-ggplot(learning, aes(x=blkid, y=means, group=grp, color=grp)) + 
+LEARN <- ggplot(learning, aes(x=blkid, y=means, shape=grp, color=grp)) + 
         geom_pointrange(aes(ymin=means-SDs, ymax=means+SDs)) +
         lims(x = c(0, 25), y = c(0.05, .35)) +
-        theme_minimal() +
-        labs(title="Performance across time", x="Block", y = "Performance")
+        theme_tufte() +
+        scale_shape_manual(values=c(15, 16, 17, 18)) +
+        labs(# title="Performance across blocks", 
+             x="Block", 
+             y = "Performance",
+             shape = "Group",
+             color = "Group")
+print(LEARN)
 
-# write.csv(learning, file = "CME-MI_learning.csv", row.names = FALSE)
-
-
+ggsave(
+        filename = "learning.png"
+        , plot = LEARN
+        , width = 6 #inches
+        , height = 4
+        , dpi = 300
+)
