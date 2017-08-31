@@ -1,4 +1,5 @@
 #### plot kinematics ####
+#### by Tony Ingram ####
 
 # rm(list=setdiff(ls(), c())) # clear all but all_figs
 # graphics.off() # clear figures
@@ -12,8 +13,8 @@ library(tidyverse) # arranging data at end & plotting
 
 # Participant number, session number, block number:
 p <- 42
-s <- 1
-b <- 1
+s <- 1 # need two
+b <- 1 # need two
 
 # code for timing this script:
 ptm <- proc.time()
