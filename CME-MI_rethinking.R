@@ -9,8 +9,8 @@ graphics.off() # clear figures
 
 library(tidyverse)
 library(ggthemes)
-devtools::install_github("mike-lawrence/ezStan")
-library(ezStan)
+# devtools::install_github("mike-lawrence/ezStan")
+# library(ezStan)
 set.seed(1)
 
 load("all_data (.5 to 2.5).Rda")
@@ -154,6 +154,8 @@ dat$participant[dat1$participant==53] <- 57
 dat$participant[dat1$participant==57] <- 58
 dat$participant[dat1$participant==60] <- 59
 dat$participant[dat1$participant==62] <- 60
+
+rm(dat1)
 
 ## CHECK PARTICIPANT NUMBERS:
 unique(subset(dat, (CC == 1))$participant)
@@ -486,7 +488,7 @@ plot(compare(mod.1,mod.3))
 
 # remember to run all the code setting up model 11!
 
-# load("mod1_2_5.Rda")
+# load("mod1_100000.Rda")
 
 # which model?
 mod <- mod.1
@@ -983,10 +985,10 @@ LEARN <- ggplot(learning, aes(x=blkid, y=means, shape=grp, color=grp)) +
              color = "Group")
 print(LEARN)
 
-ggsave(
-        filename = "learning.png"
-        , plot = LEARN
-        , width = 6 #inches
-        , height = 4
-        , dpi = 300
-)
+# ggsave(
+#         filename = "learning.png"
+#         , plot = LEARN
+#         , width = 6 #inches
+#         , height = 4
+#         , dpi = 300
+# )
