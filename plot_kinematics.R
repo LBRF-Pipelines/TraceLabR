@@ -1,32 +1,31 @@
 #### plot kinematics ####
-#### by Tony Ingram ####
+#### by Jack Solomon ####
 
-# rm(list=setdiff(ls(), c())) # clear all but all_figs
+# rm(list=setdiff(ls(), c())) # clear all
 # graphics.off() # clear figures
 # cat("\014") # clear console
 
+# code for timing this script:
+ptm <- proc.time()
+
 library(Morpho) # for procrustes analysis
-library(plyr) # for control task analysis. *use plyr::count()
 library(tidyverse) # arranging data at end & plotting
 
 # DEFINE BLOCK OF INTEREST:
 
-# Participant number, session number, block number:
-p <- 42
-s <- 1 # need two
-b <- 1 # need two
-
-# code for timing this script:
-ptm <- proc.time()
+# Participant number
+p <- 30
 
 # Find all .zip files
 path <- "~/TraceLab/ExpAssets/Data"
 file.names <- dir(path, recursive = TRUE, full.names = TRUE,pattern="\\.zip$")
 
-blockpath <- sprintf("p%s_s%s_b%s", p, s, b)
+blockpath <- sprintf("p%s_", p)
 
 file.names <- unique(grep(blockpath,file.names,value=TRUE))
-file.names <- c(file.names[1],file.names[12],file.names[14:20],file.names[2:11],file.names[13])
+
+# reorder trials:
+# file.names <- c(file.names[1],file.names[12],file.names[14:20],file.names[2:11],file.names[13])
 
 # Apply the function to all files.
 for(i in 1:length(file.names)) {
