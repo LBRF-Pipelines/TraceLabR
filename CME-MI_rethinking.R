@@ -873,6 +873,7 @@ mu_ppfb_learn_ES <- mu_ppfb_learn/sd(mu_ppfb_learn)
 # plot(density(mu_ppfb_learn_ES))
 # HPDI(mu_ppfb_learn_ES[,1], prob = .95) 
 
+
 par(mfrow=c(2,2))
 plot(density(mu_cc_learn_ES))
 plot(density(mu_mi_learn_ES))
@@ -888,6 +889,32 @@ mean(mu_pp_learn_ES[,1])
 HPDI(mu_pp_learn_ES[,1], prob = .95) 
 mean(mu_ppfb_learn_ES[,1]) 
 HPDI(mu_ppfb_learn_ES[,1], prob = .95) 
+
+# group comparisons:
+
+MIvsCClearn <- mu_mi_learn - mu_cc_learn
+MIvsCClearnES <- MIvsCClearn/sd(MIvsCClearn)
+plot(density(MIvsCClearnES))
+mean(MIvsCClearnES[,1]) 
+HPDI(MIvsCClearnES[,1], prob = .95)
+
+PPvsCClearn <- mu_pp_learn - mu_cc_learn
+PPvsCClearnES <- PPvsCClearn/sd(PPvsCClearn)
+plot(density(PPvsCClearnES))
+mean(PPvsCClearnES[,1]) 
+HPDI(PPvsCClearnES[,1], prob = .95)
+
+PPFBvsCClearn <- mu_ppfb_learn - mu_cc_learn
+PPFBvsCClearnES <- PPFBvsCClearn/sd(PPFBvsCClearn)
+plot(density(PPFBvsCClearnES))
+mean(PPFBvsCClearnES[,1]) 
+HPDI(PPFBvsCClearnES[,1], prob = .95)
+
+PPFBvsPPlearn <- mu_ppfb_learn - mu_pp_learn
+PPFBvsPPlearnES <- PPFBvsPPlearn/sd(PPFBvsPPlearn)
+plot(density(PPFBvsPPlearnES))
+mean(PPFBvsPPlearnES[,1]) 
+HPDI(PPFBvsPPlearnES[,1], prob = .95)
 
 #### PLOT: "learning" over time (all blocks) ####
 
