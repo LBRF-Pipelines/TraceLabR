@@ -538,7 +538,11 @@ dater2 <- list(
 )
 
 mu_cc_ran_1 <- link( mod, n=n, data=dater1,
-                     replace = list(d_p = replacer) )
+                     replace = list(d_p = replacer) ) 
+# NOTE: mu will change across columns because you're sampling a different
+# speed each time: [ row=simulation, col=speed ] but all other model params
+# are constant, so if you look at mu_cc_ran_1$D all columns are the same.
+# this is important below when we use D to calculate performance and so on.
 mu_cc_ran_1.mean <- apply( mu_cc_ran_1$mu , 2 , mean )
 mu_cc_ran_1.HPDI <- apply( mu_cc_ran_1$mu , 2 , HPDI, prob = interval )
 
@@ -793,13 +797,13 @@ SAFs <- ggplot(subset(dat, ((session_num == s1) | (session_num == s2)) & ((block
 
 print(SAFs)
 
-ggsave(
-        filename = "SAFs.png"
-        , plot = SAFs
-        , width = 6 #inches
-        , height = 4
-        , dpi = 300
-)
+# ggsave(
+#         filename = "SAFs.png"
+#         , plot = SAFs
+#         , width = 6 #inches
+#         , height = 4
+#         , dpi = 300
+# )
 
 #### EFFECT SIZES: "learning" (first to last block) ####
 
@@ -810,17 +814,21 @@ par(mfrow=c(1,1))
 # determine "performance" for each group as the difference 
 # between repeat and random for a given time point:
 
-mu_cc_1_diff = mu_cc_rep_1$D - mu_cc_ran_1$D
-mu_cc_5_diff = mu_cc_rep_5$D - mu_cc_ran_5$D
+# See note above where mu_cc_ran_1 is created. Each column of $D is
+# identical, but each row is a different simulation. That is,
+# [ row=simulation, col=speed ] — so, let's just use rows.
 
-mu_mi_1_diff = mu_mi_rep_1$D - mu_mi_ran_1$D
-mu_mi_5_diff = mu_mi_rep_5$D - mu_mi_ran_5$D
+mu_cc_1_diff = mu_cc_rep_1$D[,1] - mu_cc_ran_1$D[,1]
+mu_cc_5_diff = mu_cc_rep_5$D[,1] - mu_cc_ran_5$D[,1]
 
-mu_pp_1_diff = mu_pp_rep_1$D - mu_pp_ran_1$D
-mu_pp_5_diff = mu_pp_rep_5$D - mu_pp_ran_5$D
+mu_mi_1_diff = mu_mi_rep_1$D[,1] - mu_mi_ran_1$D[,1]
+mu_mi_5_diff = mu_mi_rep_5$D[,1] - mu_mi_ran_5$D[,1]
 
-mu_ppfb_1_diff = mu_ppfb_rep_1$D - mu_ppfb_ran_1$D
-mu_ppfb_5_diff = mu_ppfb_rep_5$D - mu_ppfb_ran_5$D
+mu_pp_1_diff = mu_pp_rep_1$D[,1] - mu_pp_ran_1$D[,1]
+mu_pp_5_diff = mu_pp_rep_5$D[,1] - mu_pp_ran_5$D[,1]
+
+mu_ppfb_1_diff = mu_ppfb_rep_1$D[,1] - mu_ppfb_ran_1$D[,1]
+mu_ppfb_5_diff = mu_ppfb_rep_5$D[,1] - mu_ppfb_ran_5$D[,1]
 
 # learning as the change in performance from the first to final blocks:
 
@@ -835,7 +843,7 @@ mu_cc_learn = mu_cc_5_diff - mu_pp_1_diff
 
 mu_cc_learn_ES <- mu_cc_learn/sd(mu_cc_learn)
 # plot(density(mu_cc_learn_ES))
-# HPDI(mu_cc_learn_ES[,1], prob = .95) 
+# mean(mu_cc_learn_ES); HPDI(mu_cc_learn_ES, prob = .95) 
 
 
 ## MI
@@ -849,7 +857,7 @@ mu_mi_learn = mu_mi_5_diff - mu_pp_1_diff
 
 mu_mi_learn_ES <- mu_mi_learn/sd(mu_mi_learn)
 # plot(density(mu_mi_learn_ES))
-# HPDI(mu_mi_learn_ES[,1], prob = .95) 
+# mean(mu_mi_learn_ES); HPDI(mu_mi_learn_ES, prob = .95) 
 
 
 ## PP
@@ -859,7 +867,7 @@ mu_pp_learn = mu_pp_5_diff - mu_pp_1_diff
 
 mu_pp_learn_ES <- mu_pp_learn/sd(mu_pp_learn)
 # plot(density(mu_pp_learn_ES))
-# HPDI(mu_pp_learn_ES[,1], prob = .95) 
+# mean(mu_pp_learn_ES); HPDI(mu_pp_learn_ES, prob = .95) 
 
 
 ## PPFB
@@ -869,7 +877,7 @@ mu_ppfb_learn = mu_ppfb_5_diff - mu_ppfb_1_diff
 
 mu_ppfb_learn_ES <- mu_ppfb_learn/sd(mu_ppfb_learn)
 # plot(density(mu_ppfb_learn_ES))
-# HPDI(mu_ppfb_learn_ES[,1], prob = .95) 
+# mean(mu_ppfb_learn_ES); HPDI(mu_ppfb_learn_ES, prob = .95) 
 
 
 par(mfrow=c(2,2))
@@ -879,40 +887,40 @@ plot(density(mu_pp_learn_ES))
 plot(density(mu_ppfb_learn_ES))
 par(mfrow=c(1,1))
 
-mean(mu_cc_learn_ES[,1]) 
-HPDI(mu_cc_learn_ES[,1], prob = .95) 
-mean(mu_mi_learn_ES[,1]) 
-HPDI(mu_mi_learn_ES[,1], prob = .95) 
-mean(mu_pp_learn_ES[,1]) 
-HPDI(mu_pp_learn_ES[,1], prob = .95) 
-mean(mu_ppfb_learn_ES[,1]) 
-HPDI(mu_ppfb_learn_ES[,1], prob = .95) 
+mean(mu_cc_learn_ES) 
+HPDI(mu_cc_learn_ES, prob = .95) 
+mean(mu_mi_learn_ES) 
+HPDI(mu_mi_learn_ES, prob = .95) 
+mean(mu_pp_learn_ES) 
+HPDI(mu_pp_learn_ES, prob = .95) 
+mean(mu_ppfb_learn_ES)
+HPDI(mu_ppfb_learn_ES, prob = .95)
 
 # group comparisons:
 
 MIvsCClearn <- mu_mi_learn - mu_cc_learn
 MIvsCClearnES <- MIvsCClearn/sd(MIvsCClearn)
 plot(density(MIvsCClearnES))
-mean(MIvsCClearnES[,1]) 
-HPDI(MIvsCClearnES[,1], prob = .95)
+mean(MIvsCClearnES) 
+HPDI(MIvsCClearnES, prob = .95)
 
 PPvsCClearn <- mu_pp_learn - mu_cc_learn
 PPvsCClearnES <- PPvsCClearn/sd(PPvsCClearn)
 plot(density(PPvsCClearnES))
-mean(PPvsCClearnES[,1]) 
-HPDI(PPvsCClearnES[,1], prob = .95)
+mean(PPvsCClearnES) 
+HPDI(PPvsCClearnES, prob = .95)
 
 PPFBvsCClearn <- mu_ppfb_learn - mu_cc_learn
 PPFBvsCClearnES <- PPFBvsCClearn/sd(PPFBvsCClearn)
 plot(density(PPFBvsCClearnES))
-mean(PPFBvsCClearnES[,1]) 
-HPDI(PPFBvsCClearnES[,1], prob = .95)
+mean(PPFBvsCClearnES) 
+HPDI(PPFBvsCClearnES, prob = .95)
 
 PPFBvsPPlearn <- mu_ppfb_learn - mu_pp_learn
 PPFBvsPPlearnES <- PPFBvsPPlearn/sd(PPFBvsPPlearn)
 plot(density(PPFBvsPPlearnES))
-mean(PPFBvsPPlearnES[,1]) 
-HPDI(PPFBvsPPlearnES[,1], prob = .95)
+mean(PPFBvsPPlearnES) 
+HPDI(PPFBvsPPlearnES, prob = .95)
 
 #### PLOT: "learning" over time (all blocks) ####
 
