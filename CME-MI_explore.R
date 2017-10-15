@@ -509,6 +509,7 @@ t.test(CC$absCCerror, CC$absCCerror_ran, paired = TRUE, var.equal = FALSE)
 
 # average per participant (N = 15):
 CCtest <- subset(CC, select = c(participant_id, session_num, block_num, trial_num, rep, absCCerror, absCCerror_ran))
+library(reshape2)
 CCtest <- melt(CCtest, id = c("participant_id", "session_num", "block_num", "trial_num", "rep"))
 CCtest <- dcast(CCtest, participant_id ~ variable, mean, na.rm = TRUE )
 
@@ -522,8 +523,104 @@ CC_ES = abs(mean(CC$absCCerror, na.rm = TRUE) - mean(CC$absCCerror_ran, na.rm = 
 CC_ES_2 = abs(mean(CCtest$absCCerror) - mean(CCtest$absCCerror_ran)) / (sd(CCtest$absCCerror) + sd(CCtest$absCCerror_ran))
 # much inflated
 
-# really need to do a multilevel model
+# really need to do a multilevel model in bayes...
 
+CCbayes <- subset(CC, select = c(participant_id, absCCerror, absCCerror_ran))
+library(reshape2)
+CCbayes <- melt(CCbayes, id = c("participant_id"))
+CCbayes$ran <- ifelse(CCbayes$variable=="absCCerror_ran", 1, 0)
+colnames(CCbayes)[3] <- "error"
+
+# visualize reasonable priors:
+# curve(dnorm(x,2.5,2.5),from=0,to=5)
+# curve(dcauchy(x,0,1),from=-2.5,to=2.5)
+
+## CHECK PARTICIPANT NUMBERS:
+unique(subset(CCbayes)$participant_id)
+
+# need to reorder to 1:15 for stan:
+
+CCbayes1 <- CCbayes 
+CCbayes$participant_id[CCbayes1$participant_id==5] <- 1
+CCbayes$participant_id[CCbayes1$participant_id==10] <- 2
+CCbayes$participant_id[CCbayes1$participant_id==11] <- 3
+CCbayes$participant_id[CCbayes1$participant_id==12] <- 4
+CCbayes$participant_id[CCbayes1$participant_id==24] <- 5
+CCbayes$participant_id[CCbayes1$participant_id==25] <- 6
+CCbayes$participant_id[CCbayes1$participant_id==26] <- 7
+CCbayes$participant_id[CCbayes1$participant_id==27] <- 8
+CCbayes$participant_id[CCbayes1$participant_id==28] <- 9
+CCbayes$participant_id[CCbayes1$participant_id==31] <- 10
+CCbayes$participant_id[CCbayes1$participant_id==34] <- 11
+CCbayes$participant_id[CCbayes1$participant_id==38] <- 12
+CCbayes$participant_id[CCbayes1$participant_id==54] <- 13
+CCbayes$participant_id[CCbayes1$participant_id==63] <- 14
+CCbayes$participant_id[CCbayes1$participant_id==65] <- 15
+rm(CCbayes1)
+
+## CHECK PARTICIPANT NUMBERS:
+unique(subset(CCbayes)$participant_id)
+
+## if 1:15, we can run the model:
+
+CC.1 <- map2stan(
+        alist(
+                # likelihood
+                error ~ dnorm( mu , sigma ),
+
+                # model
+                mu <- a + aj[participant_id] + (b + bj[participant_id])*ran,
+
+                # adaptive priors
+                c(aj,bj)[participant_id] ~ dmvnormNC( sigma_group , Rho_group ),
+                
+                # fixed priors
+                a ~ dnorm( 2.5, 2.5),
+                b ~ dnorm( 0, 1), # average difference between error and error_ran
+                sigma ~ dcauchy( 0 , 1 ),
+                sigma_group ~ dcauchy( 0 , 1 ),
+                Rho_group ~ dlkjcorr(2)
+        ),
+        data = CCbayes,
+        sample = TRUE,
+        iter = 2000,
+        warmup = 1000,
+        chains = 1,
+        cores = 1
+)
+save(CC.1, file = "CC_1.Rda")
+precis(CC.1, pars=c("a","b","sigma","sigma_group"), depth=2, digits=4, prob=.95)
+# precis(CC.1, depth=2, digits=4, prob=.95)
+pairs(CC.1, pars=c("a","b","sigma","sigma_group"))
+dashboard(CC.1); par(mfrow=c(1,1))
+plot(CC.1, pars=c("a","b","sigma","sigma_group")); par(mfrow=c(1,1))
+
+# a = actual error, a+b = mean error
+# a = 0.7830, a+b = 1.4343, which matches well the means calculated above:
+mean(CC$absCCerror, na.rm = TRUE)
+mean(CC$absCCerror_ran, na.rm = TRUE)
+# but now we also have probability distributions properly modelled (multi-level).
+# to get HPDI on this, need to sample from generative model:
+
+post <- extract.samples(CC.1)
+real <- post$a
+chance <- post$a + post$b
+ESdiff <- (mean(chance) - mean(real))/(sd(chance + real))
+
+sim.real <- sim(CC.1, data=list(ran=rep(0,15), participant_id=1:15), n = 1000)
+sim.chance <- sim(CC.1, data=list(ran=rep(1,15), participant_id=1:15), n = 1000)
+
+# need to loop through and get an ES for each of the 1000 samples, 
+# then do HPDI on that. 
+
+# [ row=simulation, col=participant ]
+
+sim.ES <- rep(0,1000)
+for(i in 1:length(sim.ES)){
+        ESi = (mean(sim.chance[i,]) - mean(sim.real[i,]))/sd(append(sim.chance[i,],sim.real[i,]))
+        sim.ES[i] <- ESi
+}
+mean(sim.ES); HPDI(sim.ES) # not overlapping with zero
 
         ## are people getting better over time? ##
 
@@ -553,7 +650,7 @@ summary(CC.lm2)
 
 # Bayes version: 
 
-CC.1 <- map2stan(
+CClearn.1 <- map2stan(
         alist(
                 # likelihood
                 absCCerror ~ dnorm( mu , sigma ),
@@ -576,13 +673,13 @@ CC.1 <- map2stan(
         chains = 1, 
         cores = 1
 )
-save(CC.1, file = "CC_1.Rda")
-precis(CC.1, depth=2, digits=4, prob=.95) 
-pairs(CC.1, pars=c("a","blk","repf","blk_X_repf","sigma"))
-dashboard(CC.1); par(mfrow=c(1,1))
-plot(CC.1); par(mfrow=c(1,1))
+save(CClearn.1, file = "CClearn_1.Rda")
+precis(CClearn.1, depth=2, digits=4, prob=.95) 
+pairs(CClearn.1, pars=c("a","blk","repf","blk_X_repf","sigma"))
+dashboard(CClearn.1); par(mfrow=c(1,1))
+plot(CClearn.1); par(mfrow=c(1,1))
 
-# you can see significant interaction of block and fig — when 
+# you can see non-significant interaction of block and fig — when 
 # a figure is repeated, error decreases across blocks. Otherwise
 # blocks make no difference. And there is a general increase
 # in error for repeated figures for some reason ... 
