@@ -256,25 +256,33 @@ mod.1 <- map2stan(
         control=list(adapt_delta=0.90)
 )
 # save(mod.1, file = "mod1_1_5.Rda")
+
+# check diagnostics
 precis(mod.1, depth=2, pars=c("a","c","d","a_sigma","b_sigma")) 
 pairs(mod.1, pars=c("a","c","d","a_sigma","b_sigma"))
 dashboard(mod.1)
 par(mfrow=c(1,1))
 plot(mod.1, pars=c("a","c","d","a_sigma","b_sigma"))
 par(mfrow=c(1,1))
-# stancode(mod.1)
+# stancode(mod.1) # see generated stan code
 WAIC(mod.1)
 
-plot(precis(mod.1, depth=2, pars=c("d","d_cond","d_sess","d_block", "d_g")) ) 
-plot(precis(mod.1, depth=2, pars=c("d_cond_sess","d_cond_block","d_sess_block","d_cond_g","d_sess_g","d_block_g")) )
-plot(precis(mod.1, depth=2, pars=c("d_cond_sess_block","d_cond_sess_g","d_cond_block_g","d_sess_block_g")) )
-plot(precis(mod.1, depth=2, pars=c("d_cond_sess_block_g")) )
-plot(precis(mod.1, depth=2, pars=c("sigma_participant","d_p")) )
+# plot(precis(mod.1, depth=2, pars=c("d","d_cond","d_sess","d_block", "d_g")) ) 
+# plot(precis(mod.1, depth=2, pars=c("d_cond_sess","d_cond_block","d_sess_block","d_cond_g","d_sess_g","d_block_g")) )
+# plot(precis(mod.1, depth=2, pars=c("d_cond_sess_block","d_cond_sess_g","d_cond_block_g","d_sess_block_g")) )
+# plot(precis(mod.1, depth=2, pars=c("d_cond_sess_block_g")) )
+# plot(precis(mod.1, depth=2, pars=c("sigma_participant","d_p")) )
 
 # 1000 iter 500 warmup took: 
 # 6424.6 seconds (Warm-up)
 # 6771.25 seconds (Sampling)
 # 13195.8 seconds (Total)
+
+# converged decently (close to 1 Rhat for most parameters)
+
+# we then ran the model, taking 100,000 samples
+# iter = 6000, warmup = 1000, chains = 20, cores = 20
+# on the lab server — results saved as mod1_100000.Rda
 
 # #### mod.2 - all interactions, no varying sigma ####
 # 
@@ -476,7 +484,7 @@ plot(precis(mod.1, depth=2, pars=c("sigma_participant","d_p")) )
 # # 13372 seconds (Total)
 # 
 # compare(mod.1,mod.3) # mod 3 slightly better!? huh?
-# plot(compare(mod.1,mod.3))
+# plot(compare(mod.1,mod.3)) # negligible, go with simpler code
 # 
 # 
 # 
@@ -484,9 +492,11 @@ plot(precis(mod.1, depth=2, pars=c("sigma_participant","d_p")) )
 
 #### PLOT: SAF's (first to last block) ####
 
-# remember to run all the code setting up model 11!
+# remember to run all the code prior to model 1!
 
-# load("mod1_100000.Rda")
+# load the data from the 100000 sample stan model which was run
+# on the server — 10 cores, 1000 samples each. 
+# load("mod1_100000.Rda") 
 
 # which model?
 mod <- mod.1
@@ -505,12 +515,14 @@ b2 = 5
 Sspeed.seq <- seq( from=-1 , to=2 , length.out=1000 )
 
 # what interval of HPDI? e.g. prob = 0.89  # 0.9973  # 0.9545  # 0.6827
-interval = 0.99
+interval = 0.95
 
+# to model the "average participant":
 # replace varying intercept samples with zeros
 # e.g. number of samples by 60 participants
 d_p_zeros <- matrix(0,n,60) 
 
+# to model predictive intervals:
 # replace varying intercept samples with simulations
 post <- extract.samples(mod)
 d_p_sims <- rnorm(n*60,0,sd(post$d_p))
@@ -805,210 +817,322 @@ print(SAFs)
 #         , dpi = 300
 # )
 
-#### EFFECT SIZES: "learning" (first to last block) ####
+#### PLOT: performance across blocks (learning) ####
 
-# this code requires SAF plots to have been run!
+# remember to run all the code prior to model 1!
 
-par(mfrow=c(1,1))
-
-# determine "performance" for each group as the difference 
-# between repeat and random for a given time point:
-
-# See note above where mu_cc_ran_1 is created. Each column of $D is
-# identical, but each row is a different simulation. That is,
-# [ row=simulation, col=speed ] — so, let's just use rows.
-
-mu_cc_1_diff = mu_cc_rep_1$D[,1] - mu_cc_ran_1$D[,1]
-mu_cc_5_diff = mu_cc_rep_5$D[,1] - mu_cc_ran_5$D[,1]
-
-mu_mi_1_diff = mu_mi_rep_1$D[,1] - mu_mi_ran_1$D[,1]
-mu_mi_5_diff = mu_mi_rep_5$D[,1] - mu_mi_ran_5$D[,1]
-
-mu_pp_1_diff = mu_pp_rep_1$D[,1] - mu_pp_ran_1$D[,1]
-mu_pp_5_diff = mu_pp_rep_5$D[,1] - mu_pp_ran_5$D[,1]
-
-mu_ppfb_1_diff = mu_ppfb_rep_1$D[,1] - mu_ppfb_ran_1$D[,1]
-mu_ppfb_5_diff = mu_ppfb_rep_5$D[,1] - mu_ppfb_ran_5$D[,1]
-
-# learning as the change in performance from the first to final blocks:
-
-## CC 
-
-# using CC day 1:
-# mu_cc_learn = mu_cc_5_diff - mu_cc_1_diff
-
-# using PP day 1:
-mu_cc_learn = mu_cc_5_diff - mu_pp_1_diff
-# plot(density(mu_cc_learn))
-
-mu_cc_learn_ES <- mu_cc_learn/sd(mu_cc_learn)
-# plot(density(mu_cc_learn_ES))
-# mean(mu_cc_learn_ES); HPDI(mu_cc_learn_ES, prob = .95) 
-
-
-## MI
-
-# # using MI day 1:
-# mu_mi_learn = mu_mi_5_diff - mu_mi_1_diff
-
-# using PP day 1:
-mu_mi_learn = mu_mi_5_diff - mu_pp_1_diff
-# plot(density(mu_mi_learn))
-
-mu_mi_learn_ES <- mu_mi_learn/sd(mu_mi_learn)
-# plot(density(mu_mi_learn_ES))
-# mean(mu_mi_learn_ES); HPDI(mu_mi_learn_ES, prob = .95) 
-
-
-## PP
-
-mu_pp_learn = mu_pp_5_diff - mu_pp_1_diff
-# plot(density(mu_pp_learn))
-
-mu_pp_learn_ES <- mu_pp_learn/sd(mu_pp_learn)
-# plot(density(mu_pp_learn_ES))
-# mean(mu_pp_learn_ES); HPDI(mu_pp_learn_ES, prob = .95) 
-
-
-## PPFB
-
-mu_ppfb_learn = mu_ppfb_5_diff - mu_ppfb_1_diff
-# plot(density(mu_ppfb_learn))
-
-mu_ppfb_learn_ES <- mu_ppfb_learn/sd(mu_ppfb_learn)
-# plot(density(mu_ppfb_learn_ES))
-# mean(mu_ppfb_learn_ES); HPDI(mu_ppfb_learn_ES, prob = .95) 
-
-
-par(mfrow=c(2,2))
-plot(density(mu_cc_learn_ES))
-plot(density(mu_mi_learn_ES))
-plot(density(mu_pp_learn_ES))
-plot(density(mu_ppfb_learn_ES))
-par(mfrow=c(1,1))
-
-mean(mu_cc_learn_ES) 
-HPDI(mu_cc_learn_ES, prob = .95) 
-mean(mu_mi_learn_ES) 
-HPDI(mu_mi_learn_ES, prob = .95) 
-mean(mu_pp_learn_ES) 
-HPDI(mu_pp_learn_ES, prob = .95) 
-mean(mu_ppfb_learn_ES)
-HPDI(mu_ppfb_learn_ES, prob = .95)
-
-# group comparisons:
-
-MIvsCClearn <- mu_mi_learn - mu_cc_learn
-MIvsCClearnES <- MIvsCClearn/sd(MIvsCClearn)
-plot(density(MIvsCClearnES))
-mean(MIvsCClearnES) 
-HPDI(MIvsCClearnES, prob = .95)
-
-PPvsCClearn <- mu_pp_learn - mu_cc_learn
-PPvsCClearnES <- PPvsCClearn/sd(PPvsCClearn)
-plot(density(PPvsCClearnES))
-mean(PPvsCClearnES) 
-HPDI(PPvsCClearnES, prob = .95)
-
-PPFBvsCClearn <- mu_ppfb_learn - mu_cc_learn
-PPFBvsCClearnES <- PPFBvsCClearn/sd(PPFBvsCClearn)
-plot(density(PPFBvsCClearnES))
-mean(PPFBvsCClearnES) 
-HPDI(PPFBvsCClearnES, prob = .95)
-
-PPFBvsPPlearn <- mu_ppfb_learn - mu_pp_learn
-PPFBvsPPlearnES <- PPFBvsPPlearn/sd(PPFBvsPPlearn)
-plot(density(PPFBvsPPlearnES))
-mean(PPFBvsPPlearnES) 
-HPDI(PPFBvsPPlearnES, prob = .95)
-
-#### PLOT: "learning" over time (all blocks) ####
+# load("mod1_100000.Rda")
 
 # which model?
 mod <- mod.1
 
 # post <- extract.samples(mod) # see how many samples
 n = 1000 # number of samples in post
+s = 15 # number of subjects in each group
 
-# compute percentile interval of mean
-# Sspeed.seq <- seq( from=min(dat$Sspeed, na.rm=TRUE) , to=max(dat$Sspeed, na.rm=TRUE) , length.out=1000 )
-Sspeed.seq <- seq( from=-1 , to=2 , length.out=1000 )
-
+# to simulate the hypothetical "average" participant
 # replace varying intercept samples with zeros
 # e.g. number of samples by 60 participants
 d_p_zeros <- matrix(0,n,60) 
 
+# to include variability of all participants (for predictive intervals)
 # replace varying intercept samples with simulations
 post <- extract.samples(mod)
 d_p_sims <- rnorm(n*60,0,sd(post$d_p))
 d_p_sims <- matrix(d_p_sims,n,60)
 
-replacer <- d_p_sims
+replacer <- d_p_zeros 
+# IMPORTANT: this places variability of all participants in each groups 
+# simulations... not necessarily what you want for between subjects. 
+# You might want the right participants in the right group. So, comment 
+# out the replace parameter in the link functions below.
 
 # generative modelling:
 
-mat <- array(rep(0, n*5*5*4), dim=c(n, 5, 5, 4))
+# create matrices as such:
+# mat[k,i,j,g,p] 
+# k = sample (1:1000)
+# i = session (1:5)
+# j = block (1:5)
+# g = group (1:4)
+# p = participant (1:15)
 
-for(g in 1:4){
-        for(i in 1:5){
-                for(j in 1:5){
+        ### RANDOM 'D' PLOT ###
+
+ran.mat <- array(rep(0, n*5*5*4*s), dim=c(n, 5, 5, 4, s))
+
+for(g in 1:4){ # for each group
+        for(i in 1:5){ # for each session
+                for(j in 1:5){ # for each block
+                        if(g == 1){
+                                p = 1:15 
+                        } else if(g == 2){
+                                p = 16:30
+                        } else if(g == 3){
+                                p = 31:45
+                        } else {
+                                p = 46:60
+                        }
                         dat_ran <- list(
-                                Sspeed = Sspeed.seq,
-                                group = rep(g,length(Sspeed.seq)),
-                                participant = rep(1,length(Sspeed.seq)), # placeholder
-                                session = rep(i,length(Sspeed.seq)),
-                                block_num = rep(j,length(Sspeed.seq)),
-                                rep = rep(0,length(Sspeed.seq))
-                        )
-                        dat_rep <- list(
-                                Sspeed = Sspeed.seq,
-                                group = rep(g,length(Sspeed.seq)),
-                                participant = rep(1,length(Sspeed.seq)), # placeholder
-                                session = rep(i,length(Sspeed.seq)),
-                                block_num = rep(j,length(Sspeed.seq)),
-                                rep = rep(1,length(Sspeed.seq))
+                                Sspeed = rep(1, 15),
+                                group = rep(g,15),
+                                participant = p,
+                                session = rep(i,15),
+                                block_num = rep(j,15),
+                                rep = rep(0,15)
                         )
                         
-                        gen.ran <- link( mod, n=n, data=dat_ran,
-                                         replace = list(d_p = replacer) )
-                        gen.rep <- link( mod, n=n, data=dat_rep,
-                                         replace = list(d_p = replacer) )
+                        gen.ran <- link( mod, n=n, data=dat_ran )
+                        # , replace = list(d_p = replacer) )
                         
-                        D.gen = gen.rep$D - gen.ran$D
+                        for(s in 1:s){
+                                for(k in 1:n){
+                                        # random 'D':
+                                        ran.mat[k,i,j,g,s] <- gen.ran$D[k,s]
+                                }   
+                        }
                         
-                        mat[,i,j,g] <- D.gen[,1]
                         print(paste("group",g,"session",i,"block",j))
                 }
         }
 }
-# save(mat, file = "mat.Rda")
 
 grp <- rep(c(1,2,3,4),each=25)
 sess <- rep(rep(c(1,2,3,4,5),each=5), 4)
 blk <- rep(c(1,2,3,4,5),20)
 blkid <- rep(seq(from=1, to=25),4)
 means <- rep(0,100)
-SDs <- rep(0,100)
-learning <- data.frame(grp,sess,blk,blkid,means,SDs)
+lower <- rep(0,100)
+upper <- rep(0,100)
+D.sd <- array(rep(0, 1000))
+ran.D <- data.frame(grp,sess,blk,blkid,means,lower,upper)
 
-for(g in 1:4){
-        for(i in 1:5){
-                for(j in 1:5){
-                        learning[learning$grp==g & learning$sess==i & learning$blk==j,5] <- mean(mat[,i,j,g])
-                        learning[learning$grp==g & learning$sess==i & learning$blk==j,6] <- sd(mat[,i,j,g])
+for(g in 1:4){ # group
+        for(i in 1:5){ # session
+                for(j in 1:5){ # block 
+                        # calculate mean for each:
+                        D.mean <- mean(as.vector(ran.mat[,i,j,g,]))
+                        
+                        # calculate sd for each: 
+                        # note: take sd of each of the 1000 samples, then take its mean
+                        D.sd <- mean(apply(ran.mat[,i,j,g,], 1, sd))
+                        
+                        ran.D[ran.D$grp==g & ran.D$sess==i & ran.D$blk==j,5] <- D.mean 
+                        ran.D[ran.D$grp==g & ran.D$sess==i & ran.D$blk==j,6] <- D.mean - D.sd 
+                        ran.D[ran.D$grp==g & ran.D$sess==i & ran.D$blk==j,7] <- D.mean + D.sd 
                 }
         }
 }
-# write.csv(learning, file = "CME-MI_learning.csv", row.names = FALSE)
+# write.csv(ran.D, file = "ranD.csv", row.names = FALSE)
 
-learning$grp <- as.factor(gsub(1,"CC", learning$grp))
-learning$grp <- as.factor(gsub(2,"MI", learning$grp))
-learning$grp <- as.factor(gsub(3,"PP", learning$grp))
-learning$grp <- as.factor(gsub(4,"PPFB", learning$grp))
+ran.D$grp <- as.factor(gsub(1,"CC", ran.D$grp))
+ran.D$grp <- as.factor(gsub(2,"MI", ran.D$grp))
+ran.D$grp <- as.factor(gsub(3,"PP", ran.D$grp))
+ran.D$grp <- as.factor(gsub(4,"PPFB", ran.D$grp))
 
-LEARN <- ggplot(learning, aes(x=blkid, y=means, shape=grp, color=grp)) + 
-        geom_pointrange(aes(ymin=means-SDs, ymax=means+SDs)) +
-        lims(x = c(0, 25), y = c(0.05, .35)) +
+ran.D[(ran.D$grp=="CC"|ran.D$grp=="MI") & ran.D$sess!=5, 5] <- NA
+ran.D[(ran.D$grp=="CC"|ran.D$grp=="MI") & ran.D$sess!=5, 6] <- NA
+ran.D[(ran.D$grp=="CC"|ran.D$grp=="MI") & ran.D$sess!=5, 7] <- NA
+
+ran.learn <- ggplot(ran.D, aes(x=blkid, y=means, shape=grp, color=grp)) + 
+        geom_pointrange(aes(ymin=lower, ymax=upper), position = position_dodge(.75)) +
+        # lims(x = c(0.3, 25.3), y = c(0.0,.35)) +
+        theme_tufte() +
+        scale_shape_manual(values=c(15, 16, 17, 18)) +
+        labs(# title="Random D across blocks", 
+                x="Block", 
+                y = "Performance",
+                shape = "Group",
+                color = "Group")
+print(ran.learn)
+
+# ggsave(
+#         filename = "ran_learn.png"
+#         , plot = ran.learn
+#         , width = 6 #inches
+#         , height = 4
+#         , dpi = 300
+# )
+
+        ### REPEATED PATTERN 'D' PLOT ###
+
+rep.mat <- array(rep(0, n*5*5*4*s), dim=c(n, 5, 5, 4, s))
+
+for(g in 1:4){ # for each group
+        for(i in 1:5){ # for each session
+                for(j in 1:5){ # for each block
+                        if(g == 1){
+                                p = 1:15 
+                        } else if(g == 2){
+                                p = 16:30
+                        } else if(g == 3){
+                                p = 31:45
+                        } else {
+                                p = 46:60
+                        }
+                        
+                        dat_rep <- list(
+                                Sspeed = rep(1, 15),
+                                group = rep(g,15),
+                                participant = p,
+                                session = rep(i,15),
+                                block_num = rep(j,15),
+                                rep = rep(1,15)
+                        )
+                        
+                        gen.rep <- link( mod, n=n, data=dat_rep )
+                        # , replace = list(d_p = replacer) )
+                        
+                        for(s in 1:s){
+                                for(k in 1:n){
+                                        # random 'D':
+                                        rep.mat[k,i,j,g,s] <- gen.rep$D[k,s]
+                                }   
+                        }
+                        
+                        print(paste("group",g,"session",i,"block",j))
+                }
+        }
+}
+
+rep.D <- data.frame(grp,sess,blk,blkid,means,lower,upper)
+for(g in 1:4){ # group
+        for(i in 1:5){ # session
+                for(j in 1:5){ # block 
+                        # calculate mean for each:
+                        D.mean <- mean(as.vector(rep.mat[,i,j,g,]))
+                        
+                        # calculate sd for each: 
+                        # note: take sd of each of the 1000 samples, then take its mean
+                        D.sd <- mean(apply(rep.mat[,i,j,g,], 1, sd))
+                        
+                        rep.D[rep.D$grp==g & rep.D$sess==i & rep.D$blk==j,5] <- D.mean 
+                        rep.D[rep.D$grp==g & rep.D$sess==i & rep.D$blk==j,6] <- D.mean - D.sd 
+                        rep.D[rep.D$grp==g & rep.D$sess==i & rep.D$blk==j,7] <- D.mean + D.sd 
+                }
+        }
+}
+# write.csv(rep.D, file = "repD.csv", row.names = FALSE)
+
+rep.D$grp <- as.factor(gsub(1,"CC", rep.D$grp))
+rep.D$grp <- as.factor(gsub(2,"MI", rep.D$grp))
+rep.D$grp <- as.factor(gsub(3,"PP", rep.D$grp))
+rep.D$grp <- as.factor(gsub(4,"PPFB", rep.D$grp))
+
+rep.D[(rep.D$grp=="CC"|rep.D$grp=="MI") & rep.D$sess!=5, 5] <- NA
+rep.D[(rep.D$grp=="CC"|rep.D$grp=="MI") & rep.D$sess!=5, 6] <- NA
+rep.D[(rep.D$grp=="CC"|rep.D$grp=="MI") & rep.D$sess!=5, 7] <- NA
+
+rep.learn <- ggplot(rep.D, aes(x=blkid, y=means, shape=grp, color=grp)) + 
+        geom_pointrange(aes(ymin=lower, ymax=upper), position = position_dodge(.75)) +
+        # lims(x = c(0.3, 25.3), y = c(0.02,.35)) +
+        theme_tufte() +
+        scale_shape_manual(values=c(15, 16, 17, 18)) +
+        labs(# title="Repeated pattern D across blocks", 
+                x="Block", 
+                y = "Performance",
+                shape = "Group",
+                color = "Group")
+print(rep.learn)
+
+# ggsave(
+#         filename = "rep_learn.png"
+#         , plot = rep.learn
+#         , width = 6 #inches
+#         , height = 4
+#         , dpi = 300
+# )
+
+        ### PERFORMANCE (REP - RAN) PLOT ###
+
+mat <- array(rep(0, n*5*5*4*s), dim=c(n, 5, 5, 4, s))
+
+for(g in 1:4){ # for each group
+        for(i in 1:5){ # for each session
+                for(j in 1:5){ # for each block
+                        if(g == 1){
+                                p = 1:15 
+                        } else if(g == 2){
+                                p = 16:30
+                        } else if(g == 3){
+                                p = 31:45
+                        } else {
+                                p = 46:60
+                        }
+                        dat_ran <- list(
+                                Sspeed = rep(1, 15),
+                                group = rep(g,15),
+                                participant = p,
+                                session = rep(i,15),
+                                block_num = rep(j,15),
+                                rep = rep(0,15)
+                        )
+                        dat_rep <- list(
+                                Sspeed = rep(1, 15),
+                                group = rep(g,15),
+                                participant = p,
+                                session = rep(i,15),
+                                block_num = rep(j,15),
+                                rep = rep(1,15)
+                        )
+                        
+                        gen.ran <- link( mod, n=n, data=dat_ran )
+                        # , replace = list(d_p = replacer) )
+                        gen.rep <- link( mod, n=n, data=dat_rep )
+                        # , replace = list(d_p = replacer) )
+                        
+                        for(s in 1:s){
+                                for(k in 1:n){
+                                        # shuffle samples of random condition:
+                                        rantemp <- gen.ran$D
+                                        rantemp <- rantemp[sample(nrow(rantemp), replace=FALSE), ]
+                                        gen.ran$D <- rantemp
+                                        
+                                        # measure performance: 
+                                        D.gen = gen.rep$D[k,s]  - gen.ran$D[k,s]
+                                        
+                                        mat[k,i,j,g,s] <- D.gen
+                                }   
+                        }
+                        
+                        print(paste("group",g,"session",i,"block",j))
+                }
+        }
+}
+# save(mat, file = "mat.Rda")
+
+performance <- data.frame(grp,sess,blk,blkid,means,lower,upper)
+
+for(g in 1:4){ # group
+        for(i in 1:5){ # session
+                for(j in 1:5){ # block 
+                        # calculate mean for each:
+                        D.mean <- mean(as.vector(mat[,i,j,g,]))
+                        
+                        # calculate sd for each: 
+                        # note: take sd of each of the 1000 samples, then take its mean
+                        D.sd <- mean(apply(mat[,i,j,g,], 1, sd))
+                        
+                        performance[performance$grp==g & performance$sess==i & performance$blk==j,5] <- D.mean 
+                        performance[performance$grp==g & performance$sess==i & performance$blk==j,6] <- D.mean - D.sd 
+                        performance[performance$grp==g & performance$sess==i & performance$blk==j,7] <- D.mean + D.sd 
+                }
+        }
+}
+# write.csv(performance, file = "CME-MI_performance.csv", row.names = FALSE)
+
+performance$grp <- as.factor(gsub(1,"CC", performance$grp))
+performance$grp <- as.factor(gsub(2,"MI", performance$grp))
+performance$grp <- as.factor(gsub(3,"PP", performance$grp))
+performance$grp <- as.factor(gsub(4,"PPFB", performance$grp))
+
+performance[(performance$grp=="CC"|performance$grp=="MI") & performance$sess!=5, 5] <- NA
+performance[(performance$grp=="CC"|performance$grp=="MI") & performance$sess!=5, 6] <- NA
+performance[(performance$grp=="CC"|performance$grp=="MI") & performance$sess!=5, 7] <- NA
+
+LEARN <- ggplot(performance, aes(x=blkid, y=means, shape=grp, color=grp)) + 
+        geom_pointrange(aes(ymin=lower, ymax=upper), position = position_dodge(.75)) +
+        # lims(x = c(0.3, 25.3), y = c(0.02,.35)) +
         theme_tufte() +
         scale_shape_manual(values=c(15, 16, 17, 18)) +
         labs(# title="Performance across blocks", 
@@ -1019,9 +1143,102 @@ LEARN <- ggplot(learning, aes(x=blkid, y=means, shape=grp, color=grp)) +
 print(LEARN)
 
 # ggsave(
-#         filename = "learning.png"
+#         filename = "performance.png"
 #         , plot = LEARN
 #         , width = 6 #inches
 #         , height = 4
 #         , dpi = 300
 # )
+
+#### Effect Sizes ####
+
+# Make sure you run the previous learning plot code!
+
+# To get mean ± HPDI "learning" for each participant,
+# subtract block 1 performance from block 25,
+# for each participant, at each of the 1000 samples
+# from the generative model. The samples for performance
+# at all blocks are in the 'mat' object created above.
+
+# remember:
+# mat[k,i,j,g,p] 
+# k = sample (1:1000)
+# i = session (1:5)
+# j = block (1:5)
+# g = group (1:4)
+# p = participant (1:15)
+
+mat.learn <- array(rep(0,n*s*4), dim=c(n,s*4))
+# CC group:
+for(i in 1:n){ # for each sample
+        for(j in 1:s){ # for each participant
+                mat.learn[i,j] = mat[i,5,5,1,j] - mat[i,1,1,3,j]
+        }
+}
+# MI group:
+for(i in 1:n){ # for each sample
+        for(j in 1:s){ # for each participant
+                mat.learn[i,j+15] = mat[i,5,5,2,j] - mat[i,1,1,3,j]
+        }
+}
+# PP group:
+for(i in 1:n){ # for each sample
+        for(j in 1:s){ # for each participant
+                mat.learn[i,j+30] = mat[i,5,5,3,j] - mat[i,1,1,3,j]
+        }
+}
+# PPFB group:
+for(i in 1:n){ # for each sample
+        for(j in 1:s){ # for each participant
+                mat.learn[i,j+45] = mat[i,5,5,4,j] - mat[i,1,1,4,j]
+        }
+}
+
+# # check out each participants learning score by group:
+# matrixStats::colMeans2(mat.learn[,1:15])
+# matrixStats::colMeans2(mat.learn[,16:30])
+# matrixStats::colMeans2(mat.learn[,31:45])
+# matrixStats::colMeans2(mat.learn[,46:60])
+
+# then take get learning effect size as:
+# group mean learning / sd(group learning)
+
+mat.learn.ES <- array(rep(0,n*4), dim=c(n,4))
+for(i in 1:n){ # for each sample
+        for(j in 1:4){ # for each group
+                if(j == 1){
+                        p = 1:15 
+                } else if(j == 2){
+                        p = 16:30
+                } else if(j == 3){
+                        p = 31:45
+                } else {
+                        p = 46:60
+                }
+                mat.learn.ES[i,j] = mean(mat.learn[i,p])/sd(mat.learn[i,p])
+        }
+}
+
+# print mean ± HPDI learning effect size for each group:
+
+mean(mat.learn.ES[,1]); HPDI(mat.learn.ES[,1], prob = 0.95)
+mean(mat.learn.ES[,2]); HPDI(mat.learn.ES[,2], prob = 0.95)
+mean(mat.learn.ES[,3]); HPDI(mat.learn.ES[,3], prob = 0.95)
+mean(mat.learn.ES[,4]); HPDI(mat.learn.ES[,4], prob = 0.95)
+
+# CC demonstrating a negligible effect of learning with HPDI overlapping with zero
+# MI demonstrating a large effect of learning with HPDI not overlapping with zero
+# PP demonstrating a small effect of learning, but with HPDI overlapping with zero
+# PPFB demonstrating a large effect of learning with HPDI not overlapping with zero
+
+# GROUP COMPARISONS:
+
+# main comparison of interest: CC vs MI
+CCvsMI.learn.ES <- rep(0,n)
+for(i in 1:n){
+        CCvsMI.learn.ES[i] = (mean(mat.learn[i,16:30]) - mean(mat.learn[i,1:15]))/sd(mat.learn[i,1:30])
+}
+mean(CCvsMI.learn.ES); HPDI(CCvsMI.learn.ES)
+
+# MI demonstrates significantly higher learning compared to CC 
+# (large effect size with HPDI non-overlapping with zero)
