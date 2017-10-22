@@ -187,22 +187,32 @@ stim$type <- "stim"
 allresp$type <- "resp"
 alld <- rbind(allresp,stim)
 
-ggplot(alld, aes(x=X1,y=X2), group=type) +
+kin<- ggplot(alld, aes(x=X1,y=X2), group=type) +
         facet_grid(thisses ~ .) +
         geom_path(aes(linetype = type)
                   , alpha = 1) +
         scale_linetype_manual(values = c("dotted", "solid")
                               , labels = c("Response", "Stimulus")) +
-        scale_y_reverse(lim=c(1080,0)) +
-        scale_x_continuous(lim=c(0,1920)) +
+        scale_y_reverse(lim=c(1080,200)) +
+        scale_x_continuous(lim=c(500,1600)) +
         theme_tufte() +
+        theme(legend.position="top") +
         labs(# title = "Participant Responses" ,
                 x = "x-axis (pixels)" ,
                 y = "y-axis (pixels)" ,
                 linetype = "")
+print(kin) # see plot
 
 # determine script timing:
 Rtime <- proc.time() - ptm
 print(Rtime)
+
+ggsave(
+        filename = "kinematics.png"
+        , plot = kin
+        , width = 4.5 #inches
+        , height = 6
+        , dpi = 300
+)
 
 ##### FIN #####
