@@ -494,9 +494,10 @@ WAIC(mod.1)
 
 # remember to run all the code prior to model 1!
 
-# load the data from the 100000 sample stan model which was run
-# on the server — 10 cores, 1000 samples each. 
-# load("mod1_100000.Rda") 
+# load the data from the 100000 sample stan 
+# model which was run on the server:
+
+load("mod1_100000.Rda") 
 
 # which model?
 mod <- mod.1
@@ -802,11 +803,11 @@ SAFs <- ggplot(subset(dat, ((session_num == s1) | (session_num == s2)) & ((block
         facet_grid(session_num ~ condition) +
         # geom_smooth() +
         labs(# title = "Fitted Speed Error Functions" ,
-             x = "Velocity (mm / ms)" ,
+             x = "Speed (mm / ms)" ,
              y = "Error (mm)" ,
-             color = "Figure Type") +
+             color = "Trial Type") +
+        scale_color_hue(labels = c("Random", "Pattern")) +
         coord_cartesian(xlim = c(0,max(dat$vresp)*0.2715*0.001), ylim = c(0,300*0.2715))
-
 print(SAFs)
 
 # ggsave(
@@ -821,7 +822,7 @@ print(SAFs)
 
 # remember to run all the code prior to model 1!
 
-# load("mod1_100000.Rda")
+load("mod1_100000.Rda")
 
 # which model?
 mod <- mod.1
@@ -896,6 +897,7 @@ for(g in 1:4){ # for each group
                 }
         }
 }
+# save(ran.mat, file = "ranmat.Rda")
 
 grp <- rep(c(1,2,3,4),each=25)
 sess <- rep(rep(c(1,2,3,4,5),each=5), 4)
@@ -923,7 +925,6 @@ for(g in 1:4){ # group
                 }
         }
 }
-# write.csv(ran.D, file = "ranD.csv", row.names = FALSE)
 
 ran.D$grp <- as.factor(gsub(1,"CC", ran.D$grp))
 ran.D$grp <- as.factor(gsub(2,"MI", ran.D$grp))
@@ -950,7 +951,7 @@ print(ran.learn)
 #         filename = "ran_learn.png"
 #         , plot = ran.learn
 #         , width = 6 #inches
-#         , height = 4
+#         , height = 2
 #         , dpi = 300
 # )
 
@@ -994,6 +995,7 @@ for(g in 1:4){ # for each group
                 }
         }
 }
+# save(rep.mat, file = "repmat.Rda")
 
 rep.D <- data.frame(grp,sess,blk,blkid,means,lower,upper)
 for(g in 1:4){ # group
@@ -1012,7 +1014,6 @@ for(g in 1:4){ # group
                 }
         }
 }
-# write.csv(rep.D, file = "repD.csv", row.names = FALSE)
 
 rep.D$grp <- as.factor(gsub(1,"CC", rep.D$grp))
 rep.D$grp <- as.factor(gsub(2,"MI", rep.D$grp))
@@ -1028,7 +1029,7 @@ rep.learn <- ggplot(rep.D, aes(x=blkid, y=means, shape=grp, color=grp)) +
         # lims(x = c(0.3, 25.3), y = c(0.02,.35)) +
         theme_tufte() +
         scale_shape_manual(values=c(15, 16, 17, 18)) +
-        labs(# title="Repeated pattern D across blocks", 
+        labs(# title="Pattern D across blocks", 
                 x="Block", 
                 y = "Performance",
                 shape = "Group",
@@ -1039,7 +1040,7 @@ print(rep.learn)
 #         filename = "rep_learn.png"
 #         , plot = rep.learn
 #         , width = 6 #inches
-#         , height = 4
+#         , height = 2
 #         , dpi = 300
 # )
 
@@ -1119,7 +1120,6 @@ for(g in 1:4){ # group
                 }
         }
 }
-# write.csv(performance, file = "CME-MI_performance.csv", row.names = FALSE)
 
 performance$grp <- as.factor(gsub(1,"CC", performance$grp))
 performance$grp <- as.factor(gsub(2,"MI", performance$grp))
