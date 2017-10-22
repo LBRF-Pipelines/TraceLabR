@@ -10,31 +10,70 @@ ptm <- proc.time()
 
 library(Morpho) # for procrustes analysis
 library(tidyverse) # arranging data at end & plotting
+library(plyr) #needed for rbind.fill
 
-# DEFINE BLOCK OF INTEREST:
-
-# Participant number
-p <- 30
-
-# Find all .zip files
+# Variables for Tony
 path <- "~/TraceLab/ExpAssets/Data"
+part_num <- 30
+block_num <- 5
+stim_speed <- 2500 # either 500,1000,1500,2000,2500
+sess_num <- 1:5
+error <- 'less' # error indicates if you want the trial with more or less error for a block
+
+#find trials of interest
+load('all_data (.5 to 2.5).Rda')
+part.dat <- all_data[all_data$participant_id==part_num,]
+part.dat <- part.dat[part.dat$figure_type=='repeated',]
+part.dat <- part.dat[part.dat$block_num==block_num,]
+part.dat <- part.dat[part.dat$stimulus_gt==stim_speed,]
+{if (error == "less"){
+        good.trials <- {}
+        for (i in sess_num){
+                thissession <- part.dat[part.dat$session_num==i,]
+                errordif <- thissession[1,]$raw_error_tot-thissession[2,]$raw_error_tot
+                if (errordif >= 0){
+                        good.trials[i] <- 2+((i-1)*2)
+                }
+                else{
+                        good.trials[i] <- 1+((i-1)*2)
+                }
+        }
+        part.dat <- part.dat[good.trials,]
+}
+else{
+        bad.trials <- {}
+        for (i in sess_num){
+                thissession <- part.dat[part.dat$session_num==i,]
+                errordif <- thissession[1,]$raw_error_tot-thissession[2,]$raw_error_tot
+                if (errordif >= 0){
+                        bad.trials[i] <- 1+((i-1)*2)
+                }
+                else{
+                        bad.trials[i] <- 2+((i-1)*2)
+                }
+        }
+        part.dat <- part.dat[bad.trials,]
+}}
+
+# Find corresponding .zip files
 file.names <- dir(path, recursive = TRUE, full.names = TRUE,pattern="\\.zip$")
-
-blockpath <- sprintf("p%s_", p)
-
-file.names <- unique(grep(blockpath,file.names,value=TRUE))
-
-# reorder trials:
-# file.names <- c(file.names[1],file.names[12],file.names[14:20],file.names[2:11],file.names[13])
+trial.names <- {}
+for (i in 1:length(part.dat[,1])){
+        blockpath <- part.dat$figure_file[i]
+        blockpath <- gsub(".tlf","",blockpath)
+        trial.names[i] <- unique(grep(blockpath,file.names,value=TRUE))
+}
 
 # Apply the function to all files.
-for(i in 1:length(file.names)) {
-        name.tlf <- gsub(".zip",".tlf",basename(file.names[i]))
-        name.tlt <- gsub(".zip",".tlt",basename(file.names[i]))
+resp <- {}
+stim <- {}
+for(i in 1:length(trial.names)) {
+        name.tlf <- gsub(".zip",".tlf",basename(trial.names[i]))
+        name.tlt <- gsub(".zip",".tlt",basename(trial.names[i]))
         
         # read in data 
-        tlf <- read.table(unz(file.names[i], name.tlf),stringsAsFactors=FALSE, sep=",")
-        tlt <- read.table(unz(file.names[i], name.tlt),stringsAsFactors=FALSE, sep=",")
+        tlf <- read.table(unz(trial.names[i], name.tlf),stringsAsFactors=FALSE, sep=",")
+        tlt <- read.table(unz(trial.names[i], name.tlt),stringsAsFactors=FALSE, sep=",")
         
         # skip missed trials
         if (length(tlt)<15){
@@ -85,52 +124,49 @@ for(i in 1:length(file.names)) {
                         
                         ##### ERROR ANALYSIS - RAW #####
                         
-                        #take (x,y) coordinates only
-                        stim <- if(length(data_stim$X1)==length(data_sub$X1)) {data_stim[,c(1,2)]} else {data_sub[,c(1,2)]}
-                        resp <- if(length(data_resp_rem$X1)==length(data_sub$X1)) {data_resp_rem[,c(1,2)]} else {data_sub[,c(1,2)]}
-                        
+                        #take (x,y) coordinates only #####CHECK THIS TMR
+                        thisstim <- if(length(data_stim$X1)==length(data_sub$X1)) {cbind(i,data_stim[,c(1,2)])} else {cbind(i,data_sub[,c(1,2)])}
+                        thisresp <- if(length(data_resp_rem$X1)==length(data_sub$X1)) {cbind(i,data_resp_rem[,c(1,2)])} else {cbind(i,data_sub[,c(1,2)])}
+                        #save responses for all trials in one matrix 
+                        if(empty(resp)){
+                                resp=thisresp
+                                stim=thisstim
+                        }
+                        else{
+                                resp=rbind(resp,thisresp)
+                                stim=rbind(stim,thisstim)
+                        }
                         # procrustes transformation
-                        trans <- rotonto(stim, resp, 
-                                         scale = TRUE, 
-                                         signref = FALSE, 
-                                         reflection = FALSE, 
-                                         weights = NULL, 
-                                         centerweight = FALSE
-                        )
-                        
-                        ##### PLOTS #####
-                        
-                        #plot shapes pre transforms:
-                        
-                        #adding colour to points
-                        #direction of movement: lighter to darker
-                        #stim = grey to black, resp = cyan to blue, resp_sub = yellow to green
-                        rbPalstim <- colorRampPalette(c("grey","black"))
-                        data_stim$Col <- rbPalstim(length(data_stim$X3))[as.numeric(cut(data_stim$X3,breaks=length(data_stim$X3)))]
-                        rbPalresp <- colorRampPalette(c("cyan","blue"))
-                        data_resp_rem$Col <- rbPalresp(length(data_resp_rem$X3))[as.numeric(cut(data_resp_rem$X3,breaks=length(data_resp_rem$X3)))]
-                        rbPalsub <- colorRampPalette(c("yellow","green"))
-                        data_sub$Col <- rbPalsub(length(data_sub$X3))[as.numeric(cut(data_sub$X3,breaks=length(data_sub$X3)))]
-                        
-                        #plot points
-                        plot(data_stim$X1,data_stim$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20, col=data_stim$Col)
-                        points(data_resp_rem$X1,data_resp_rem$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20 ,col=data_resp_rem$Col)
-                        points(data_sub$X1,data_sub$X2, xlim=c(0,1920), ylim=c(1080,0),pch=20 ,col=data_sub$Col)
-                        title(main = c(name.tlt, " raw"))
-                        
-                        #plot centroids (note that one of these is down sampled data)
-                        points(trans$trans[1],trans$trans[2],pch=8,col="black")
-                        points(trans$transy[1],trans$transy[2],pch=8,col="blue")
-                        
-                        #plot shapes post transforms:
-                        
-                        plot(trans$X, xlim=c(-960,960), ylim=c(540,-540))
-                        points(trans$Y, col="red")
-                        title(main = c(name.tlt, " proc"))
+                        #trans <- rotonto(stim, resp, 
+                        #                 scale = TRUE, 
+                        #                 signref = FALSE, 
+                        #                 reflection = FALSE, 
+                        #                 weights = NULL, 
+                        #                 centerweight = FALSE
+                        #)
                 }
         }
-        
 }
+
+##### PLOTS #####
+
+#plot shapes pre transforms:
+
+# stimulus
+longtrial <- {}
+for (i in 1:length(trial.names)){
+        longtrial[i]=nrow(stim[stim[,1]==i,])
+}
+stimtrial <- which.max(longtrial)
+stim <- cbind(stim[stim[,1]==stimtrial,2],stim[stim[,1]==stimtrial,3])
+plot(stim[,1],stim[,2], xlim=c(0,1920), ylim=c(1080,0),pch=20 ,col='black')
+
+#responses
+for (i in 1:length(trial.names)){
+        points(resp[resp[,1]==i,2],resp[resp[,1]==i,3], xlim=c(0,1920), ylim=c(1080,0),pch=i)
+}
+title(main = c(blockpath, "test"))
+legend("topright",c("Stimulus","Session_1","Session_2","Session_3","Session_4","Session_5"),pch=c(20,1:5))
 
 # determine script timing:
 Rtime <- proc.time() - ptm
