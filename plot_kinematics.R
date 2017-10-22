@@ -1,9 +1,9 @@
 #### plot kinematics ####
 #### by Jack Solomon ####
 
-# rm(list=setdiff(ls(), c())) # clear all
-# graphics.off() # clear figures
-# cat("\014") # clear console
+rm(list=setdiff(ls(), c())) # clear all
+graphics.off() # clear figures
+cat("\014") # clear console
 
 # code for timing this script:
 ptm <- proc.time()
@@ -11,24 +11,25 @@ ptm <- proc.time()
 library(Morpho) # for procrustes analysis
 library(tidyverse) # arranging data at end & plotting
 library(plyr) #needed for rbind.fill
+library(ggplot2)
 
 # Variables for Tony
 path <- "~/TraceLab/ExpAssets/Data"
 part_num <- 30
-block_num <- 5
+block_num <- 1:5
 stim_speed <- 2500 # either 500,1000,1500,2000,2500
-sess_num <- 1:5
-error <- 'less' # error indicates if you want the trial with more or less error for a block
+sess_num <- c(1,5)
+# error <- 'less' # error indicates if you want the trial with more or less error for a block
 
 #find trials of interest
 load('all_data (.5 to 2.5).Rda')
 part.dat <- all_data[all_data$participant_id==part_num,]
 part.dat <- part.dat[part.dat$figure_type=='repeated',]
-part.dat <- part.dat[part.dat$block_num==block_num,]
+part.dat <- part.dat[part.dat$session_num==sess_num[1]|part.dat$session_num==sess_num[2],]
 part.dat <- part.dat[part.dat$stimulus_gt==stim_speed,]
-{if (error == "less"){
-        good.trials <- {}
-        for (i in sess_num){
+# {if (error == "less"){
+#        good.trials <- {}
+#        for (i in sess_num){
                 thissession <- part.dat[part.dat$session_num==i,]
                 errordif <- thissession[1,]$raw_error_tot-thissession[2,]$raw_error_tot
                 if (errordif >= 0){
@@ -38,11 +39,11 @@ part.dat <- part.dat[part.dat$stimulus_gt==stim_speed,]
                         good.trials[i] <- 1+((i-1)*2)
                 }
         }
-        part.dat <- part.dat[good.trials,]
-}
-else{
-        bad.trials <- {}
-        for (i in sess_num){
+#        part.dat <- part.dat[good.trials,]
+# }
+# else{
+#        bad.trials <- {}
+#        for (i in sess_num){
                 thissession <- part.dat[part.dat$session_num==i,]
                 errordif <- thissession[1,]$raw_error_tot-thissession[2,]$raw_error_tot
                 if (errordif >= 0){
@@ -52,8 +53,8 @@ else{
                         bad.trials[i] <- 2+((i-1)*2)
                 }
         }
-        part.dat <- part.dat[bad.trials,]
-}}
+#        part.dat <- part.dat[bad.trials,]
+# }}
 
 # Find corresponding .zip files
 file.names <- dir(path, recursive = TRUE, full.names = TRUE,pattern="\\.zip$")
@@ -124,9 +125,15 @@ for(i in 1:length(trial.names)) {
                         
                         ##### ERROR ANALYSIS - RAW #####
                         
-                        #take (x,y) coordinates only #####CHECK THIS TMR
-                        thisstim <- if(length(data_stim$X1)==length(data_sub$X1)) {cbind(i,data_stim[,c(1,2)])} else {cbind(i,data_sub[,c(1,2)])}
-                        thisresp <- if(length(data_resp_rem$X1)==length(data_sub$X1)) {cbind(i,data_resp_rem[,c(1,2)])} else {cbind(i,data_sub[,c(1,2)])}
+                        #identify session and block and trial number
+                        
+                        thisses <- as.numeric(substr(name.tlf, regexpr('_s', name.tlf)[[1]][1]+2, regexpr('_b', name.tlf)[[1]][1]-1))
+                        thisblk <- as.numeric(substr(name.tlf, regexpr('_b', name.tlf)[[1]][1]+2, regexpr('_t', name.tlf)[[1]][1]-1))
+                        thistrl <- as.numeric(substr(name.tlf, regexpr('_t', name.tlf)[[1]][1]+2, regexpr('_20', name.tlf)[[1]][1]-1))
+                        
+                        #take (x,y) coordinates only
+                        thisstim <- if(length(data_stim$X1)==length(data_sub$X1)) {cbind(thisses,thisblk,thistrl,data_stim[,c(1,2)])} else {cbind(thisses,thisblk,thistrl,data_sub[,c(1,2)])}
+                        thisresp <- if(length(data_resp_rem$X1)==length(data_sub$X1)) {cbind(thisses,thisblk,thistrl,data_resp_rem[,c(1,2)])} else {cbind(thisses,thisblk,thistrl,data_sub[,c(1,2)])}
                         #save responses for all trials in one matrix 
                         if(empty(resp)){
                                 resp=thisresp
@@ -148,25 +155,43 @@ for(i in 1:length(trial.names)) {
         }
 }
 
+allresp=data.frame(resp)
+rownames(allresp) <- NULL
+
+allstim=data.frame(stim)
+rownames(allstim) <- NULL
 ##### PLOTS #####
 
 #plot shapes pre transforms:
 
-# stimulus
+# find longest stimulus & replicate for both sessions
 longtrial <- {}
-for (i in 1:length(trial.names)){
-        longtrial[i]=nrow(stim[stim[,1]==i,])
+trials <- levels(with(allstim, interaction(thisses,thisblk,thistrl,drop=TRUE)))
+for (i in 1:length(trials)){
+        thisTrial=as.numeric(unlist(strsplit(trials[i], "[.]")))
+        longtrial[i]=nrow(allstim[allstim$thisses==thisTrial[1]&allstim$thisblk==thisTrial[2]&allstim$thistrl==thisTrial[3],])
 }
-stimtrial <- which.max(longtrial)
-stim <- cbind(stim[stim[,1]==stimtrial,2],stim[stim[,1]==stimtrial,3])
-plot(stim[,1],stim[,2], xlim=c(0,1920), ylim=c(1080,0),pch=20 ,col='black')
+stimtrial <- as.numeric(unlist(strsplit(trials[which.max(longtrial)], "[.]")))
+stim <- allstim[allstim$thisses==stimtrial[1]&allstim$thisblk==stimtrial[2]&allstim$thistrl==stimtrial[3],]
+stim= rbind(stim,stim)
+rownames(stim) <- NULL
+{if(stim$thisses[1]==1){
+        stim$thisses[(nrow(stim)/2+1):nrow(stim)]=5
+} else {
+        stim$thisses[(nrow(stim)/2+1):nrow(stim)]=1
+}}
 
-#responses
-for (i in 1:length(trial.names)){
-        points(resp[resp[,1]==i,2],resp[resp[,1]==i,3], xlim=c(0,1920), ylim=c(1080,0),pch=i)
-}
-title(main = c(blockpath, "test"))
-legend("topright",c("Stimulus","Session_1","Session_2","Session_3","Session_4","Session_5"),pch=c(20,1:5))
+#organize data for plotting
+stim$type <- "stim"
+allresp$type <- "resp"
+alld <- rbind(stim,allresp)
+rownames(stim2) <- NULL
+
+ggplot(alld, aes(x=X1,y=X2), group=type) +
+        facet_grid(thisses ~ .) +
+        geom_point(aes(color=type)) +
+        scale_y_reverse(lim=c(1080,0)) +
+        scale_x_continuous(lim=c(0,1920))
 
 # determine script timing:
 Rtime <- proc.time() - ptm
