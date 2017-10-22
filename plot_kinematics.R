@@ -2,7 +2,7 @@
 #### by Jack Solomon ####
 
 rm(list=setdiff(ls(), c())) # clear all
-graphics.off() # clear figures
+# graphics.off() # clear figures
 cat("\014") # clear console
 
 # code for timing this script:
@@ -12,6 +12,7 @@ library(Morpho) # for procrustes analysis
 library(tidyverse) # arranging data at end & plotting
 library(plyr) #needed for rbind.fill
 library(ggplot2)
+library(ggthemes)
 
 # Variables for Tony
 path <- "~/TraceLab/ExpAssets/Data"
@@ -184,14 +185,21 @@ rownames(stim) <- NULL
 #organize data for plotting
 stim$type <- "stim"
 allresp$type <- "resp"
-alld <- rbind(stim,allresp)
-rownames(stim2) <- NULL
+alld <- rbind(allresp,stim)
 
 ggplot(alld, aes(x=X1,y=X2), group=type) +
         facet_grid(thisses ~ .) +
-        geom_point(aes(color=type)) +
+        geom_path(aes(linetype = type)
+                  , alpha = 1) +
+        scale_linetype_manual(values = c("dotted", "solid")
+                              , labels = c("Response", "Stimulus")) +
         scale_y_reverse(lim=c(1080,0)) +
-        scale_x_continuous(lim=c(0,1920))
+        scale_x_continuous(lim=c(0,1920)) +
+        theme_tufte() +
+        labs(# title = "Participant Responses" ,
+                x = "x-axis (pixels)" ,
+                y = "y-axis (pixels)" ,
+                linetype = "")
 
 # determine script timing:
 Rtime <- proc.time() - ptm
