@@ -30,29 +30,29 @@ part.dat <- part.dat[part.dat$stimulus_gt==stim_speed,]
 # {if (error == "less"){
 #        good.trials <- {}
 #        for (i in sess_num){
-                thissession <- part.dat[part.dat$session_num==i,]
-                errordif <- thissession[1,]$raw_error_tot-thissession[2,]$raw_error_tot
-                if (errordif >= 0){
-                        good.trials[i] <- 2+((i-1)*2)
-                }
-                else{
-                        good.trials[i] <- 1+((i-1)*2)
-                }
-        }
+#                thissession <- part.dat[part.dat$session_num==i,]
+#                errordif <- thissession[1,]$raw_error_tot-thissession[2,]$raw_error_tot
+#                if (errordif >= 0){
+#                        good.trials[i] <- 2+((i-1)*2)
+#                }
+#                else{
+#                        good.trials[i] <- 1+((i-1)*2)
+#                }
+#        }
 #        part.dat <- part.dat[good.trials,]
 # }
 # else{
 #        bad.trials <- {}
 #        for (i in sess_num){
-                thissession <- part.dat[part.dat$session_num==i,]
-                errordif <- thissession[1,]$raw_error_tot-thissession[2,]$raw_error_tot
-                if (errordif >= 0){
-                        bad.trials[i] <- 1+((i-1)*2)
-                }
-                else{
-                        bad.trials[i] <- 2+((i-1)*2)
-                }
-        }
+#                thissession <- part.dat[part.dat$session_num==i,]
+#                errordif <- thissession[1,]$raw_error_tot-thissession[2,]$raw_error_tot
+#                if (errordif >= 0){
+#                        bad.trials[i] <- 1+((i-1)*2)
+#                }
+#                else{
+#                        bad.trials[i] <- 2+((i-1)*2)
+#                }
+#        }
 #        part.dat <- part.dat[bad.trials,]
 # }}
 
