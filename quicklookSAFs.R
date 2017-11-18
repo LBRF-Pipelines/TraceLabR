@@ -86,7 +86,8 @@ for(i in 1:length(unique(dat$participant_id))){
                 labs(#title = paste("P", p, "SAF") ,
                      x = "Speed"
                      , y = "Error"
-                     , color = "Session")
+                     , color = "Session") +
+                theme(legend.justification=c(1,1), legend.position = c(1,1))
         print(saf)
         print(paste("plotting participant",p,"using lm"))
 }
@@ -113,7 +114,7 @@ for(i in 1:length(unique(dat$participant_id))){
 ggsave(
         filename = "p30.png"
         , plot = saf
-        , width = 6 #inches
-        , height = 4
+        , width = 4.5 #inches
+        , height = 3
         , dpi = 300
 )

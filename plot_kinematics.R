@@ -196,7 +196,7 @@ kin<- ggplot(alld, aes(x=X1,y=X2), group=type) +
         scale_y_reverse(lim=c(1080,200)) +
         scale_x_continuous(lim=c(500,1600)) +
         theme_tufte() +
-        theme(legend.position="top") +
+        theme(legend.justification=c(1,1), legend.position=c(1,1)) +
         labs(# title = "Participant Responses" ,
                 x = "x-axis (pixels)" ,
                 y = "y-axis (pixels)" ,
