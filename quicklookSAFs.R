@@ -1,7 +1,13 @@
-#### QUICKLOOK AT EACH PARTICIPANT ####
+## Complex Movement Execution Study - Motor Imagery ##
+      ## Quick look at Speed Accuracy Functions ##
 
-rm(list=setdiff(ls(), c())) # clear all but all_figs & all_data
-graphics.off() # clear figures
+# written by Tony Ingram and Jack Solomon
+# correspondence: tony.ingram@dal.ca
+
+# useful code:
+# rm(list=setdiff(ls(), c())) # clear environment
+# graphics.off() # clear figures
+# cat("\014") # clear console
 
 #### LOAD & INSPECT DATA ####
 
@@ -13,6 +19,9 @@ load("all_data (.5 to 2.5).Rda")
 dat <- dplyr::filter(
         .data = all_data
         , participant_id != 36
+        , session_num != 2
+        , session_num != 3
+        , session_num != 4
         # , is.na(vresp) == FALSE
         # , is.na(shape_dtw_error_mean) == FALSE
 )
@@ -49,28 +58,28 @@ dat$figure_type <- factor(dat$figure_type, levels=c("Random", "Pattern"))
 
 #### loop through each p ####
 
-# if you just want one plot, set 'p' and run code inside for loop
+# if you just want one plot, set 'p' and just run code inside loop
 p = 30
 
-for(i in 1:length(unique(dat$participant_id))){
-        p <- unique(dat$participant_id)[i] # don't run if looking at single p
-        
-        # for single participant, run below
-        saf <- ggplot(subset(dat, participant_id == p)
-                       , mapping = aes(
-                               x = vresp, y = shape_dtw_error_mean
-                               , color = factor(session_num)
-                       )) + geom_point(na.rm = TRUE, alpha = .5, size = .5) + 
-                geom_smooth(na.rm = TRUE, method = "loess", size = .5) + 
-                theme_tufte() +
-                facet_grid(. ~ figure_type) +
-                labs(title = paste("P", p, "SAF")
-                     , x = "Speed"
-                     , y = "Error"
-                     , color = "Session")
-        print(saf)
-        print(paste("plotting participant",p,"using loess"))
-}
+# for(i in 1:length(unique(dat$participant_id))){
+#         p <- unique(dat$participant_id)[i] # don't run if looking at single p
+#         
+#         # for single participant, run below
+#         saf <- ggplot(subset(dat, participant_id == p)
+#                        , mapping = aes(
+#                                x = vresp, y = shape_dtw_error_mean
+#                                , color = factor(session_num)
+#                        )) + geom_point(na.rm = TRUE, alpha = .5, size = .5) + 
+#                 geom_smooth(na.rm = TRUE, method = "loess", size = .5) + 
+#                 theme_tufte() +
+#                 facet_grid(. ~ figure_type) +
+#                 labs(title = paste("P", p, "SAF")
+#                      , x = "Speed"
+#                      , y = "Error"
+#                      , color = "Session")
+#         print(saf)
+#         print(paste("plotting participant",p,"using loess"))
+# }
 
 for(i in 1:length(unique(dat$participant_id))){
         p <- unique(dat$participant_id)[i]
@@ -79,42 +88,46 @@ for(i in 1:length(unique(dat$participant_id))){
                       , mapping = aes(
                               x = vresp, y = shape_dtw_error_mean
                               , color = factor(session_num)
-                      )) + geom_point(na.rm = TRUE, alpha = .5, size = .5) + 
+                              , shape = factor(session_num)
+                              , linetype = factor(session_num)
+                      )) + geom_point(na.rm = TRUE, alpha = .5, size = 1.5) + 
                 geom_smooth(na.rm = TRUE, method = "lm", size = .5) + 
                 theme_tufte() +
                 facet_grid(. ~ figure_type) +
                 labs(#title = paste("P", p, "SAF") ,
                      x = "Speed"
                      , y = "Error"
-                     , color = "Session") +
+                     , color = "Session"
+                     , shape = "Session"
+                     , linetype = "Session") +
                 theme(legend.justification=c(1,1), legend.position = c(1,1))
         print(saf)
         print(paste("plotting participant",p,"using lm"))
 }
 
-for(i in 1:length(unique(dat$participant_id))){
-        p <- unique(dat$participant_id)[i]
-        
-        saf <- ggplot(subset(dat, participant_id == p)
-                      , mapping = aes(
-                              x = vresp, y = shape_dtw_error_mean
-                              , color = factor(session_num)
-                      )) + geom_point(na.rm = TRUE, alpha = .5, size = .5) + 
-                geom_smooth(na.rm = TRUE, method = "lm", size = .5, formula = y ~ splines::bs(x, 3)) + 
-                theme_tufte() +
-                facet_grid(. ~ figure_type) +
-                labs(title = paste("P", p, "SAF")
-                     , x = "Speed"
-                     , y = "Error"
-                     , color = "Session")
-        print(saf)
-        print(paste("plotting participant",p,"using lm bs 3"))
-}
+# for(i in 1:length(unique(dat$participant_id))){
+#         p <- unique(dat$participant_id)[i]
+#         
+#         saf <- ggplot(subset(dat, participant_id == p)
+#                       , mapping = aes(
+#                               x = vresp, y = shape_dtw_error_mean
+#                               , color = factor(session_num)
+#                       )) + geom_point(na.rm = TRUE, alpha = .5, size = .5) + 
+#                 geom_smooth(na.rm = TRUE, method = "lm", size = .5, formula = y ~ splines::bs(x, 3)) + 
+#                 theme_tufte() +
+#                 facet_grid(. ~ figure_type) +
+#                 labs(title = paste("P", p, "SAF")
+#                      , x = "Speed"
+#                      , y = "Error"
+#                      , color = "Session")
+#         print(saf)
+#         print(paste("plotting participant",p,"using lm bs 3"))
+# }
 
-ggsave(
-        filename = "p30.png"
-        , plot = saf
-        , width = 4.5 #inches
-        , height = 3
-        , dpi = 300
-)
+# ggsave(
+#         filename = "p30.png"
+#         , plot = saf
+#         , width = 4.5 #inches
+#         , height = 3
+#         , dpi = 300
+# )

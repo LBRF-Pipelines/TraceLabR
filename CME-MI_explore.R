@@ -1,7 +1,13 @@
-#### CME-MI explore data ####
-##       Tony Ingram       ##
+## Complex Movement Execution Study - Motor Imagery ##
+   ## explore data, chronometry and control task ##
 
-rm(list=setdiff(ls(), c())) # clear all
+# written by Tony Ingram
+# correspondence: tony.ingram@dal.ca
+
+# useful code:
+# rm(list=setdiff(ls(), c())) # clear environment
+# graphics.off() # clear figures
+# cat("\014") # clear console
 
 library(tidyverse)
 library(rethinking)
@@ -12,6 +18,8 @@ dat <- dplyr::filter(
         .data = all_data
         , participant_id != 36
 )
+
+#### SETUP DATA ####
 
 ## CATEGORICAL VARIABLES ##
 dat$group <- coerce_index(dat$condition) # CC = 1, MI = 2, PP = 3, PPFB = 4

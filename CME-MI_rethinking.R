@@ -1,16 +1,18 @@
-#### CME-MI Statistical Rethinking ####
-      #### Model Comparison ####
+## Complex Movement Execution Study - Motor Imagery ##
+                ## Main Analysis ##
 
-rm(list=setdiff(ls(), c()))
-graphics.off() # clear figures
+# written by Tony Ingram and Jack Solomon
+# correspondence: tony.ingram@dal.ca
+
+# useful code:
+# rm(list=setdiff(ls(), c())) # clear environment
+# graphics.off() # clear figures
 # cat("\014") # clear console
 
 #### LOAD & INSPECT DATA ####
 
 library(tidyverse)
 library(ggthemes)
-# devtools::install_github("mike-lawrence/ezStan")
-# library(ezStan)
 set.seed(1)
 
 load("all_data (.5 to 2.5).Rda")
@@ -20,16 +22,6 @@ dat <- dplyr::filter(
         , is.na(vresp) == FALSE
         , is.na(shape_dtw_error_mean) == FALSE
 )
-
-# # take a look at the data:
-# library(ez)
-# ezDesign(
-#         data = dat
-#         , x = figure_type
-#         , y = participant_id
-#         , row = session_num
-#         , col = condition
-# )
 
 # plot to see if makes sense:
 ggplot(subset(dat, ((session_num == 1) | (session_num == 5)))
@@ -45,7 +37,6 @@ ggplot(subset(dat, ((session_num == 1) | (session_num == 5)))
              , y = "Shape Error (mm)"
              , color = "Figure Type") +
         lims(x = c(0, 5000*0.2715), y = c(0, 300*0.2715))
-
 
 
 #### SET UP DATA FOR MODEL ####
@@ -167,328 +158,335 @@ unique(subset(dat, (PPFB == 1))$participant)
 library(scales)
 dat$Serror <- rescale(dat$shape_dtw_error_mean, to=c(0,1))
 dat$Sspeed <- rescale(dat$vresp, to=c(0,1))
+# plot(dat$Zspeed,dat$Zerror)
 # plot(dat$Sspeed,dat$Serror)
 
-# #### mod.1 - all interactions ####
-# 
-# mod.1 <- map2stan(
-#         alist(
-#                 # likelihood
-#                 Serror ~ dnorm( mu, sigma ),
-#                 
-#                 # model
-#                 mu <- (a / (1 + (exp(-(c*(Sspeed-D)))))),
-#                 
-#                 D <- d + # intercept
-#                         d_g[group] + d_cond*rep + d_sess*session + d_block*block_num + # main effects
-#                         d_cond_g[group]*rep + d_sess_g[group]*session + d_cond_sess*rep*session + d_block_g[group]*block_num + d_cond_block*rep*block_num + d_sess_block*session*block_num + # two way interactions
-#                         d_cond_sess_g[group]*rep*session + d_cond_block_g[group]*rep*block_num + d_sess_block_g[group]*session*block_num + d_cond_sess_block*rep*session*block_num + # three way interactions 
-#                         d_cond_sess_block_g[group]*rep*session*block_num + # four way interactions
-#                         d_p[participant]*sigma_participant, # participant varying intercepts with "shrinkage"
-#                 
-#                 sigma <- a_sigma + b_sigma*Sspeed,
-#                 
-#                 # adaptive priors 
-#                 d_p[participant] ~ dnorm(0,1), # non-centered (see sigma_participant in linear model above)
-#                 
-#                 # fixed priors
-#                 a ~ dnorm(1,1),
-#                 c ~ dnorm(1,1), 
-#                 d ~ dnorm(0.5,1), 
-#                 d_cond ~ dnorm(0,1), 
-#                 d_sess ~ dnorm(0,1), 
-#                 d_block ~ dnorm(0,1),
-#                 d_g[group] ~ dnorm(0,1),
-#                 d_cond_sess ~ dnorm(0,1),
-#                 d_cond_block ~ dnorm(0,1),
-#                 d_sess_block ~ dnorm(0,1),
-#                 d_cond_g[group] ~ dnorm(0,1),
-#                 d_sess_g[group] ~ dnorm(0,1),
-#                 d_block_g[group] ~ dnorm(0,1),
-#                 d_cond_sess_block ~ dnorm(0,1),
-#                 d_cond_sess_g[group] ~ dnorm(0,1),
-#                 d_cond_block_g[group] ~ dnorm(0,1),
-#                 d_sess_block_g[group] ~ dnorm(0,1),
-#                 d_cond_sess_block_g[group] ~ dnorm(0,1),
-#                 
-#                 sigma_participant ~ dcauchy(0,2),
-#                 
-#                 a_sigma ~ dcauchy(0,2),
-#                 b_sigma ~ dnorm(0,1)
-#         ),
-#         data = dat,
-#         start = list(
-#                 a = 1,
-#                 c = 1,
-#                 d = 0.5,
-#                 d_cond = 0, 
-#                 d_sess = 0, 
-#                 d_block = 0,
-#                 d_g = c(0,0,0,0),
-#                 d_cond_sess = 0,
-#                 d_cond_block = 0,
-#                 d_sess_block = 0,
-#                 d_cond_g = c(0,0,0,0),
-#                 d_sess_g = c(0,0,0,0),
-#                 d_block_g = c(0,0,0,0),
-#                 d_cond_sess_block = 0,
-#                 d_cond_sess_g = c(0,0,0,0),
-#                 d_cond_block_g = c(0,0,0,0),
-#                 d_sess_block_g = c(0,0,0,0),
-#                 d_cond_sess_block_g = c(0,0,0,0),
-#                 
-#                 sigma_participant = 1,
-#                 a_sigma = 1,
-#                 b_sigma = 0.5
-#         ),
-#         constraints = list(
-#                 c = "lower=0",
-#                 
-#                 sigma_participant = "lower=0",
-#                 a_sigma = "lower=0",
-#                 b_sigma = "lower=0"
-#         ),
-#         sample = TRUE,
-#         iter = 1000,
-#         warmup = 500,
-#         chains = 1, 
-#         cores = 1 ,
-#         control=list(adapt_delta=0.90)
-# )
-# # save(mod.1, file = "mod1_1_5.Rda")
-# 
-# # check diagnostics
-# precis(mod.1, depth=2, pars=c("a","c","d","a_sigma","b_sigma")) 
-# pairs(mod.1, pars=c("a","c","d","a_sigma","b_sigma"))
-# dashboard(mod.1)
-# par(mfrow=c(1,1))
-# plot(mod.1, pars=c("a","c","d","a_sigma","b_sigma"))
-# par(mfrow=c(1,1))
-# # stancode(mod.1) # see generated stan code
-# WAIC(mod.1)
-# 
-# # plot(precis(mod.1, depth=2, pars=c("d","d_cond","d_sess","d_block", "d_g")) ) 
-# # plot(precis(mod.1, depth=2, pars=c("d_cond_sess","d_cond_block","d_sess_block","d_cond_g","d_sess_g","d_block_g")) )
-# # plot(precis(mod.1, depth=2, pars=c("d_cond_sess_block","d_cond_sess_g","d_cond_block_g","d_sess_block_g")) )
-# # plot(precis(mod.1, depth=2, pars=c("d_cond_sess_block_g")) )
-# # plot(precis(mod.1, depth=2, pars=c("sigma_participant","d_p")) )
-# 
-# # 1000 iter 500 warmup took: 
-# # 6424.6 seconds (Warm-up)
-# # 6771.25 seconds (Sampling)
-# # 13195.8 seconds (Total)
-# 
-# # converged decently (close to 1 Rhat for most parameters)
-# 
-# # we then ran the model, taking 100,000 samples
-# # iter = 6000, warmup = 1000, chains = 20, cores = 20
-# # on the lab server — results saved as mod1_100000.Rda
+#### mod.1 - fit sigmoid (generalized logistic) model ####
 
-# #### mod.2 - all interactions, no varying sigma ####
-# 
-# mod.2 <- map2stan(
-#         alist(
-#                 # likelihood
-#                 Serror ~ dnorm( mu, sigma ),
-#                 
-#                 # model
-#                 mu <- (a / (1 + (exp(-(c*(Sspeed-D)))))),
-#                 
-#                 D <- d + # intercept
-#                         d_g[group] + d_cond*rep + d_sess*session + d_block*block_num + # main effects
-#                         d_cond_g[group]*rep + d_sess_g[group]*session + d_cond_sess*rep*session + d_block_g[group]*block_num + d_cond_block*rep*block_num + d_sess_block*session*block_num + # two way interactions
-#                         d_cond_sess_g[group]*rep*session + d_cond_block_g[group]*rep*block_num + d_sess_block_g[group]*session*block_num + d_cond_sess_block*rep*session*block_num + # three way interactions 
-#                         d_cond_sess_block_g[group]*rep*session*block_num + # four way interactions
-#                         d_p[participant]*sigma_participant, # participant varying intercepts with "shrinkage"
-#                 
-#                 # adaptive priors 
-#                 d_p[participant] ~ dnorm(0,1), # non-centered (see sigma_participant in linear model above)
-#                 
-#                 # fixed priors
-#                 a ~ dnorm(1,1),
-#                 c ~ dnorm(1,1), 
-#                 d ~ dnorm(0.5,1), 
-#                 d_cond ~ dnorm(0,1), 
-#                 d_sess ~ dnorm(0,1), 
-#                 d_block ~ dnorm(0,1),
-#                 d_g[group] ~ dnorm(0,1),
-#                 d_cond_sess ~ dnorm(0,1),
-#                 d_cond_block ~ dnorm(0,1),
-#                 d_sess_block ~ dnorm(0,1),
-#                 d_cond_g[group] ~ dnorm(0,1),
-#                 d_sess_g[group] ~ dnorm(0,1),
-#                 d_block_g[group] ~ dnorm(0,1),
-#                 d_cond_sess_block ~ dnorm(0,1),
-#                 d_cond_sess_g[group] ~ dnorm(0,1),
-#                 d_cond_block_g[group] ~ dnorm(0,1),
-#                 d_sess_block_g[group] ~ dnorm(0,1),
-#                 d_cond_sess_block_g[group] ~ dnorm(0,1),
-#                 
-#                 sigma_participant ~ dcauchy(0,2),
-#                 
-#                 sigma ~ dcauchy(0,2)
-#         ),
-#         data = dat,
-#         start = list(
-#                 a = 1,
-#                 c = 1,
-#                 d = 0.5,
-#                 d_cond = 0, 
-#                 d_sess = 0, 
-#                 d_block = 0,
-#                 d_g = c(0,0,0,0),
-#                 d_cond_sess = 0,
-#                 d_cond_block = 0,
-#                 d_sess_block = 0,
-#                 d_cond_g = c(0,0,0,0),
-#                 d_sess_g = c(0,0,0,0),
-#                 d_block_g = c(0,0,0,0),
-#                 d_cond_sess_block = 0,
-#                 d_cond_sess_g = c(0,0,0,0),
-#                 d_cond_block_g = c(0,0,0,0),
-#                 d_sess_block_g = c(0,0,0,0),
-#                 d_cond_sess_block_g = c(0,0,0,0),
-#                 
-#                 sigma_participant = 1,
-#                 sigma = 1
-#         ),
-#         constraints = list(
-#                 c = "lower=0",
-#                 
-#                 sigma_participant = "lower=0",
-#                 sigma = "lower=0"
-#         ),
-#         sample = TRUE,
-#         iter = 1000,
-#         warmup = 500,
-#         chains = 1, 
-#         cores = 1 ,
-#         control=list(adapt_delta=0.90)
-# )
+mod.1 <- map2stan(
+        alist(
+                # likelihood
+                Serror ~ dnorm( mu, sigma ),
+
+                # model
+                mu <- (a / (1 + (exp(-(c*(Sspeed-D)))))),
+
+                D <- d + # intercept
+                        d_g[group] + d_cond*rep + d_sess*session + d_block*block_num + # main effects
+                        d_cond_g[group]*rep + d_sess_g[group]*session + d_cond_sess*rep*session + d_block_g[group]*block_num + d_cond_block*rep*block_num + d_sess_block*session*block_num + # two way interactions
+                        d_cond_sess_g[group]*rep*session + d_cond_block_g[group]*rep*block_num + d_sess_block_g[group]*session*block_num + d_cond_sess_block*rep*session*block_num + # three way interactions
+                        d_cond_sess_block_g[group]*rep*session*block_num + # four way interactions
+                        d_p[participant]*sigma_participant, # participant varying intercepts with "shrinkage"
+
+                sigma <- a_sigma + b_sigma*Sspeed,
+
+                # adaptive priors
+                d_p[participant] ~ dnorm(0,1), # non-centered (see sigma_participant in linear model above)
+
+                # fixed priors
+                a ~ dnorm(1,1),
+                c ~ dnorm(1,1),
+                d ~ dnorm(0.5,1),
+                d_cond ~ dnorm(0,1),
+                d_sess ~ dnorm(0,1),
+                d_block ~ dnorm(0,1),
+                d_g[group] ~ dnorm(0,1),
+                d_cond_sess ~ dnorm(0,1),
+                d_cond_block ~ dnorm(0,1),
+                d_sess_block ~ dnorm(0,1),
+                d_cond_g[group] ~ dnorm(0,1),
+                d_sess_g[group] ~ dnorm(0,1),
+                d_block_g[group] ~ dnorm(0,1),
+                d_cond_sess_block ~ dnorm(0,1),
+                d_cond_sess_g[group] ~ dnorm(0,1),
+                d_cond_block_g[group] ~ dnorm(0,1),
+                d_sess_block_g[group] ~ dnorm(0,1),
+                d_cond_sess_block_g[group] ~ dnorm(0,1),
+
+                sigma_participant ~ dcauchy(0,2),
+
+                a_sigma ~ dcauchy(0,2),
+                b_sigma ~ dnorm(0,1)
+        ),
+        data = dat,
+        start = list(
+                a = 1,
+                c = 1,
+                d = 0.5,
+                d_cond = 0,
+                d_sess = 0,
+                d_block = 0,
+                d_g = c(0,0,0,0),
+                d_cond_sess = 0,
+                d_cond_block = 0,
+                d_sess_block = 0,
+                d_cond_g = c(0,0,0,0),
+                d_sess_g = c(0,0,0,0),
+                d_block_g = c(0,0,0,0),
+                d_cond_sess_block = 0,
+                d_cond_sess_g = c(0,0,0,0),
+                d_cond_block_g = c(0,0,0,0),
+                d_sess_block_g = c(0,0,0,0),
+                d_cond_sess_block_g = c(0,0,0,0),
+
+                sigma_participant = 1,
+                a_sigma = 1,
+                b_sigma = 0.5
+        ),
+        constraints = list(
+                c = "lower=0",
+
+                sigma_participant = "lower=0",
+                a_sigma = "lower=0",
+                b_sigma = "lower=0"
+        ),
+        sample = TRUE,
+        iter = 1000,
+        warmup = 500,
+        chains = 1,
+        cores = 1 ,
+        control=list(adapt_delta=0.90)
+)
+# save(mod.1, file = "mod1.Rda")
+
+# check diagnostics
+precis(mod.1, depth=2, pars=c("a","c","d","a_sigma","b_sigma"))
+pairs(mod.1, pars=c("a","c","d","a_sigma","b_sigma"))
+dashboard(mod.1)
+par(mfrow=c(1,1))
+plot(mod.1, pars=c("a","c","d","a_sigma","b_sigma"))
+par(mfrow=c(1,1))
+# stancode(mod.1) # see generated stan code
+WAIC(mod.1)
+
+# plot(precis(mod.1, depth=2, pars=c("d","d_cond","d_sess","d_block", "d_g")) )
+# plot(precis(mod.1, depth=2, pars=c("d_cond_sess","d_cond_block","d_sess_block","d_cond_g","d_sess_g","d_block_g")) )
+# plot(precis(mod.1, depth=2, pars=c("d_cond_sess_block","d_cond_sess_g","d_cond_block_g","d_sess_block_g")) )
+# plot(precis(mod.1, depth=2, pars=c("d_cond_sess_block_g")) )
+# plot(precis(mod.1, depth=2, pars=c("sigma_participant","d_p")) )
+
+# 1000 iter 500 warmup took:
+# 6284.94 seconds (Warm-up)
+# 6626.44 seconds (Sampling)
+# 12911.4 seconds (Total)
+
+# converged decently (close to 1 Rhat for most parameters)
+
+# we then ran the model, taking 100,000 samples
+# iter = 6000, warmup = 1000, chains = 20, cores = 20
+# on the lab server — results saved as mod1_100000.Rda
+
+#### mod.2 - fit logarithmic model ####
+
+# must rescale data to avoid -Inf and NaN issues
+dat$Serror <- rescale(dat$shape_dtw_error_mean, to=c(0.01,.99))
+dat$Sspeed <- rescale(dat$vresp, to=c(0.01,.99))
+
+mod.2 <- map2stan(
+        alist(
+                # likelihood
+                Serror ~ dnorm( mu, sigma ),
+                
+                # model
+                mu <- a * log(Sspeed) + D,
+                
+                D <- d + # intercept
+                        d_g[group] + d_cond*rep + d_sess*session + d_block*block_num + # main effects
+                        d_cond_g[group]*rep + d_sess_g[group]*session + d_cond_sess*rep*session + d_block_g[group]*block_num + d_cond_block*rep*block_num + d_sess_block*session*block_num + # two way interactions
+                        d_cond_sess_g[group]*rep*session + d_cond_block_g[group]*rep*block_num + d_sess_block_g[group]*session*block_num + d_cond_sess_block*rep*session*block_num + # three way interactions
+                        d_cond_sess_block_g[group]*rep*session*block_num + # four way interactions
+                        d_p[participant]*sigma_participant, # participant varying intercepts with "shrinkage"
+                
+                sigma <- a_sigma + b_sigma*Sspeed,
+                
+                # adaptive priors
+                d_p[participant] ~ dnorm(0,1), # non-centered (see sigma_participant in linear model above)
+                
+                # fixed priors
+                a ~ dnorm(1,1),
+                d ~ dnorm(0,1),
+                d_cond ~ dnorm(0,1),
+                d_sess ~ dnorm(0,1),
+                d_block ~ dnorm(0,1),
+                d_g[group] ~ dnorm(0,1),
+                d_cond_sess ~ dnorm(0,1),
+                d_cond_block ~ dnorm(0,1),
+                d_sess_block ~ dnorm(0,1),
+                d_cond_g[group] ~ dnorm(0,1),
+                d_sess_g[group] ~ dnorm(0,1),
+                d_block_g[group] ~ dnorm(0,1),
+                d_cond_sess_block ~ dnorm(0,1),
+                d_cond_sess_g[group] ~ dnorm(0,1),
+                d_cond_block_g[group] ~ dnorm(0,1),
+                d_sess_block_g[group] ~ dnorm(0,1),
+                d_cond_sess_block_g[group] ~ dnorm(0,1),
+                
+                sigma_participant ~ dcauchy(0,2),
+                
+                a_sigma ~ dcauchy(0,2),
+                b_sigma ~ dnorm(0,1)
+        ),
+        data = dat,
+        # start = list(
+        #         a1 = 1,
+        #         a2 = 1,
+        #         d = 0,
+        #         d_cond = 0,
+        #         d_sess = 0,
+        #         d_block = 0,
+        #         d_g = c(0,0,0,0),
+        #         d_cond_sess = 0,
+        #         d_cond_block = 0,
+        #         d_sess_block = 0,
+        #         d_cond_g = c(0,0,0,0),
+        #         d_sess_g = c(0,0,0,0),
+        #         d_block_g = c(0,0,0,0),
+        #         d_cond_sess_block = 0,
+        #         d_cond_sess_g = c(0,0,0,0),
+        #         d_cond_block_g = c(0,0,0,0),
+        #         d_sess_block_g = c(0,0,0,0),
+        #         d_cond_sess_block_g = c(0,0,0,0),
+        # 
+        #         sigma_participant = 1,
+        #         a_sigma = 1,
+        #         b_sigma = 0.5
+        # ),
+        constraints = list(
+                sigma_participant = "lower=0",
+                a_sigma = "lower=0",
+                b_sigma = "lower=0"
+        ),
+        sample = TRUE,
+        iter = 1000,
+        warmup = 500,
+        chains = 1,
+        cores = 1,
+        control=list(adapt_delta=0.90)
+)
 # save(mod.2, file = "mod2.Rda")
-# precis(mod.2, depth=2, pars=c("a","b","c","d","sigma")) 
-# pairs(mod.2, pars=c("a","c","d","sigma"))
-# dashboard(mod.2)
-# par(mfrow=c(1,1))
-# plot(mod.2, pars=c("a","c","d","sigma"))
+precis(mod.2, depth=2, pars=c("a","d","a_sigma","b_sigma"))
+pairs(mod.2, pars=c("a","d","a_sigma","b_sigma"))
+dashboard(mod.2)
+par(mfrow=c(1,1))
+plot(mod.2, pars=c("a","d","a_sigma","b_sigma"))
 # stancode(mod.2)
-# WAIC(mod.2)
-# 
-# # 1000 iter 500 warmup took: 
-# # 5455.28 seconds (Warm-up)
-# # 6318.25 seconds (Sampling)
-# # 11773.5 seconds (Total)
-# 
-# compare(mod.1,mod.2) # mod 1 much better... 
-# 
-# #### mod.3 - try inv_logit ####
-# 
-# mod.3 <- map2stan(
-#         alist(
-#                 # likelihood
-#                 Serror ~ dnorm( mu, sigma ),
-#                 
-#                 # model
-#                 #mu <- (a / (1 + (exp(-(c*(Sspeed-D)))))),
-#                 mu <- a*inv_logit(c*(Sspeed-D)),
-#                 
-#                 D <- d + # intercept
-#                         d_g[group] + d_cond*rep + d_sess*session + d_block*block_num + # main effects
-#                         d_cond_g[group]*rep + d_sess_g[group]*session + d_cond_sess*rep*session + d_block_g[group]*block_num + d_cond_block*rep*block_num + d_sess_block*session*block_num + # two way interactions
-#                         d_cond_sess_g[group]*rep*session + d_cond_block_g[group]*rep*block_num + d_sess_block_g[group]*session*block_num + d_cond_sess_block*rep*session*block_num + # three way interactions 
-#                         d_cond_sess_block_g[group]*rep*session*block_num + # four way interactions
-#                         d_p[participant]*sigma_participant, # participant varying intercepts with "shrinkage"
-#                 
-#                 sigma <- a_sigma + b_sigma*Sspeed,
-#                 
-#                 # adaptive priors 
-#                 d_p[participant] ~ dnorm(0,1), # non-centered (see sigma_participant in linear model above)
-#                 
-#                 # fixed priors
-#                 a ~ dnorm(1,1),
-#                 c ~ dnorm(1,1), 
-#                 d ~ dnorm(0.5,1), 
-#                 d_cond ~ dnorm(0,1), 
-#                 d_sess ~ dnorm(0,1), 
-#                 d_block ~ dnorm(0,1),
-#                 d_g[group] ~ dnorm(0,1),
-#                 d_cond_sess ~ dnorm(0,1),
-#                 d_cond_block ~ dnorm(0,1),
-#                 d_sess_block ~ dnorm(0,1),
-#                 d_cond_g[group] ~ dnorm(0,1),
-#                 d_sess_g[group] ~ dnorm(0,1),
-#                 d_block_g[group] ~ dnorm(0,1),
-#                 d_cond_sess_block ~ dnorm(0,1),
-#                 d_cond_sess_g[group] ~ dnorm(0,1),
-#                 d_cond_block_g[group] ~ dnorm(0,1),
-#                 d_sess_block_g[group] ~ dnorm(0,1),
-#                 d_cond_sess_block_g[group] ~ dnorm(0,1),
-#                 
-#                 sigma_participant ~ dcauchy(0,2),
-#                 
-#                 a_sigma ~ dcauchy(0,2),
-#                 b_sigma ~ dnorm(0,1)
-#         ),
-#         data = dat,
-#         start = list(
-#                 a = 1,
-#                 c = 1,
-#                 d = 0.5,
-#                 d_cond = 0, 
-#                 d_sess = 0, 
-#                 d_block = 0,
-#                 d_g = c(0,0,0,0),
-#                 d_cond_sess = 0,
-#                 d_cond_block = 0,
-#                 d_sess_block = 0,
-#                 d_cond_g = c(0,0,0,0),
-#                 d_sess_g = c(0,0,0,0),
-#                 d_block_g = c(0,0,0,0),
-#                 d_cond_sess_block = 0,
-#                 d_cond_sess_g = c(0,0,0,0),
-#                 d_cond_block_g = c(0,0,0,0),
-#                 d_sess_block_g = c(0,0,0,0),
-#                 d_cond_sess_block_g = c(0,0,0,0),
-#                 
-#                 sigma_participant = 1,
-#                 a_sigma = 1,
-#                 b_sigma = 0.5
-#         ),
-#         constraints = list(
-#                 c = "lower=0",
-#                 
-#                 sigma_participant = "lower=0",
-#                 a_sigma = "lower=0",
-#                 b_sigma = "lower=0"
-#         ),
-#         sample = TRUE,
-#         iter = 1000,
-#         warmup = 500,
-#         chains = 1, 
-#         cores = 1 ,
-#         control=list(adapt_delta=0.90)
-#         # , sample_file = "mod3"
-# )
+WAIC(mod.2)
+
+# 1000 iter 500 warmup took:
+# 4843.79 seconds (Warm-up)
+# 5757.88 seconds (Sampling)
+# 10601.7 seconds (Total)
+
+#### mod.3 - fit linear model ####
+
+# note, must undo the rescaling done for the log model:
+library(scales)
+dat$Serror <- rescale(dat$shape_dtw_error_mean, to=c(0,1))
+dat$Sspeed <- rescale(dat$vresp, to=c(0,1))
+
+mod.3 <- map2stan(
+        alist(
+                # likelihood
+                Serror ~ dnorm( mu, sigma ),
+
+                # model
+                mu <- a * Sspeed + D,
+
+                D <- d + # intercept
+                        d_g[group] + d_cond*rep + d_sess*session + d_block*block_num + # main effects
+                        d_cond_g[group]*rep + d_sess_g[group]*session + d_cond_sess*rep*session + d_block_g[group]*block_num + d_cond_block*rep*block_num + d_sess_block*session*block_num + # two way interactions
+                        d_cond_sess_g[group]*rep*session + d_cond_block_g[group]*rep*block_num + d_sess_block_g[group]*session*block_num + d_cond_sess_block*rep*session*block_num + # three way interactions
+                        d_cond_sess_block_g[group]*rep*session*block_num + # four way interactions
+                        d_p[participant]*sigma_participant, # participant varying intercepts with "shrinkage"
+
+                sigma <- a_sigma + b_sigma*Sspeed,
+
+                # adaptive priors
+                d_p[participant] ~ dnorm(0,1), # non-centered (see sigma_participant in linear model above)
+
+                # fixed priors
+                a ~ dnorm(1,1),
+                d ~ dnorm(0,1),
+                d_cond ~ dnorm(0,1),
+                d_sess ~ dnorm(0,1),
+                d_block ~ dnorm(0,1),
+                d_g[group] ~ dnorm(0,1),
+                d_cond_sess ~ dnorm(0,1),
+                d_cond_block ~ dnorm(0,1),
+                d_sess_block ~ dnorm(0,1),
+                d_cond_g[group] ~ dnorm(0,1),
+                d_sess_g[group] ~ dnorm(0,1),
+                d_block_g[group] ~ dnorm(0,1),
+                d_cond_sess_block ~ dnorm(0,1),
+                d_cond_sess_g[group] ~ dnorm(0,1),
+                d_cond_block_g[group] ~ dnorm(0,1),
+                d_sess_block_g[group] ~ dnorm(0,1),
+                d_cond_sess_block_g[group] ~ dnorm(0,1),
+
+                sigma_participant ~ dcauchy(0,2),
+
+                a_sigma ~ dcauchy(0,2),
+                b_sigma ~ dnorm(0,1)
+        ),
+        data = dat,
+        # start = list(
+        #         a = 1,
+        #         d = 0,
+        #         d_cond = 0,
+        #         d_sess = 0,
+        #         d_block = 0,
+        #         d_g = c(0,0,0,0),
+        #         d_cond_sess = 0,
+        #         d_cond_block = 0,
+        #         d_sess_block = 0,
+        #         d_cond_g = c(0,0,0,0),
+        #         d_sess_g = c(0,0,0,0),
+        #         d_block_g = c(0,0,0,0),
+        #         d_cond_sess_block = 0,
+        #         d_cond_sess_g = c(0,0,0,0),
+        #         d_cond_block_g = c(0,0,0,0),
+        #         d_sess_block_g = c(0,0,0,0),
+        #         d_cond_sess_block_g = c(0,0,0,0),
+        # 
+        #         sigma_participant = 1,
+        #         a_sigma = 1,
+        #         b_sigma = 0.5
+        # ),
+        constraints = list(
+                sigma_participant = "lower=0",
+                a_sigma = "lower=0",
+                b_sigma = "lower=0"
+        ),
+        sample = TRUE,
+        iter = 1000,
+        warmup = 500,
+        chains = 1,
+        cores = 1,
+        control=list(adapt_delta=0.90)
+)
 # save(mod.3, file = "mod3.Rda")
-# precis(mod.3, depth=2, pars=c("a","c","d","a_sigma","b_sigma")) 
-# pairs(mod.3, pars=c("a","c","d","a_sigma","b_sigma"))
-# dashboard(mod.3)
-# par(mfrow=c(1,1))
-# plot(mod.3, pars=c("a","c","d","a_sigma","b_sigma"))
+precis(mod.3, depth=2, pars=c("a","d","a_sigma","b_sigma"))
+pairs(mod.3, pars=c("a","d","a_sigma","b_sigma"))
+dashboard(mod.3)
+par(mfrow=c(1,1))
+plot(mod.3, pars=c("a","d","a_sigma","b_sigma"))
 # stancode(mod.3)
-# WAIC(mod.3)
-# 
-# # 1000 iter 500 warmup took: 
-# # 6469.21 seconds (Warm-up)
-# # 6902.78 seconds (Sampling)
-# # 13372 seconds (Total)
-# 
-# compare(mod.1,mod.3) # mod 3 slightly better!? huh?
-# plot(compare(mod.1,mod.3)) # negligible, go with simpler code
-# 
-# 
-# 
-# 
+WAIC(mod.3)
+
+# 1000 iter 500 warmup took:
+# 4326.42 seconds (Warm-up)
+# 5401.82 seconds (Sampling)
+# 9728.25 seconds (Total)
+
+#### model comparison ####
+
+load("mod1.Rda"); load("mod2.Rda"); load("mod3.Rda")
+
+compare(mod.1,mod.2,mod.3) 
+plot(compare(mod.1,mod.2,mod.3)) 
+
+# logarithmic slightly better fit
+# likely due to limited sampling along SAF
 
 #### PLOT: SAF's (first to last block) ####
 
@@ -497,13 +495,13 @@ dat$Sspeed <- rescale(dat$vresp, to=c(0,1))
 # load the data from the 100000 sample stan 
 # model which was run on the server:
 
-load("mod1_100000.Rda") 
+# load("mod1_100000.Rda") 
 
 # which model?
 mod <- mod.1
 
 # post <- extract.samples(mod) # see how many samples
-n = 1000 # number of samples in post
+n = 500 # number of samples in post
 
 # which sessions and blocks?
 s1 = 1
@@ -513,7 +511,7 @@ b2 = 5
 
 # compute percentile interval of mean
 # Sspeed.seq <- seq( from=min(dat$Sspeed, na.rm=TRUE) , to=max(dat$Sspeed, na.rm=TRUE) , length.out=1000 )
-Sspeed.seq <- seq( from=-1 , to=2 , length.out=1000 )
+Sspeed.seq <- seq( from=0 , to=1 , length.out=1000 )
 
 # what interval of HPDI? e.g. prob = 0.89  # 0.9973  # 0.9545  # 0.6827
 interval = 0.95
@@ -777,7 +775,7 @@ mu_ppfb_rep_5.HPDI <- apply( mu_ppfb_rep_5$mu , 2 , HPDI, prob = interval )
 ## put it all in a matrix that lines up with actual data ##
 
 postmean <- c(mu_cc_ran_1.mean,mu_cc_rep_1.mean,mu_cc_ran_5.mean,mu_cc_rep_5.mean,mu_mi_ran_1.mean,mu_mi_rep_1.mean,mu_mi_ran_5.mean,mu_mi_rep_5.mean,mu_pp_ran_1.mean,mu_pp_rep_1.mean,mu_pp_ran_5.mean,mu_pp_rep_5.mean,mu_ppfb_ran_1.mean,mu_ppfb_rep_1.mean,mu_ppfb_ran_5.mean,mu_ppfb_rep_5.mean)
-Sspeed <- rep(seq( from=-1 , to=2 , length.out=1000 ),16)
+Sspeed <- rep(seq( from=0 , to=1 , length.out=1000 ),16)
 postHPDI1 <- c(mu_cc_ran_1.HPDI[1,],mu_cc_rep_1.HPDI[1,],mu_cc_ran_5.HPDI[1,],mu_cc_rep_5.HPDI[1,],mu_mi_ran_1.HPDI[1,],mu_mi_rep_1.HPDI[1,],mu_mi_ran_5.HPDI[1,],mu_mi_rep_5.HPDI[1,],mu_pp_ran_1.HPDI[1,],mu_pp_rep_1.HPDI[1,],mu_pp_ran_5.HPDI[1,],mu_pp_rep_5.HPDI[1,],mu_ppfb_ran_1.HPDI[1,],mu_ppfb_rep_1.HPDI[1,],mu_ppfb_ran_5.HPDI[1,],mu_ppfb_rep_5.HPDI[1,])
 postHPDI2 <- c(mu_cc_ran_1.HPDI[2,],mu_cc_rep_1.HPDI[2,],mu_cc_ran_5.HPDI[2,],mu_cc_rep_5.HPDI[2,],mu_mi_ran_1.HPDI[2,],mu_mi_rep_1.HPDI[2,],mu_mi_ran_5.HPDI[2,],mu_mi_rep_5.HPDI[2,],mu_pp_ran_1.HPDI[2,],mu_pp_rep_1.HPDI[2,],mu_pp_ran_5.HPDI[2,],mu_pp_rep_5.HPDI[2,],mu_ppfb_ran_1.HPDI[2,],mu_ppfb_rep_1.HPDI[2,],mu_ppfb_ran_5.HPDI[2,],mu_ppfb_rep_5.HPDI[2,])
 session_num <- rep(c(s1,s2,s1,s2,s1,s2,s1,s2),each=2000)
@@ -792,6 +790,8 @@ SAFs <- ggplot(subset(dat, ((session_num == s1) | (session_num == s2)) & ((block
                x = ((Sspeed * (max(dat$vresp) - min(dat$vresp)) + min(dat$vresp)))*0.2715*0.001
                , y = ((Serror * (max(dat$shape_dtw_error_mean) - min(dat$shape_dtw_error_mean)) + min(dat$shape_dtw_error_mean)))*0.2715
                , color = factor(figure_type)
+               , shape = factor(figure_type)
+               , linetype = factor(figure_type)
        )) + geom_point(na.rm = TRUE, alpha = .25) + 
         geom_line(data = post.HPDI) +
         # scale_color_manual(values=c(rgb(204,121,167,max=255), rgb(0,158,115,max=255))) +
@@ -805,8 +805,12 @@ SAFs <- ggplot(subset(dat, ((session_num == s1) | (session_num == s2)) & ((block
         labs(# title = "Fitted Speed Error Functions" ,
              x = "Speed (mm / ms)" ,
              y = "Error (mm)" ,
-             color = "Trial Type") +
+             color = "Trial Type" ,
+             shape = "Trial Type" ,
+             linetype = "Trial Type") +
         scale_color_hue(labels = c("Random", "Pattern")) +
+        scale_linetype_manual(labels = c("Random", "Pattern"), values=c("solid", "dotted")) +
+        scale_shape_manual(labels = c("Random", "Pattern"), values=c(17, 19)) +
         coord_cartesian(xlim = c(0,max(dat$vresp)*0.2715*0.001), ylim = c(0,300*0.2715))
 print(SAFs)
 
@@ -822,13 +826,13 @@ print(SAFs)
 
 # remember to run all the code prior to model 1!
 
-load("mod1_100000.Rda")
+# load("mod1_100000.Rda")
 
 # which model?
 mod <- mod.1
 
 # post <- extract.samples(mod) # see how many samples
-n = 1000 # number of samples in post
+n = 500 # number of samples in post
 s = 15 # number of subjects in each group
 
 # to simulate the hypothetical "average" participant

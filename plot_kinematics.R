@@ -1,9 +1,13 @@
-#### plot kinematics ####
-#### by Jack Solomon ####
+## Complex Movement Execution Study - Motor Imagery ##
+                ## Plot Kinematics ##
 
-rm(list=setdiff(ls(), c())) # clear all
+# written by Jack Solomon and Tony Ingram
+# correspondence: tony.ingram@dal.ca
+
+# useful code:
+# rm(list=setdiff(ls(), c())) # clear environment
 # graphics.off() # clear figures
-cat("\014") # clear console
+# cat("\014") # clear console
 
 # code for timing this script:
 ptm <- proc.time()
@@ -14,7 +18,7 @@ library(plyr) #needed for rbind.fill
 library(ggplot2)
 library(ggthemes)
 
-# Variables for Tony
+# Variables to set:
 path <- "~/TraceLab/ExpAssets/Data"
 part_num <- 30
 block_num <- 1:5
@@ -207,12 +211,12 @@ print(kin) # see plot
 Rtime <- proc.time() - ptm
 print(Rtime)
 
-ggsave(
-        filename = "kinematics.png"
-        , plot = kin
-        , width = 4.5 #inches
-        , height = 6
-        , dpi = 300
-)
+# ggsave(
+#         filename = "kinematics.png"
+#         , plot = kin
+#         , width = 4.5 #inches
+#         , height = 6
+#         , dpi = 300
+# )
 
 ##### FIN #####

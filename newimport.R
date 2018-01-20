@@ -1,15 +1,13 @@
-##### new data import and pre processing script #####
-        ## by Tony Ingram and Jack Solomon ##
+## Complex Movement Execution Study - Motor Imagery ##
+    ## new data import and pre processing script ##
 
-# TO DO:
-# 1. note the pre-processing of control points... put right after import if common for all groups
-# 2. add a measure of error for control task... just get abs(control_response - correct_response)
-# 3. think of ways to just return all the objects of interest rather than a datarow, so I can select the objects ONCE at the end of script.
-# 4. control task analysis: not just error, but actual responses, and correct answers, see how they are distributed!!!
+# written by Tony Ingram and Jack Solomon
+# correspondence: tony.ingram@dal.ca
 
-rm(list=setdiff(ls(), c())) # clear all but all_figs
-graphics.off() # clear figures
-cat("\014") # clear console
+# useful code:
+# rm(list=setdiff(ls(), c())) # clear environment
+# graphics.off() # clear figures
+# cat("\014") # clear console
 
 # code for timing this script:
 ptm <- proc.time()
