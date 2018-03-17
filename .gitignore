@@ -1,19 +1,25 @@
 # History files
 .Rhistory
 .Rapp.history
+
 # Session Data files
 .RData
+
 # RStudio files
 .Rproj.user
 .Ruserdata
+
 # System files
 *.DS_Store
 .README.md.icloud
+
 # Data
 Data/**
 participants.csv
 trials.csv
 assignment.txt
+DEMIassignment.txt
+
 # Output data
 *.Rda
 *.pdf
