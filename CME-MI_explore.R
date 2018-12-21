@@ -35,6 +35,7 @@ dat$PPFB <- ifelse(dat$condition=="PPFB", 1, 0)
 #### participant characterization ####
 
 participants <- read.csv("~/Documents/RStudio/TraceLabR/participants.csv")
+days <- read.csv("~/Documents/RStudio/TraceLabR/CME-MI_days.csv"); days = days[,1:3]
 #participants <- subset(participants, (id < 44))
 PPvrIDs <- unique(subset(dat, (condition == "PP-VR-5"))$participant_id)
 PPvvIDs <- unique(subset(dat, (condition == "PP-VV-5"))$participant_id)
@@ -73,6 +74,27 @@ PP_vv_hand <- summary(as.factor(participants[PPvvIDs,]$handedness))
 MI_hand <- summary(as.factor(participants[MIIDs,]$handedness))
 CC_hand <- summary(as.factor(participants[CCIDs,]$handedness))
 all_hand <- summary(as.factor(participants[c(PPvrIDs,PPvvIDs,MIIDs,CCIDs),]$handedness))
+
+# days
+
+mean(days$days); sd(days$days)
+mean(subset(days, (group == "CC-00-5"))$days); sd(subset(days, (group == "CC-00-5"))$days)
+mean(subset(days, (group == "MI-00-5"))$days); sd(subset(days, (group == "MI-00-5"))$days)
+mean(subset(days, (group == "PP-VV-5"))$days); sd(subset(days, (group == "PP-VV-5"))$days)
+mean(subset(days, (group == "PP-VR-5"))$days); sd(subset(days, (group == "PP-VR-5"))$days)
+
+# run ANOVA:
+library(ez)
+# dat.ANOVA <- dat # ALL DATA
+daysANOVA <- ezANOVA(
+        data = subset(days, id != 36)
+        , dv = days
+        , wid = id
+        , between = group
+        , type = 2
+)
+# see ANOVA results:
+print(daysANOVA) 
 
 # KVIQ 
 
