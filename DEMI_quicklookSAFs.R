@@ -86,7 +86,7 @@ for(i in 1:length(unique(dat$participant_id))){
         
         saf <- ggplot(subset(dat, participant_id == p)
                       , mapping = aes(
-                              x = (vresp*0.2715*0.001), y = (shape_dtw_error_mean*0.2715)
+                              x = vresp, y = shape_dtw_error_mean
                               , color = factor(session_num)
                               , shape = factor(session_num)
                               , linetype = factor(session_num)
@@ -95,15 +95,14 @@ for(i in 1:length(unique(dat$participant_id))){
                 theme_tufte() +
                 facet_grid(. ~ figure_type) +
                 labs(#title = paste("P", p, "SAF") ,
-                     x = "Speed (mm/ms)"
-                     , y = "Error (mm)"
+                     x = "Speed"
+                     , y = "Error"
                      , color = "Session"
                      , shape = "Session"
                      , linetype = "Session") +
                 theme(legend.justification=c(1,1), legend.position = c(1,1))
         print(saf)
         print(paste("plotting participant",p,"using lm"))
-        
 }
 
 # for(i in 1:length(unique(dat$participant_id))){
@@ -125,10 +124,10 @@ for(i in 1:length(unique(dat$participant_id))){
 #         print(paste("plotting participant",p,"using lm bs 3"))
 # }
 
-ggsave(
-        filename = "p30.png"
-        , plot = saf
-        , width = 4.5 #inches
-        , height = 3
-        , dpi = 300
-)
+# ggsave(
+#         filename = "p30.png"
+#         , plot = saf
+#         , width = 4.5 #inches
+#         , height = 3
+#         , dpi = 300
+# )
