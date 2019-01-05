@@ -1,0 +1,672 @@
+## Complex Movement Execution Study - Motor Imagery ##
+    ## new data import and pre processing script ##
+
+# written by Tony Ingram and Jack Solomon
+# correspondence: tony.ingram@dal.ca
+
+# useful code:
+# rm(list=setdiff(ls(), c())) # clear environment
+# graphics.off() # clear figures
+# cat("\014") # clear console
+# options(warn=1) warnings appear as they occur to idenify problems with analysis
+
+# code for timing this script:
+ptm <- proc.time()
+
+#packages
+library(Morpho) # for procrustes analysis
+library(plyr) # for control task analysis. *use plyr::count()
+library(tidyverse) # arranging data at end & plotting
+library(pracma) # for ApEn and SampEn
+library(bezier) # for bezier curve analysis
+library(dtw) # for Dynamic Time Warping
+
+#### LIST OF FUNCTIONS ####
+
+# Curvature of Bezier Curve at t points:
+bcurv = function(t, p){
+        b1x = (2 * (1-t) * (p[2,1]-p[1,1])) + (2 * t * (p[3,1] - p[2,1])) #first derivative of x
+        b1y = (2 * (1-t) * (p[2,2]-p[1,2])) + (2 * t * (p[3,2] - p[2,2])) #first derivative of y
+        b2x = (2 * (p[3,1] - (2 * p[2,1]) + p[1,1])) #second derivative of x
+        b2y = (2 * (p[3,2] - (2 * p[2,2]) + p[1,2])) #second derivative of y
+        bez_curvature <- ((b1x * b2y) - (b1y * b2x))/(((b1x^2) + (b1y^2))^(3/2)) #signed curvature
+        return(bez_curvature)
+}
+
+complexity = function(vertices, bezfig_len, ctrl_pts, ctrl_pts_rm){
+        ### COMPLEXITY MEASURES ###
+        
+        ## Sinuosity
+        # (stimulus pathlength) / (perimeter of straight lines between segment points)
+        segs <- matrix()
+        for (j in 1:NROW(vertices)) {
+                seg_len <- sqrt((vertices[j+1,1]-vertices[j,1])^2 + (vertices[j+1,2]-vertices[j,2])^2)
+                segs <- rbind(segs, seg_len)
+        }
+        perimeter <- sum(segs, na.rm = TRUE)
+        pathlength <- bezfig_len
+        sinuosity <- pathlength/perimeter
+        
+        
+        ## Total Absolute Curvature
+        
+        # Calculate total absolute curvature of each segment and sum:
+        # note, this essentially misses the spikes in curvature created by
+        # segment intersections. Consider using turning angle.
+        n_segs <- 5
+        t <- seq(0, 1, length=300/n_segs)
+        totabscurv <- (integrate(
+                splinefun(
+                        x = t, y = abs(
+                                bcurv(t, ctrl_pts[1:3,])
+                        )
+                )
+                , min(t), max(t))
+        )$value + (integrate(
+                splinefun(
+                        x = t, y = abs(
+                                bcurv(t, ctrl_pts[4:6,])
+                        )
+                )
+                , min(t), max(t))
+        )$value +(integrate(
+                splinefun(
+                        x = t, y = abs(
+                                bcurv(t, ctrl_pts[7:9,])
+                        )
+                )
+                , min(t), max(t))
+        )$value +(integrate(
+                splinefun(
+                        x = t, y = abs(
+                                bcurv(t, ctrl_pts[10:12,])
+                        )
+                )
+                , min(t), max(t))
+        )$value +(integrate(
+                splinefun(
+                        x = t, y = abs(
+                                bcurv(t, ctrl_pts[13:15,])
+                        )
+                )
+                , min(t), max(t))
+        )$value
+        
+        
+        ## approximate entropy / sample entropy ##
+        
+        # using bez curve without equally distant points (doesn't change values)
+        t <- seq(0, 5, length=300) # t for five curves
+        bez_fig <- bezier::bezier(t, ctrl_pts_rm, deg=2) # create bez fig with 300 points
+        # create "turning angle" sequence, reducing 2D (x,y) to 1D (relative angle)
+        # note, this IS valid, as stimulus trajectories move at constant velocity
+        bez_fig_theta <- rep(0, length(bez_fig[,1])-2) # note you always lose two points
+        for (a in 1:length(bez_fig_theta)){
+                V1 = c(bez_fig[a+1,1],bez_fig[a+1,2]) - c(bez_fig[a,1],bez_fig[a,2])
+                V2 = c(bez_fig[a+2,1],bez_fig[a+2,2]) - c(bez_fig[a+1,1],bez_fig[a+1,2])
+                bez_fig_theta[a] = atan2(V2[2],V2[1]) - atan2(V1[2],V1[1])
+                if (abs(bez_fig_theta[a]) > pi){
+                        bez_fig_theta[a] = bez_fig_theta[a] - ((2*pi)*sign(bez_fig_theta[a]))
+                }
+        }
+        turnangle_sum <- sum(abs(bez_fig_theta))
+        turnangle_mean <- mean(abs(bez_fig_theta))
+        turnangle_SD <- sd(abs(bez_fig_theta))
+        ApEn <- approx_entropy(bez_fig_theta) 
+        SampEn <- sample_entropy(bez_fig_theta)
+        
+        complexity_measures <- c(sinuosity, totabscurv, turnangle_sum, turnangle_mean, turnangle_SD, ApEn, SampEn)
+        
+        return(complexity_measures)
+}
+
+PP_anal = function(data_stim, name.tlt, vertices, ctrl_pts){
+        #load response data
+        data_resp <- data.frame(matrix(as.numeric(strsplit(gsub("\\[|\\]|\\(|\\)", "", read_lines(unz(file.names[i], name.tlt))),",")[[1]]),ncol=3, byrow=TRUE))
+        #test above line in PP block
+        
+        # detect mis-trial (less than a few points) — also see if(sum(clip_index)<10)
+        # if the length of the response (trace) file is less than 5 data points (nrow(data_resp)<5) i.e. <5 samples taken 
+        # just do the complexity analysis on the figure stimulus (fig) file:
+        if (nrow(data_resp)<5){
+                ### Pre-processing Trajectories ###
+                
+                # rearrange control points — currently [point, point, ctrl]..., needs to be [point, ctrl, point]
+                for(j in 1:nrow(ctrl_pts)){
+                        if (j %% 3 == 0){
+                                ctrl_pts[(j-1):j,] <- ctrl_pts[j:(j-1),]
+                        }
+                } # every 3rd row switched with previous row
+                
+                # rearrange ctrl_pts to get rid of repeated points — this is needed for the bezier package
+                ctrl_pts_rm <- ctrl_pts[c(1:3,5:6,8:9,11:12,14:15),]
+                
+                ### Pathlength ###
+                
+                segs <- matrix()
+                for (u in 1:NROW(data_stim)) {
+                        seg_leg <- sqrt((data_stim[u+1,1]-data_stim[u,1])^2 + (data_stim[u+1,2]-data_stim[u,2])^2)
+                        segs <- rbind(segs, seg_leg)
+                }
+                PLstim <- sum(segs, na.rm = TRUE)
+                
+                # get path length from bezier curves
+                bezfig_len <- bezier::bezierArcLength(
+                        ctrl_pts_rm
+                        , deg = 2
+                )$arc.length
+                
+                
+                ### COMPLEXITY MEASURES ###
+                complexity_measures <- complexity(vertices, bezfig_len, ctrl_pts, ctrl_pts_rm)
+                sinuosity <- complexity_measures[1]
+                totabscurv <- complexity_measures[2]
+                turnangle_sum <- complexity_measures[3]
+                turnangle_mean <- complexity_measures[4]
+                turnangle_SD <- complexity_measures[5]
+                ApEn <- complexity_measures[6]
+                SampEn <- complexity_measures[7]
+                
+                datarow=c(name.tlf,PLstim,sinuosity,totabscurv,turnangle_sum,turnangle_mean,turnangle_SD,ApEn,SampEn,rep(NA,times=25))
+        }
+        else {
+                ### Pre-processing Trajectories ###
+                
+                # rearrange control points — currently [point, point, ctrl]..., needs to be [point, ctrl, point]
+                for(j in 1:nrow(ctrl_pts)){
+                        if (j %% 3 == 0){
+                                ctrl_pts[(j-1):j,] <- ctrl_pts[j:(j-1),]
+                        }
+                } # every 3rd row switched with previous row
+                
+                # rearrange ctrl_pts to get rid of repeated points — this is needed for the bezier package
+                ctrl_pts_rm <- ctrl_pts[c(1:3,5:6,8:9,11:12,14:15),]
+                
+                #remove artifacts (now built into data collection)
+                data_resp_rem <- data_resp #[!(data_resp$X1=="1919"&data_resp$X2=="1079"),]
+                data_resp_rem <- data_resp_rem #[!(data_resp_rem$X1=="119"&data_resp_rem$X2=="1079"),]
+                
+                #find repeated points (from when people miss green, for example)
+                clip_index <- rep(1, length(data_resp_rem$X1))
+                #clip_index gives a vector of 1's and 0's where 0 means point 'i' has same [x,y] as point 'i-1'
+                for(j in 2:(length(data_resp_rem$X1))){ #start at 2 as first point will never be same as previous
+                        if(data_resp_rem[j,1]!=data_resp_rem[j-1,1] | data_resp_rem[j,2]!=data_resp_rem[j-1,2]){
+                                clip_index[j] <- 1
+                        }
+                        else{
+                                clip_index[j] <- 0
+                        }
+                }
+                
+                #remove all repeated response points (when person not moving)
+                data_resp_clip <- cbind(data_resp_rem,clip_index)
+                data_resp_clip <- data_resp_clip[!(data_resp_clip$clip_index==0),1:3]
+                data_resp_rem <- data_resp_clip
+                
+                ratio <- nrow(data_resp_rem) / nrow(data_stim)
+                
+                # decide minimum response length — if not reached, report NA's for trial
+                # sum(clip_index)<20 means there are less than 10 actual points collected
+                # ratio = how many response points needed with respect to stim points
+                if(sum(clip_index)<20 | (ratio < 0.5) | (ratio > 2.5)){
+                        
+                        ### Pathlength ###
+                        
+                        segs <- matrix()
+                        for (u in 1:NROW(data_stim)) {
+                                seg_leg <- sqrt((data_stim[u+1,1]-data_stim[u,1])^2 + (data_stim[u+1,2]-data_stim[u,2])^2)
+                                segs <- rbind(segs, seg_leg)
+                        }
+                        PLstim <- sum(segs, na.rm = TRUE)
+                        
+                        # get path length from bezier curves
+                        bezfig_len <- bezier::bezierArcLength(
+                                ctrl_pts_rm
+                                , deg = 2
+                        )$arc.length
+                        
+                        
+                        ### COMPLEXITY MEASURES ###
+                        complexity_measures <- complexity(vertices, bezfig_len, ctrl_pts, ctrl_pts_rm)
+                        sinuosity <- complexity_measures[1]
+                        totabscurv <- complexity_measures[2]
+                        turnangle_sum <- complexity_measures[3]
+                        turnangle_mean <- complexity_measures[4]
+                        turnangle_SD <- complexity_measures[5]
+                        ApEn <- complexity_measures[6]
+                        SampEn <- complexity_measures[7]
+                        
+                        datarow=c(PLstim,sinuosity,totabscurv,turnangle_sum,turnangle_mean,turnangle_SD,ApEn,SampEn,rep(NA,times=25))
+                }
+                else{
+                        ### Pre-processing Trajectories Continued ###
+                        
+                        #get new MT 
+                        mt_clip <- max(data_resp_rem$X3)
+                        
+                        #normalize to shortest trajectory
+                        data_resp_rem$trialnum <- seq(from=1,to=length(data_resp_rem$X1),by=1)
+                        data_stim$trialnum <- seq(from=1,to=length(data_stim$X1),by=1)
+                        rem_seq <- round(seq(from=1, to=ifelse(length(data_resp_rem$X1)>length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1)), by=ifelse(length(data_resp_rem$X1)>length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1))/ifelse(length(data_resp_rem$X1)<length(data_stim$X1),length(data_resp_rem$X1),length(data_stim$X1))),digits=0)
+                        data_sub <- if(length(data_resp_rem$X1)==length(rem_seq)) {data_stim[c(rem_seq),]} else {data_resp_rem[c(rem_seq),]}
+                        
+                        
+                        ### ERROR ANALYSIS - RAW ###
+                        
+                        #take (x,y) coordinates only
+                        stim <- if(length(data_stim$X1)==length(data_sub$X1)) {data_stim[,c(1,2)]} else {data_sub[,c(1,2)]}
+                        resp <- if(length(data_resp_rem$X1)==length(data_sub$X1)) {data_resp_rem[,c(1,2)]} else {data_sub[,c(1,2)]}
+                        
+                        
+                        ## RAW ERROR ##
+                        
+                        # create vector of point by point distances (error) between stimulus and response:
+                        raw_dist = rep(0, length(resp[,1]))
+                        for (m in 1:length(raw_dist)){
+                                raw_dist[m] = as.numeric(sqrt(((resp[m,1]-stim[m,1])^2)+((resp[m,2]-stim[m,2])^2)))
+                        }
+                        # error throughout trial:
+                        raw_error_tot <- sum(raw_dist)
+                        raw_error_mean <- mean(raw_dist)
+                        raw_error_SD <- sd(raw_dist)
+                        
+                        # pre-procrustes transform sum of squares and SD:
+                        raw_procSS <- sum(raw_dist^2)
+                        raw_procSD <- sqrt(raw_procSS/(length(raw_dist)-1))
+                        # NOTE: SD of error is NOT same as procSD — in SD you're subtracting each data point from the mean 
+                        # and squaring that. For ProcSD you just take the distance between points and square that. It just 
+                        # happens that in our error SD, the error's ARE distances between points. 
+                        
+                        
+                        ## SHAPE ERROR ##
+                        
+                        # procrustes transformation
+                        trans <- rotonto(stim, resp, 
+                                         scale = TRUE, 
+                                         signref = FALSE, 
+                                         reflection = FALSE, 
+                                         weights = NULL, 
+                                         centerweight = FALSE
+                        )
+                        
+                        #get translation
+                        translation <- sqrt((trans$transy[,1] - trans$trans[,1])^2 + (trans$transy[,2] - trans$trans[,2])^2)
+                        
+                        #get scale factor
+                        scale <- trans$bet
+                        
+                        #get rotation angle *radians* from rotation matrix
+                        rotation <- acos(trans$gamm[1,1])
+                        
+                        # create vector of point by point distances (error) between stimulus and response:
+                        shape_dist = rep(0, length(trans$Y[,1]))
+                        for (h in 1:length(shape_dist)){
+                                shape_dist[h] = as.numeric(sqrt(((trans$Y[h,1]-trans$X[h,1])^2)+((trans$Y[h,2]-trans$X[h,2])^2)))
+                        }
+                        # error throughout trial:
+                        shape_error_tot <- sum(shape_dist)
+                        shape_error_mean <- mean(shape_dist)
+                        shape_error_SD <- sd(shape_dist)
+                        
+                        # "ordinary procrustes sum of squares" and SD:
+                        shape_procSS <- sum(shape_dist^2)
+                        shape_procSD <- sqrt(shape_procSS/(length(shape_dist)-1))
+                        
+                        
+                        ### ERROR ANALYSIS — DYNAMIC TIME WARPING ###
+                        
+                        # multivariate dynamic time warping
+                        dtw <- dtw(x = resp, y = stim,
+                                   dist.method = "Euclidean",
+                                   step.pattern = symmetric1,
+                                   window.type = "none",
+                                   keep.internals = TRUE,
+                                   distance.only = FALSE,
+                                   open.end = FALSE,
+                                   open.begin = FALSE
+                        )
+                        
+                        # create response trajectory from matched points
+                        resp_dtw <- matrix(rep(0, 2*length(dtw$index1)), ncol=2)
+                        for (j in 1:nrow(resp_dtw)){
+                                resp_dtw[j,1] <- resp[dtw$index1[j], 1]
+                                resp_dtw[j,2] <- resp[dtw$index1[j], 2]
+                        }
+                        
+                        # create stimulus trajectory from matched points
+                        stim_dtw <- matrix(rep(0, 2*length(dtw$index2)), ncol=2)
+                        for (j in 1:nrow(stim_dtw)){
+                                stim_dtw[j,1] <- stim[dtw$index2[j], 1]
+                                stim_dtw[j,2] <- stim[dtw$index2[j], 2]
+                        }
+                        
+                        
+                        ## RAW ERROR — DTW ## 
+                        
+                        # create vector of point by point distances (error) between stimulus and response:
+                        raw_dist_dtw = rep(0, length(resp_dtw[,1]))
+                        for (j in 1:length(raw_dist_dtw)){
+                                raw_dist_dtw[j] = as.numeric(sqrt(((resp_dtw[j,1]-stim_dtw[j,1])^2)+((resp_dtw[j,2]-stim_dtw[j,2])^2)))
+                        }
+                        # error throughout trial:
+                        raw_dtw_error_tot <- sum(raw_dist_dtw)
+                        raw_dtw_error_mean <- mean(raw_dist_dtw)
+                        raw_dtw_error_SD <- sd(raw_dist_dtw)
+                        # pre-procrustes transform sum of squares and SD:
+                        raw_dtw_procSS <- sum(raw_dist_dtw^2)
+                        raw_dtw_procSD <- sqrt(raw_dtw_procSS/(length(raw_dist_dtw)-1))
+                        
+                        
+                        ## SHAPE ERROR — DTW ##
+                        
+                        # DTW procrustes transformation
+                        trans_dtw <- rotonto(stim_dtw, resp_dtw, scale = TRUE, signref = FALSE, reflection = FALSE, weights = NULL, centerweight = FALSE)
+                        
+                        #get translation
+                        translation_dtw <- sqrt((trans_dtw$transy[1] - trans_dtw$trans[1])^2 + (trans_dtw$transy[2] - trans_dtw$trans[2])^2)
+                        
+                        #get scale factor
+                        scale_dtw <- trans_dtw$bet
+                        
+                        #get rotation angle *radians*
+                        rotation_dtw <- acos(trans_dtw$gamm[1,1])
+                        
+                        # create vector of point by point distances (error) between stimulus and response:
+                        shape_dist_dtw = rep(0, length(trans_dtw$Y[,1]))
+                        for (j in 1:length(shape_dist_dtw)){
+                                shape_dist_dtw[j] = as.numeric(sqrt(((trans_dtw$Y[j,1]-trans_dtw$X[j,1])^2)+((trans_dtw$Y[j,2]-trans_dtw$X[j,2])^2)))
+                        }
+                        # error throughout trial:
+                        shape_dtw_error_tot <- sum(shape_dist_dtw)
+                        shape_dtw_error_mean <- mean(shape_dist_dtw)
+                        shape_dtw_error_SD <- sd(shape_dist_dtw)
+                        
+                        # "ordinary procrustes sum of squares" and SD:
+                        shape_dtw_procSS <- sum(shape_dist_dtw^2)
+                        shape_dtw_procSD <- sqrt(shape_dtw_procSS/(length(shape_dist_dtw)-1))
+                        
+                        
+                        ### path length ###
+                        
+                        # get path length of participant response 
+                        segs <- matrix()
+                        for (y in 1:NROW(data_resp_rem)) {
+                                seg_leg <- sqrt((data_resp_rem[y+1,1]-data_resp_rem[y,1])^2 + (data_resp_rem[y+1,2]-data_resp_rem[y,2])^2)
+                                segs <- rbind(segs, seg_leg)
+                        }
+                        PLresp <- sum(segs, na.rm = TRUE)
+                        
+                        # stimulus path length
+                        segs <- matrix()
+                        for (u in 1:NROW(data_stim)) {
+                                seg_leg <- sqrt((data_stim[u+1,1]-data_stim[u,1])^2 + (data_stim[u+1,2]-data_stim[u,2])^2)
+                                segs <- rbind(segs, seg_leg)
+                        }
+                        PLstim <- sum(segs, na.rm = TRUE)
+                        
+                        # get path length from bezier curves
+                        bezfig_len <- bezier::bezierArcLength(
+                                ctrl_pts_rm
+                                , deg = 2
+                        )$arc.length
+                        
+                        
+                        ### COMPLEXITY MEASURES ###
+                        complexity_measures <- complexity(vertices, bezfig_len, ctrl_pts, ctrl_pts_rm)
+                        sinuosity <- complexity_measures[1]
+                        totabscurv <- complexity_measures[2]
+                        turnangle_sum <- complexity_measures[3]
+                        turnangle_mean <- complexity_measures[4]
+                        turnangle_SD <- complexity_measures[5]
+                        ApEn <- complexity_measures[6]
+                        SampEn <- complexity_measures[7]
+                        
+                        ### save variables to a row & subsequently a file ###
+                        
+                        datarow <- c(PLstim,sinuosity,totabscurv,turnangle_sum,turnangle_mean,turnangle_SD,ApEn,SampEn,mt_clip,PLresp,raw_error_tot,raw_error_mean,raw_error_SD,raw_procSD,translation,scale,rotation,shape_error_tot,shape_error_mean,shape_error_SD,shape_procSD,raw_dtw_error_tot,raw_dtw_error_mean,raw_dtw_error_SD,raw_dtw_procSD,translation_dtw,scale_dtw,rotation_dtw,shape_dtw_error_tot,shape_dtw_error_mean,shape_dtw_error_SD,shape_dtw_procSD,rep(NA,times=1))
+                }
+        }
+        return(datarow)
+}
+
+MI_anal = function(data_stim, vertices, ctrl_pts){
+       
+        ### Pre-processing Trajectories ###
+        
+        # rearrange control points — currently [point, point, ctrl]..., needs to be [point, ctrl, point]
+        for(j in 1:nrow(ctrl_pts)){
+                if (j %% 3 == 0){
+                        ctrl_pts[(j-1):j,] <- ctrl_pts[j:(j-1),]
+                }
+        } # every 3rd row switched with previous row
+        
+        # rearrange ctrl_pts to get rid of repeated points — this is needed for the bezier package
+        ctrl_pts_rm <- ctrl_pts[c(1:3,5:6,8:9,11:12,14:15),]
+        
+        ### path length ###
+        
+        # stimulus path length
+        segs <- matrix()
+        for (u in 1:NROW(data_stim)) {
+                seg_leg <- sqrt((data_stim[u+1,1]-data_stim[u,1])^2 + (data_stim[u+1,2]-data_stim[u,2])^2)
+                segs <- rbind(segs, seg_leg)
+        }
+        PLstim <- sum(segs, na.rm = TRUE)
+        
+        # get path length from bezier curves
+        bezfig_len <- bezier::bezierArcLength(
+                ctrl_pts_rm
+                , deg = 2
+        )$arc.length
+        
+        
+        ### COMPLEXITY MEASURES ###
+        complexity_measures <- complexity(vertices, bezfig_len, ctrl_pts, ctrl_pts_rm)
+        sinuosity <- complexity_measures[1]
+        totabscurv <- complexity_measures[2]
+        turnangle_sum <- complexity_measures[3]
+        turnangle_mean <- complexity_measures[4]
+        turnangle_SD <- complexity_measures[5]
+        ApEn <- complexity_measures[6]
+        SampEn <- complexity_measures[7]
+        
+        datarow <- c(PLstim,sinuosity,totabscurv,turnangle_sum,turnangle_mean,turnangle_SD,ApEn,SampEn,rep(NA,times=25))
+        return(datarow)
+}
+
+CC_anal = function(data_stim, vertices, ctrl_pts){
+        
+        ### CONTROL TASK ANALYSIS ###
+        
+        #index closest sample in stimulus data to vertices
+        index_vec <- ""
+        for(t in 1:5){
+                x_index <- abs(data_stim[,1]-vertices[t,1])
+                y_index <- abs(data_stim[,2]-vertices[t,2])
+                index <- which.min(x_index+y_index)
+                index_vec <- rbind(index_vec,index)
+        }
+        index_vec <- index_vec[-1,]
+        index_vec <- as.numeric(index_vec)
+        
+        #determines the direction of the beginning of each line segment
+        direction_mat <- ""
+        for(n in 1:5){
+                direction <- round(colMeans(data_stim[index_vec[n]+2:7,1:2]))-(data_stim[index_vec[n]+1,1:2])
+                direction_mat <- rbind(direction_mat,direction)
+        }
+        direction_mat <- direction_mat[-1,]
+        direction_mat <- matrix(as.numeric(unlist(direction_mat)),ncol=2,dimnames = list(c("Corner1","Corner2","Corner3","Corner4","Corner5"),c("X","Y")))
+        dir_sign <- sign(direction_mat)
+        
+        #loads question of control task (eg. How many segments went "LEFT"?)
+        direction <- trials[trials$figure_file==name.tlf,16]
+        
+        #counts number of times segments went in the direction specified
+        if (direction=='LEFT'){
+                out <- plyr::count(dir_sign[,1])
+                corr.resp <- as.numeric(out[out$x==-1,2])
+        }
+        
+        if (direction=="RIGHT"){
+                out <- plyr::count(dir_sign[,1])
+                corr.resp <- as.numeric(out[out$x==1,2])
+        }
+        
+        if (direction=="DOWN"){
+                out <- plyr::count(dir_sign[,2])
+                corr.resp <- as.numeric(out[out$x==1,2])
+        }
+        
+        if (direction=="UP"){
+                out <- plyr::count(dir_sign[,2])
+                corr.resp <- as.numeric(out[out$x==-1,2])
+        }
+        
+        ### Pre-processing Trajectories ###
+        
+        # rearrange control points — currently [point, point, ctrl]..., needs to be [point, ctrl, point]
+        for(j in 1:nrow(ctrl_pts)){
+                if (j %% 3 == 0){
+                        ctrl_pts[(j-1):j,] <- ctrl_pts[j:(j-1),]
+                }
+        } # every 3rd row switched with previous row
+        
+        # rearrange ctrl_pts to get rid of repeated points — this is needed for the bezier package
+        ctrl_pts_rm <- ctrl_pts[c(1:3,5:6,8:9,11:12,14:15),]
+        
+        
+        ### path length ###
+        
+        # stimulus path length
+        segs <- matrix()
+        for (u in 1:NROW(data_stim)) {
+                seg_leg <- sqrt((data_stim[u+1,1]-data_stim[u,1])^2 + (data_stim[u+1,2]-data_stim[u,2])^2)
+                segs <- rbind(segs, seg_leg)
+        }
+        PLstim <- sum(segs, na.rm = TRUE)
+        
+        # get path length from bezier curves
+        bezfig_len <- bezier::bezierArcLength(
+                ctrl_pts_rm
+                , deg = 2
+        )$arc.length
+        
+        
+        ### COMPLEXITY MEASURES ###
+        complexity_measures <- complexity(vertices, bezfig_len, ctrl_pts, ctrl_pts_rm)
+        sinuosity <- complexity_measures[1]
+        totabscurv <- complexity_measures[2]
+        turnangle_sum <- complexity_measures[3]
+        turnangle_mean <- complexity_measures[4]
+        turnangle_SD <- complexity_measures[5]
+        ApEn <- complexity_measures[6]
+        SampEn <- complexity_measures[7]
+        
+        datarow <- c(PLstim,sinuosity,totabscurv,turnangle_sum,turnangle_mean,turnangle_SD,ApEn,SampEn,rep(NA,times=24), corr.resp)
+        return(datarow)
+}
+
+#### USER DEFINED VARIABLES THAT NEED RETHINKING ####
+
+number_of_variables_from_analysis = 33 # this is the number of variables in datarow [MINUS THE FILE NAME AS IT IS A CHARACTER] but it doesn't exist yet when I make out.file as a matrix
+
+#### GATHER INFORMATION FROM DATABASE AND LOCATE DATA ####
+path <- "~/Documents/Dalhousie/PhD-Neuroscience/Dissertation/OnlineTMS/Tracelab_TMS/TraceLab/ExpAssets/Data"
+trials = do.call(rbind,lapply(dir(path, recursive = FALSE, full.names = TRUE,pattern="\\.txt$"), read.csv, skip=16, sep='\t', header=T, stringsAsFactors = F))
+file.names <- dir(path, recursive = TRUE, full.names = TRUE,pattern="\\.zip$")[grepl(paste0(sort(unique(trials$participant)),"_s",collapse="|"),dir(path, recursive = TRUE, full.names = TRUE,pattern="\\.zip$"))]
+
+#### LOAD EXISTING DATA AND IDENTIFY NEW DATA TO BE ANALYZED ####
+#test once loop runs once!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+if(file.exists(paste0(path,"/all_data_Online_IPL.Rda"))){
+        load(paste0(path,"/all_data_Online_IPL.Rda"))
+        newtrials <- setdiff(trials$figure_file, all_data$figure_file)
+        trials <- trials[trials$figure_file %in% newtrials, ]
+        newtrials2 <- substr(newtrials, 1, nchar(newtrials)-4)
+        tomatch <- paste(newtrials2,collapse="|")
+        file.names <- grep(tomatch,file.names,value=TRUE)
+}
+
+if(nrow(trials)==0){
+        file.names = ""
+        print("No new data to analyze!")
+} else {
+        
+        #### BEGIN ANALYSIS ####
+        
+        # note, using "number_of_variables_from_analysis" in line below
+        out.file <- data.frame(a=character(nrow(trials)),matrix(nrow=nrow(trials),ncol=number_of_variables_from_analysis), stringsAsFactors = FALSE)
+        colnames(out.file) <- c("figure_file","PLstim","sinuosity","totabscurv","turnangle_sum","turnangle_mean","turnangle_SD","ApEn","SampEn","mt_clip","PLresp","raw_error_tot","raw_error_mean","raw_error_SD","raw_procSD","translation","scale","rotation","shape_error_tot","shape_error_mean","shape_error_SD","shape_procSD","raw_dtw_error_tot","raw_dtw_error_mean","raw_dtw_error_SD","raw_dtw_procSD","translation_dtw","scale_dtw","rotation_dtw","shape_dtw_error_tot","shape_dtw_error_mean","shape_dtw_error_SD","shape_dtw_procSD","correct_response")
+        
+        # Apply the function to all files.
+        for(i in 1:length(file.names)) {
+                name.tlf <- gsub(".zip",".tlf",basename(file.names[i]))
+                name.tlt <- gsub(".zip",".tlt",basename(file.names[i]))
+                name.tlfp <- gsub(".zip",".tlfp",basename(file.names[i]))
+                name.tlfs <- gsub(".zip",".tlfs",basename(file.names[i]))
+                
+                # read in data for analysis less the response file which is unique to the PP analysis
+                data_stim <- data.frame(matrix(as.numeric(strsplit(gsub("\\[|\\]|\\(|\\)", "", read_lines(unz(file.names[i], name.tlf))), ",")[[1]]),ncol=3, byrow=TRUE))
+                vertices <- data.frame(matrix(as.numeric(strsplit(gsub("\\[|\\]|\\(|\\)", "", read_lines(unz(file.names[i], name.tlfp))), ",")[[1]]),ncol=2, byrow=TRUE))
+                ctrl_pts <- data.frame(matrix(as.numeric(strsplit(gsub("\\[|\\]|\\(|\\)", "", read_lines(unz(file.names[i], name.tlfs))), ",")[[1]]),ncol=2, byrow=TRUE))
+                
+                # determine condition of trial and run appropriate analysis
+                if(trials[trials$figure_file==name.tlf,]$condition=='imagery'){
+                        datarow <- MI_anal(data_stim, vertices, ctrl_pts)
+                }
+                else if(trials[trials$figure_file==name.tlf,]$exp_condition=='control'){
+                        #TEST THIS LATER WITH TONY DATA
+                        datarow <- CC_anal(data_stim, vertices, ctrl_pts)
+                }
+                else{
+                        datarow <- PP_anal(data_stim, name.tlt, vertices, ctrl_pts)
+                }
+                
+                out.file[i,1] <- name.tlf
+                out.file[i,2:length(out.file)] <- datarow
+                if(i==1){
+                        if(exists("newtrials")){print(paste(length(newtrials),"new trials to analyze."))}
+                        print(c(i, name.tlf))
+                } else{
+                        print(c(i, name.tlf))
+                }
+        }
+        
+        # combine proc_df with db
+        all_data_new <- merge(trials,out.file,by="figure_file")
+        
+        # change data type & name where appropriate
+        all_data_new$condition <- as.factor(all_data_new$condition)
+        names(all_data_new)[names(all_data_new) == 'figure_type'] <- 'figure_name'
+        all_data_new$figure_name <- as.factor(all_data_new$figure_name)
+        all_data_new$correct_response <- as.integer(all_data_new$correct_response)
+
+        # change name of repeated figure #this is an unfortunate neccessity 
+        all_data_new$figure_name <- as.factor(gsub("template_1477090164.31","fig1", all_data_new$figure_name))
+        all_data_new$figure_name <- as.factor(gsub("template_1477106073.55","fig2", all_data_new$figure_name))
+        all_data_new$figure_name <- as.factor(gsub("template_1477081781.44","fig3", all_data_new$figure_name))
+        all_data_new$figure_name <- as.factor(gsub("template_1477111169.26","fig4", all_data_new$figure_name))
+        all_data_new$figure_name <- as.factor(gsub("template_1477121315.85","fig5", all_data_new$figure_name))
+        
+        # calculate average response velocity per trial #WHERE SHOULD THIS GO TONY?
+        all_data_new <- dplyr::mutate(
+                .data = all_data_new
+                , vresp = PLresp / mt_clip
+                , figure_type = as.factor(gsub("fig1|fig2|fig3|fig4|fig5","repeated", all_data_new$figure_name))
+                , abs_dtw_error_mean = raw_dtw_error_mean - shape_dtw_error_mean
+                , abs_dtw_error_SD = raw_dtw_error_SD - shape_dtw_error_SD
+        )
+
+        ## ADD all_data_new to all_data
+        
+        invisible(ifelse(exists("all_data"), all_data <- rbind(all_data, all_data_new), all_data <- all_data_new))
+        
+        # arrange trials in chronological order
+        all_data <- dplyr::arrange(all_data, participant, session_num, block_num, trial_num)
+        
+        # this saves object to load in R quickly: load("all_data.Rda")
+        save(all_data, file = paste(path,"/all_data_Online_IPL.Rda",sep=""))
+}
+
+Rtime <- proc.time() - ptm
+print(Rtime)
