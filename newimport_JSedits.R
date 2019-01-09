@@ -183,8 +183,7 @@ PP_anal = function(data_stim, name.tlt, vertices, ctrl_pts){
                 ctrl_pts_rm <- ctrl_pts[c(1:3,5:6,8:9,11:12,14:15),]
                 
                 #remove artifacts (now built into data collection)
-                data_resp_rem <- data_resp #[!(data_resp$X1=="1919"&data_resp$X2=="1079"),]
-                data_resp_rem <- data_resp_rem #[!(data_resp_rem$X1=="119"&data_resp_rem$X2=="1079"),]
+                data_resp_rem <- data_resp[!(data_resp$X1=="239"&data_resp$X2=="1079"),]
                 
                 #find repeated points (from when people miss green, for example)
                 clip_index <- rep(1, length(data_resp_rem$X1))
